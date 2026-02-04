@@ -26,27 +26,47 @@ interface Note {
   created_at: string;
 }
 
+interface ActivityLog {
+  id: string;
+  agent: string;
+  action: string;
+  details: string | null;
+  task_id: string | null;
+  created_at: string;
+}
+
 export default function TaskDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [task, setTask] = useState<Task | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
+  const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [newNote, setNewNote] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchTask();
     fetchNotes();
+    fetchLogs();
 
     // Subscribe to notes changes
-    const channel = supabase
+    const notesChannel = supabase
       .channel('task-notes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'task_notes', filter: `task_id=eq.${id}` }, () => {
         fetchNotes();
       })
       .subscribe();
 
+    // Subscribe to activity logs changes
+    const logsChannel = supabase
+      .channel('task-logs')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'activity_logs', filter: `task_id=eq.${id}` }, () => {
+        fetchLogs();
+      })
+      .subscribe();
+
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(notesChannel);
+      supabase.removeChannel(logsChannel);
     };
   }, [id]);
 
@@ -59,6 +79,11 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
   async function fetchNotes() {
     const { data } = await supabase.from('task_notes').select('*').eq('task_id', id).order('created_at', { ascending: true });
     setNotes(data || []);
+  }
+
+  async function fetchLogs() {
+    const { data } = await supabase.from('activity_logs').select('*').eq('task_id', id).order('created_at', { ascending: false });
+    setLogs(data || []);
   }
 
   async function addNote(e: React.FormEvent) {
@@ -172,6 +197,52 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
             Completed
           </button>
         </div>
+      </div>
+
+      {/* Activity Log */}
+      <div style={{ background: '#1a1a1a', borderRadius: '12px', padding: '1.5rem', marginBottom: '1.5rem', border: '1px solid #333' }}>
+        <h2 style={{ margin: '0 0 1rem 0', fontSize: '1.25rem' }}>📋 Activity Log</h2>
+        
+        {logs.length === 0 ? (
+          <p style={{ color: '#6b7280', fontStyle: 'italic' }}>No activity logged yet for this task.</p>
+        ) : (
+          <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+            {logs.map((log) => (
+              <div key={log.id} style={{ 
+                display: 'flex', 
+                gap: '1rem', 
+                padding: '0.75rem 0',
+                borderBottom: '1px solid #2a2a2a'
+              }}>
+                <div style={{ 
+                  fontSize: '0.75rem', 
+                  color: '#6b7280',
+                  minWidth: '80px',
+                  whiteSpace: 'nowrap'
+                }}>
+                  {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.25rem' }}>
+                    <span style={{ 
+                      background: log.agent === 'chase' ? '#E31837' : log.agent === 'pj' ? '#3b82f6' : '#6b7280',
+                      padding: '0.125rem 0.5rem',
+                      borderRadius: '4px',
+                      fontSize: '0.7rem',
+                      textTransform: 'uppercase'
+                    }}>
+                      {log.agent}
+                    </span>
+                    <span style={{ fontWeight: 'bold' }}>{log.action}</span>
+                  </div>
+                  {log.details && (
+                    <p style={{ margin: 0, fontSize: '0.875rem', color: '#9ca3af' }}>{log.details}</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Discussion Thread */}
