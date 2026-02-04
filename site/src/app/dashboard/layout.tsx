@@ -97,39 +97,39 @@ function ChaseStatusBar() {
   const pcOnline = pcStats && (Date.now() - new Date(pcStats.last_seen).getTime()) < 60000
 
   return (
-    <div className={`px-4 py-2 border-b flex items-center justify-between text-sm ${
+    <div className={`px-4 py-2 border-b flex flex-col md:flex-row md:items-center justify-between text-sm gap-2 ${
       isWorking ? 'bg-green-950/50 border-green-800/50' : 'bg-zinc-900/50 border-zinc-800'
     }`}>
-      <div className="flex items-center gap-6">
+      <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
         <div className="flex items-center gap-3">
-          <span className={`w-2 h-2 rounded-full ${isWorking ? 'bg-green-500 animate-pulse' : 'bg-zinc-500'}`} />
-          <span className="font-medium">
+          <span className={`w-2 h-2 rounded-full flex-shrink-0 ${isWorking ? 'bg-green-500 animate-pulse' : 'bg-zinc-500'}`} />
+          <span className="font-medium whitespace-nowrap">
             {isWorking ? '⚡ Chase is working' : '⏸️ Chase is idle'}
           </span>
           {status?.current_task && (
-            <span className="text-zinc-400">
+            <span className="text-zinc-400 truncate max-w-[200px] md:max-w-none">
               on: <span className="text-white">{status.current_task}</span>
             </span>
           )}
         </div>
 
         {pcStats && (
-          <div className="hidden md:flex items-center gap-4 text-xs border-l border-zinc-800 pl-6">
+          <div className="flex items-center gap-4 text-xs md:border-l border-zinc-800 md:pl-6">
             <div className="flex items-center gap-1.5">
-              <span className={`w-1.5 h-1.5 rounded-full ${pcOnline ? 'bg-blue-500' : 'bg-zinc-600'}`} />
-              <span className="text-zinc-500 uppercase tracking-wider font-bold">PC Host</span>
+              <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${pcOnline ? 'bg-blue-500' : 'bg-zinc-600'}`} />
+              <span className="text-zinc-500 uppercase tracking-wider font-bold whitespace-nowrap">PC Host</span>
             </div>
             <div className="flex gap-3">
-              <span className="text-zinc-500">CPU <span className={pcStats.cpu_usage > 80 ? 'text-red-400' : 'text-zinc-300'}>{pcStats.cpu_usage}%</span></span>
-              <span className="text-zinc-500">MEM <span className={pcStats.memory_usage > 80 ? 'text-red-400' : 'text-zinc-300'}>{pcStats.memory_usage}%</span></span>
+              <span className="text-zinc-500 whitespace-nowrap">CPU <span className={pcStats.cpu_usage > 80 ? 'text-red-400' : 'text-zinc-300'}>{pcStats.cpu_usage}%</span></span>
+              <span className="text-zinc-500 whitespace-nowrap">MEM <span className={pcStats.memory_usage > 80 ? 'text-red-400' : 'text-zinc-300'}>{pcStats.memory_usage}%</span></span>
             </div>
           </div>
         )}
       </div>
       
-      <div className="flex items-center gap-4 text-zinc-500">
+      <div className="flex items-center gap-4 text-zinc-500 text-xs md:text-sm">
         {latestLog && (
-          <span>
+          <span className="truncate">
             Last: <span className="text-zinc-300">{latestLog.action}</span>
             {timeSinceUpdate !== null && timeSinceUpdate > 0 && (
               <span className="text-zinc-600"> ({timeSinceUpdate}m ago)</span>
@@ -143,13 +143,40 @@ function ChaseStatusBar() {
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname()
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   return (
-    <div className="min-h-screen bg-black text-white flex">
+    <div className="min-h-screen bg-black text-white flex flex-col md:flex-row relative">
+      {/* Mobile Header */}
+      <div className="md:hidden bg-zinc-950 border-b border-zinc-800 p-4 flex items-center justify-between sticky top-0 z-50">
+        <Link href="/" className="flex items-center gap-2">
+          <span className="text-xl font-bold text-red-500">Losey</span>
+          <span className="text-xl font-light text-zinc-400">.co</span>
+        </Link>
+        <button 
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="p-2 text-zinc-400 hover:text-white"
+        >
+          <span className="text-2xl">{isSidebarOpen ? '✕' : '☰'}</span>
+        </button>
+      </div>
+
+      {/* Sidebar Overlay (Mobile) */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 bg-zinc-950 border-r border-zinc-800 flex flex-col">
-        {/* Logo */}
-        <div className="p-6 border-b border-zinc-800">
+      <aside className={`
+        fixed md:sticky top-0 left-0 h-screen w-64 bg-zinc-950 border-r border-zinc-800 flex flex-col z-50
+        transition-transform duration-300 md:translate-x-0
+        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}>
+        {/* Logo (Desktop) */}
+        <div className="p-6 border-b border-zinc-800 hidden md:block">
           <Link href="/" className="flex items-center gap-2">
             <span className="text-2xl font-bold text-red-500">Losey</span>
             <span className="text-2xl font-light text-zinc-400">.co</span>
@@ -157,13 +184,14 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-2">
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = pathname === item.href
             return (
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={() => setIsSidebarOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
                   isActive
                     ? 'bg-red-600/20 text-red-500 border border-red-600/30'
@@ -196,12 +224,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto flex flex-col">
+      <main className="flex-1 overflow-x-hidden flex flex-col">
         {/* Chase Status Bar */}
         <ChaseStatusBar />
         
         {/* Page content */}
-        <div className="flex-1 p-8">
+        <div className="flex-1 p-4 md:p-8 overflow-x-hidden">
           {children}
         </div>
       </main>
