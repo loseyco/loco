@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState, use, useRef } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 
@@ -37,6 +37,15 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [newNote, setNewNote] = useState('');
   const [loading, setLoading] = useState(true);
+  const notesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    notesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [notes]);
 
   useEffect(() => {
     fetchTask();
@@ -249,25 +258,28 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
           {notes.length === 0 ? (
             <p style={{ color: '#6b7280', fontStyle: 'italic' }}>No notes yet. Start the conversation!</p>
           ) : (
-            notes.map((note) => (
-              <div key={note.id} style={{ 
-                background: note.author === 'chase' ? '#1e3a5f' : '#2d2d2d', 
-                padding: '0.75rem 1rem', 
-                borderRadius: '8px', 
-                marginBottom: '0.5rem',
-                borderLeft: `3px solid ${note.author === 'chase' ? '#3b82f6' : '#E31837'}`
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-                  <strong style={{ color: note.author === 'chase' ? '#60a5fa' : '#E31837' }}>
-                    {note.author === 'chase' ? '⚡ Chase' : '👤 ' + note.author}
-                  </strong>
-                  <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-                    {new Date(note.created_at).toLocaleString()}
-                  </span>
+            <>
+              {notes.map((note) => (
+                <div key={note.id} style={{ 
+                  background: note.author === 'chase' ? '#1e3a5f' : '#2d2d2d', 
+                  padding: '0.75rem 1rem', 
+                  borderRadius: '8px', 
+                  marginBottom: '0.5rem',
+                  borderLeft: `3px solid ${note.author === 'chase' ? '#3b82f6' : '#E31837'}`
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                    <strong style={{ color: note.author === 'chase' ? '#60a5fa' : '#E31837' }}>
+                      {note.author === 'chase' ? '⚡ Chase' : '👤 ' + note.author}
+                    </strong>
+                    <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                      {new Date(note.created_at).toLocaleString()}
+                    </span>
+                  </div>
+                  <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{note.content}</p>
                 </div>
-                <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{note.content}</p>
-              </div>
-            ))
+              ))}
+              <div ref={notesEndRef} />
+            </>
           )}
         </div>
 
