@@ -1,33 +1,37 @@
 # HEARTBEAT.md - Chase Status
 
-## Current Status: 🔨 BUILDING
+## Current Status: ✅ DASHBOARD LIVE
 
-**Last Updated:** 2026-02-04 09:11 CST
+**Last Updated:** 2026-02-04 09:25 CST
 
 ---
 
-## Active Work
-- 🔨 **Dashboard sub-agent** building losey.co dashboard
-  - /dashboard, /dashboard/projects, /dashboard/tasks, /dashboard/chat
-  - Real-time updates via Supabase Realtime
+## Just Completed
+- ✅ Dashboard foundation built via sub-agent
+- ✅ `/dashboard` — Overview with stats cards
+- ✅ `/dashboard/projects` — Project CRUD + real-time
+- ✅ `/dashboard/tasks` — Task tracking with filtering
+- ✅ `/dashboard/chat` — Real-time messaging interface
+- ✅ Supabase env vars added to Vercel
+- ✅ Redeployed with new config
 
-## Recent Completed
+## Previous Milestones
 - ✅ Bootstrap complete (identity, GitHub, Vercel, Supabase)
 - ✅ losey.co landing page live with red/black branding
 - ✅ Bootstrap script: `irm losey.co/chase | iex`
-- ✅ Database schema (8 tables):
-  - workspace_files, memory_entries, tasks, agent_sessions, config
-  - projects, invoices, messages (NEW)
+- ✅ Database schema (8 tables)
 
 ## Next Up
-- Finish dashboard foundation
+- Wire up Chat to actually talk to Chase (OpenClaw webhook)
 - Add Stripe integration for payments
-- Wire up chat to talk to Chase via losey.co
+- Build sync scripts to push/pull memory to Supabase
+- Test "resume from anywhere" capability
 
 ---
 
 ## Quick Reference
 - **Site:** https://losey.co ✅ LIVE
+- **Dashboard:** https://www.losey.co/dashboard ✅ LIVE
 - **Repo:** https://github.com/loseyco/loco
 - **Supabase:** jxnqsbkvckvfwgmvuajb.supabase.co
 - **Bootstrap:** `irm losey.co/chase | iex`
