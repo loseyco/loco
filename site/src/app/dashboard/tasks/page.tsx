@@ -63,7 +63,7 @@ export default function TasksPage() {
       const { error } = await supabase.from('tasks').insert({
         title: newTaskTitle,
         status: 'pending',
-        priority: 'medium',
+        priority: 1, // Changed from 'medium' to integer 1 (low=0, medium=1, high=2)
       })
       if (error) throw error
       setNewTaskTitle('')
@@ -92,7 +92,13 @@ export default function TasksPage() {
 
   const filteredTasks = tasks.filter((t) => filter === 'all' || t.status === filter)
 
-  const priorityColors = {
+  const priorityLabels: Record<number, string> = {
+    0: 'low',
+    1: 'medium', 
+    2: 'high',
+  }
+
+  const priorityColors: Record<string, string> = {
     low: 'bg-blue-600/20 text-blue-400',
     medium: 'bg-yellow-600/20 text-yellow-400',
     high: 'bg-red-600/20 text-red-400',
@@ -197,8 +203,8 @@ export default function TasksPage() {
                 </Link>
 
                 {/* Priority badge */}
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${priorityColors[task.priority]}`}>
-                  {task.priority}
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${priorityColors[priorityLabels[task.priority as number] || 'medium']}`}>
+                  {priorityLabels[task.priority as number] || 'medium'}
                 </span>
 
                 {/* Delete button */}

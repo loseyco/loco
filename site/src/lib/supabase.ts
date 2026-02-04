@@ -35,7 +35,7 @@ export interface Task {
   title: string
   description?: string
   status: 'pending' | 'in_progress' | 'completed'
-  priority: 'low' | 'medium' | 'high'
+  priority: number // 0=low, 1=medium, 2=high
   created_at: string
   updated_at: string
 }
