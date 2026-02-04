@@ -21,6 +21,16 @@
         "script": "C:\\LoCoOS\\scripts\\sync-tasks.mjs",
         "cwd": "C:\\LoCoOS",
         "cron_restart": "0 * * * *"
+    },
+    {
+        "name": "usage-logger",
+        "script": "C:\\LoCoOS\\scripts\\usage-logger.mjs",
+        "cwd": "C:\\LoCoOS"
+    },
+    {
+        "name": "failure-monitor",
+        "script": "C:\\LoCoOS\\scripts\\failure-monitor.mjs",
+        "cwd": "C:\\LoCoOS"
     }
   ]
 }

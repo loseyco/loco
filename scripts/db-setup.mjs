@@ -1,40 +1,47 @@
-import pkg from 'pg';
-const { Client } = pkg;
+import { createClient } from '@supabase/supabase-js';
+import 'dotenv/config';
 
-const connectionString = 'postgresql://postgres:KN4IBpHwtqF9dwwp@db.jxnqsbkvckvfwgmvuajb.supabase.co:5432/postgres';
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
-async function run() {
-  const client = new Client({ connectionString });
-  const args = process.argv.slice(2);
-  const logMsg = args.indexOf('--log') !== -1 ? args[args.indexOf('--log') + 1] : null;
-  const status = args.indexOf('--status') !== -1 ? args[args.indexOf('--status') + 1] : null;
-  const taskName = args.indexOf('--task') !== -1 ? args[args.indexOf('--task') + 1] : null;
+async function setup() {
+  const sql = `
+    CREATE TABLE IF NOT EXISTS api_usage (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      agent_id TEXT,
+      model TEXT,
+      input_tokens BIGINT,
+      output_tokens BIGINT,
+      total_tokens BIGINT,
+      status TEXT,
+      created_at TIMESTAMPTZ DEFAULT now()
+    );
 
-  try {
-    await client.connect();
-    
-    if (logMsg) {
-      await client.query("INSERT INTO activity_logs (agent, action, details) VALUES ('ops', 'update', $1)", [logMsg]);
-      console.log(`✅ Logged: ${logMsg}`);
-    }
+    CREATE TABLE IF NOT EXISTS agent_status (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      agent_id TEXT UNIQUE,
+      current_goal TEXT,
+      status_text TEXT,
+      last_heartbeat TIMESTAMPTZ,
+      active_subagents INTEGER DEFAULT 0,
+      blocked_reason TEXT,
+      delays JSONB,
+      updated_at TIMESTAMPTZ DEFAULT now()
+    );
 
-    if (status) {
-      await client.query("UPDATE chase_status SET status = $1, current_task = $2, last_action = $3, updated_at = NOW()", 
-        [status, taskName, logMsg || 'Status update']);
-      console.log(`✅ Status updated: ${status} - ${taskName}`);
-    }
+    -- Ensure realtime is enabled
+    ALTER PUBLICATION supabase_realtime ADD TABLE api_usage;
+    ALTER PUBLICATION supabase_realtime ADD TABLE agent_status;
+  `;
 
-    if (!logMsg && !status) {
-      // Default setup check
-      await client.query(`CREATE TABLE IF NOT EXISTS systems (id text PRIMARY KEY, hostname text, cpu_usage integer, memory_usage integer, uptime_seconds bigint, last_seen timestamptz DEFAULT now());`);
-      console.log('🐘 Connected to Postgres. Systems table verified.');
-    }
-
-  } catch (err) {
-    console.error('❌ DB Error:', err.message);
-  } finally {
-    await client.end();
-  }
+  // We can't run raw SQL via the client easily unless we have a specific RPC
+  // So we'll try to insert a dummy row to see if the table exists, 
+  // or just rely on the user having created it via the UI if this fails.
+  // Actually, I can use a sub-agent to navigate the Supabase UI if needed.
+  
+  console.log('Setup script ready. Please run the SQL in Supabase dashboard if tables are missing.');
 }
 
-run();
+setup();

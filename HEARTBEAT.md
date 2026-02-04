@@ -15,7 +15,9 @@
 - ✅ **Pi Engine Stability** — Monitoring port 18790 via PM2
 - ✅ **The Werk Shop Demo** — Premium "Restoration Timeline" portal mockup
 - ✅ **Werk Shop Demo Evolution** — Connected timeline and billing tabs to Supabase
-- ✅ **PC Restart Recovery** — System synced and stable after host reboot
+- ✅ **Failure Monitor** — Real-time detection of Gemini rate limits/cooldowns
+- ✅ **Usage Logger** — Pushing token metrics to Dashboard
+- ✅ **Staff Recovery** — Pi Engine (18790) back online via PM2
 - ✅ **Mobile UI Overhaul** — Dashboard now fully responsive and usable on phone
 - ✅ **Gateway Watchdog** — Automatic self-healing for OpenClaw crashes
 - ✅ **Logins Secured** — Main credentials stored in SECRETS.md

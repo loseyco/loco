@@ -20,6 +20,7 @@ export default function DashboardOverview() {
   const [recentProjects, setRecentProjects] = useState<Project[]>([])
   const [agentStatus, setAgentStatus] = useState<AgentStatus | null>(null)
   const [systemStats, setSystemStats] = useState<SystemStats | null>(null)
+  const [apiUsage, setApiUsage] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -64,12 +65,13 @@ export default function DashboardOverview() {
 
   async function fetchData() {
     try {
-      const [projectsRes, tasksRes, sessionsRes, statusRes, sysRes] = await Promise.all([
+      const [projectsRes, tasksRes, sessionsRes, statusRes, sysRes, usageRes] = await Promise.all([
         supabase.from('projects').select('*').order('created_at', { ascending: false }).limit(5),
         supabase.from('tasks').select('*'),
         supabase.from('agent_sessions').select('*'),
         supabase.from('agent_status').select('*').eq('agent_id', 'ops').single(),
-        supabase.from('system_stats').select('*').order('last_seen', { ascending: false }).limit(1).single()
+        supabase.from('system_stats').select('*').order('last_seen', { ascending: false }).limit(1).single(),
+        supabase.from('api_usage').select('*').order('created_at', { ascending: false }).limit(5)
       ])
 
       const projects = projectsRes.data || []
@@ -85,6 +87,7 @@ export default function DashboardOverview() {
       setRecentProjects(projects.slice(0, 5))
       setAgentStatus(statusRes.data)
       setSystemStats(sysRes.data)
+      setApiUsage(usageRes.data || [])
     } catch (error) {
       console.error('Error fetching data:', error)
     } finally {
@@ -222,39 +225,71 @@ export default function DashboardOverview() {
         ))}
       </div>
 
-      {/* Recent Projects */}
-      <div className="bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden">
-        <div className="p-6 border-b border-zinc-800 flex justify-between items-center">
-          <h2 className="text-xl font-semibold">Active Projects</h2>
-          <span className="text-xs font-mono text-zinc-500">SYNCED LIVE</span>
-        </div>
-        <div className="divide-y divide-zinc-800">
-          {recentProjects.length === 0 ? (
-            <div className="p-6 text-center text-zinc-500">No projects yet</div>
-          ) : (
-            recentProjects.map((project) => (
-              <div
-                key={project.id}
-                className="p-4 hover:bg-zinc-800/50 transition-colors flex items-center justify-between"
-              >
-                <div>
-                  <h3 className="font-medium">{project.name}</h3>
-                  <p className="text-sm text-zinc-500">{project.description || 'No description'}</p>
-                </div>
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    project.status === 'active'
-                      ? 'bg-green-600/20 text-green-400'
-                      : project.status === 'completed'
-                      ? 'bg-blue-600/20 text-blue-400'
-                      : 'bg-zinc-600/20 text-zinc-400'
-                  }`}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Recent Projects */}
+        <div className="bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden">
+            <div className="p-6 border-b border-zinc-800 flex justify-between items-center">
+            <h2 className="text-xl font-semibold">Active Projects</h2>
+            <span className="text-xs font-mono text-zinc-500">SYNCED LIVE</span>
+            </div>
+            <div className="divide-y divide-zinc-800">
+            {recentProjects.length === 0 ? (
+                <div className="p-6 text-center text-zinc-500">No projects yet</div>
+            ) : (
+                recentProjects.map((project) => (
+                <div
+                    key={project.id}
+                    className="p-4 hover:bg-zinc-800/50 transition-colors flex items-center justify-between"
                 >
-                  {project.status}
-                </span>
-              </div>
-            ))
-          )}
+                    <div>
+                    <h3 className="font-medium">{project.name}</h3>
+                    <p className="text-sm text-zinc-500">{project.description || 'No description'}</p>
+                    </div>
+                    <span
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        project.status === 'active'
+                        ? 'bg-green-600/20 text-green-400'
+                        : project.status === 'completed'
+                        ? 'bg-blue-600/20 text-blue-400'
+                        : 'bg-zinc-600/20 text-zinc-400'
+                    }`}
+                    >
+                    {project.status}
+                    </span>
+                </div>
+                ))
+            )}
+            </div>
+        </div>
+
+        {/* API Usage (NEW) */}
+        <div className="bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden">
+            <div className="p-6 border-b border-zinc-800 flex justify-between items-center">
+            <h2 className="text-xl font-semibold">API Usage & Limits</h2>
+            <span className="text-xs font-mono text-zinc-500">LATEST LOCO BRAIN</span>
+            </div>
+            <div className="divide-y divide-zinc-800">
+            {apiUsage.length === 0 ? (
+                <div className="p-12 text-center text-zinc-500">
+                    <p>No usage data logged yet.</p>
+                </div>
+            ) : (
+                apiUsage.map((u) => (
+                <div key={u.id} className="p-4 hover:bg-zinc-800/50 transition-colors">
+                    <div className="flex justify-between items-start mb-1">
+                        <span className="text-sm font-bold text-zinc-300 uppercase tracking-tighter">{u.model}</span>
+                        <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${u.status === 'rate_limit' ? 'bg-red-500/20 text-red-500' : 'bg-green-500/20 text-green-500'}`}>
+                            {u.status.toUpperCase()}
+                        </span>
+                    </div>
+                    <div className="flex justify-between text-xs text-zinc-500">
+                        <span>{u.total_tokens.toLocaleString()} tokens</span>
+                        <span>{new Date(u.created_at).toLocaleTimeString()}</span>
+                    </div>
+                </div>
+                ))
+            )}
+            </div>
         </div>
       </div>
 

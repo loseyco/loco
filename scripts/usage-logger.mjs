@@ -1,52 +1,40 @@
-import 'dotenv/config';
 import { createClient } from '@supabase/supabase-js';
+import { execSync } from 'child_process';
+import 'dotenv/config';
 
-// Supabase config
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!supabaseUrl || !supabaseKey) {
-  console.error('❌ Missing Supabase environment variables.');
-  process.exit(1);
-}
-
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 async function logUsage() {
-  const usageText = process.argv[2];
-  const tokensIn = parseInt(process.argv[3]) || 0;
-  const tokensOut = parseInt(process.argv[4]) || 0;
-  const agent = process.argv[5] || 'main';
+  try {
+    // 1. Get status from OpenClaw
+    const statusRaw = execSync('openclaw status --json', { encoding: 'utf8' });
+    const status = JSON.parse(statusRaw);
 
-  if (!usageText) {
-    console.error('❌ Usage text required.');
-    return;
-  }
-
-  console.log(`📊 Logging usage: ${usageText}`);
-
-  // Example parse: "gemini-2.5-pro 100% left ⏱4h 59m"
-  const parts = usageText.split('·');
-  const logs = parts.map(p => {
-    const match = p.trim().match(/^(.+?)\s+(\d+)%\s+left\s+⏱(.+)$/);
-    if (match) {
-      return {
-        model: match[1],
-        usage_percent: 100 - parseInt(match[2]),
-        reset_in: match[3],
-        tokens_in: tokensIn,
-        tokens_out: tokensOut,
-        agent: agent
-      };
+    // 2. Extract session stats
+    const recentSessions = status.sessions?.recent || [];
+    
+    for (const session of recentSessions) {
+      if (session.totalTokens > 0) {
+        await supabase.from('api_usage').insert({
+          agent_id: session.agentId,
+          model: session.model,
+          input_tokens: session.inputTokens,
+          output_tokens: session.outputTokens,
+          total_tokens: session.totalTokens,
+          status: session.abortedLastRun ? 'error' : 'ok'
+        });
+      }
     }
-    return null;
-  }).filter(l => l !== null);
 
-  if (logs.length > 0) {
-    const { error } = await supabase.from('api_usage').insert(logs);
-    if (error) console.error('❌ Error logging usage:', error.message);
-    else console.log('✅ Usage logged to Supabase.');
+    console.log(`[${new Date().toLocaleTimeString()}] Usage logged.`);
+  } catch (err) {
+    console.error('Usage logging error:', err);
   }
 }
 
+// Run every 10 minutes
+setInterval(logUsage, 600000);
 logUsage();
