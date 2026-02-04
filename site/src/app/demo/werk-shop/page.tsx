@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { supabase } from '@/lib/supabase';
 
 export default function WerkShopDemo() {
   const [activeTab, setActiveTab] = useState('timeline');
-
-  const carDetails = {
+  const [loading, setLoading] = useState(true);
+  const [carDetails, setCarDetails] = useState({
     make: "BMW",
     model: "3.0 CS",
     year: "1973",
@@ -16,9 +17,9 @@ export default function WerkShopDemo() {
     daysInShop: 142,
     percentComplete: 65,
     status: "In Progress - Body & Paint",
-  };
+  });
 
-  const timelineSteps = [
+  const [timelineSteps, setTimelineSteps] = useState([
     {
       id: 1,
       title: "Intake & Assessment",
@@ -67,13 +68,102 @@ export default function WerkShopDemo() {
       description: "Installation of interior, glass, trim, and mechanical systems.",
       details: ["Leather upholstery", "Wiring harness installation", "Chrome trim fitment"],
     },
-  ];
+  ]);
+
+  const [invoices, setInvoices] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const { data: project } = await supabase
+          .from('projects')
+          .select('*')
+          .ilike('name', '%BMW 3.0 CS%')
+          .single();
+
+        if (project) {
+          setCarDetails({
+            make: project.metadata?.make || "BMW",
+            model: project.metadata?.model || "3.0 CS",
+            year: project.metadata?.year || "1973",
+            chassis: project.metadata?.chassis || "2262554",
+            owner: project.client || "M. Kaufmann",
+            estimatedCompletion: "August 2026",
+            daysInShop: 142,
+            percentComplete: 65,
+            status: project.status === 'active' ? "In Progress - Body & Paint" : project.status,
+          });
+
+          const { data: notes } = await supabase
+            .from('project_notes')
+            .select('*')
+            .eq('project_id', project.id)
+            .order('created_at', { ascending: true });
+
+          if (notes && notes.length > 0) {
+            const mappedSteps = notes.map((n, idx) => {
+              const statusMatch = n.content.match(/\[STAGE: (.*?)\]/);
+              const status = statusMatch ? statusMatch[1].toLowerCase() : 'completed';
+              const cleanContent = n.content.replace(/\[STAGE: .*?\] /, '');
+              const parts = cleanContent.split(': ');
+              const title = parts[0] || "Update";
+              const descAndDetails = parts[1] || "";
+              const subParts = descAndDetails.split('. ');
+              const description = subParts[0] || "";
+              const details = subParts[1]?.replace('Verified: ', '').replace('Active: ', '').split(', ') || [];
+
+              return {
+                id: idx + 1,
+                title,
+                date: new Date(n.created_at).toLocaleDateString(),
+                status: status as 'completed' | 'current' | 'pending',
+                description,
+                details
+              };
+            });
+            
+            if (mappedSteps.length < 6) {
+                const remaining = [
+                    { id: 5, title: "Mechanical Restoration", date: "Est. May 2026", status: "pending", description: "Full rebuild of the M30 straight-six, suspension, and drivetrain components.", details: ["Engine rebuild", "Suspension powder coating", "Brake system overhaul"] },
+                    { id: 6, title: "Final Assembly", date: "Est. July 2026", status: "pending", description: "Installation of interior, glass, trim, and mechanical systems.", details: ["Leather upholstery", "Wiring harness installation", "Chrome trim fitment"] }
+                ];
+                setTimelineSteps([...mappedSteps, ...remaining]);
+            } else {
+                setTimelineSteps(mappedSteps);
+            }
+          }
+
+          const { data: invData } = await supabase
+            .from('invoices')
+            .select('*')
+            .eq('client_name', project.client)
+            .order('created_at', { ascending: false });
+          
+          if (invData) setInvoices(invData);
+        }
+      } catch (err) {
+        console.error('Error loading Werk Shop data:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, []);
 
   const stats = [
-    { label: "Stages Complete", value: "3 of 6" },
+    { label: "Stages Complete", value: `${timelineSteps.filter(s => s.status === 'completed').length} of ${timelineSteps.length}` },
     { label: "Hours Logged", value: "842" },
     { label: "Parts Sourced", value: "92%" },
   ];
+
+  if (loading) {
+    return (
+        <div className="min-h-screen bg-[#0a0a0b] flex items-center justify-center">
+            <div className="w-12 h-12 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+        </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0a0a0b] text-[#e1e1e6] font-sans selection:bg-[#c1a35f] selection:text-black">
@@ -176,7 +266,7 @@ export default function WerkShopDemo() {
               <div className="aspect-[16/10] bg-zinc-900 rounded-xl border border-white/5 overflow-hidden flex items-center justify-center group-hover:border-gold/30 transition-colors duration-500">
                 <div className="text-center transition-transform duration-700 group-hover:scale-110">
                   <div className="text-6xl mb-4">🚙</div>
-                  <div className="font-mono text-[10px] tracking-[0.3em] text-white/20 uppercase">Stage 4: Paint Prep</div>
+                  <div className="font-mono text-[10px] tracking-[0.3em] text-white/20 uppercase">{carDetails.status}</div>
                 </div>
                 {/* Visual "Lens" overlay */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-black/60 via-transparent to-transparent opacity-40" />
@@ -214,10 +304,9 @@ export default function WerkShopDemo() {
           </button>
         </div>
 
-        {/* Timeline Content */}
+        {/* Content Tabs Content */}
         {activeTab === 'timeline' && (
           <div className="grid lg:grid-cols-3 gap-12">
-            {/* Left: Summary */}
             <div className="lg:col-span-1 space-y-8">
               <div className="p-8 rounded-2xl border border-white/5 bg-white/[0.02]">
                 <h3 className="font-serif text-2xl mb-6">Current Progress</h3>
@@ -251,19 +340,10 @@ export default function WerkShopDemo() {
                   </div>
                 </div>
               </div>
-
-              <div className="p-8 rounded-2xl border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent">
-                <h3 className="font-serif text-xl mb-4">Restoration Ethics</h3>
-                <p className="text-sm text-white/50 leading-relaxed font-light">
-                  At The Werk Shop, we adhere to the highest standards of historical accuracy. Every bolt is torqued to factory spec, and every material choice honors the original engineering intent of BMW.
-                </p>
-              </div>
             </div>
 
-            {/* Right: Vertical Timeline */}
             <div className="lg:col-span-2 relative">
               <div className="absolute left-[27px] top-8 bottom-8 w-px bg-white/5" />
-              
               <div className="space-y-12">
                 {timelineSteps.map((step, idx) => (
                   <motion.div 
@@ -274,7 +354,6 @@ export default function WerkShopDemo() {
                     viewport={{ once: true }}
                     className="relative pl-16 group"
                   >
-                    {/* Circle Indicator */}
                     <div className={`absolute left-0 top-0 w-14 h-14 rounded-full flex items-center justify-center z-10 transition-all duration-500 ${
                       step.status === 'completed' 
                         ? 'bg-gold border-4 border-[#0a0a0b]' 
@@ -307,17 +386,8 @@ export default function WerkShopDemo() {
                           </div>
                           <h4 className="text-xl font-serif">{step.title}</h4>
                         </div>
-                        {step.status === 'completed' && (
-                          <div className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-mono tracking-widest uppercase">
-                            Verified
-                          </div>
-                        )}
                       </div>
-                      
-                      <p className="text-sm text-white/50 leading-relaxed mb-6 font-light">
-                        {step.description}
-                      </p>
-
+                      <p className="text-sm text-white/50 leading-relaxed mb-6 font-light">{step.description}</p>
                       <div className="flex flex-wrap gap-x-8 gap-y-2">
                         {step.details.map((detail, i) => (
                           <div key={i} className="flex items-center gap-2">
@@ -325,23 +395,6 @@ export default function WerkShopDemo() {
                             <span className="text-[10px] font-mono text-white/30 uppercase tracking-widest">{detail}</span>
                           </div>
                         ))}
-                      </div>
-
-                      {/* Photo Placeholder */}
-                      <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        {[1, 2].map((p) => (
-                          <div key={p} className="aspect-video bg-black/40 rounded-lg border border-white/5 flex items-center justify-center group-hover:border-gold/20 transition-colors">
-                            <span className="text-xl opacity-20">📸</span>
-                          </div>
-                        ))}
-                        {step.status === 'current' && (
-                          <div className="aspect-video bg-gold/10 rounded-lg border border-gold/20 flex items-center justify-center cursor-pointer hover:bg-gold/20 transition-colors">
-                            <div className="text-center">
-                              <div className="text-gold text-lg mb-1">+</div>
-                              <div className="text-[8px] font-mono text-gold uppercase tracking-tighter">View Gallery</div>
-                            </div>
-                          </div>
-                        )}
                       </div>
                     </div>
                   </motion.div>
@@ -351,8 +404,39 @@ export default function WerkShopDemo() {
           </div>
         )}
 
-        {/* Empty states for other tabs */}
-        {activeTab !== 'timeline' && (
+        {activeTab === 'billing' && (
+          <div className="max-w-4xl mx-auto space-y-6">
+            <h3 className="font-serif text-3xl mb-8">Financial Overview</h3>
+            {invoices.length === 0 ? (
+              <div className="py-24 text-center border border-white/5 rounded-2xl bg-white/[0.02]">
+                <div className="text-4xl mb-4">🧾</div>
+                <p className="text-white/40 font-mono text-xs uppercase tracking-widest">No active billing records found for this chassis.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {invoices.map((inv) => (
+                  <div key={inv.id} className="p-6 rounded-xl border border-white/10 bg-white/[0.03] flex items-center justify-between">
+                    <div>
+                      <div className="text-[10px] font-mono text-gold uppercase tracking-widest mb-1">{new Date(inv.created_at).toLocaleDateString()}</div>
+                      <div className="text-xl font-serif">{inv.description}</div>
+                      <div className={`text-[10px] font-mono mt-2 uppercase tracking-widest ${inv.status === 'paid' ? 'text-emerald-500' : 'text-orange-500'}`}>
+                        {inv.status}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-serif">${(inv.amount / 100).toLocaleString()}</div>
+                      <button className="mt-2 text-[10px] font-mono text-white/40 hover:text-gold uppercase tracking-widest transition-colors">
+                        Download PDF
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'documentation' && (
           <div className="py-24 text-center">
             <div className="text-4xl mb-4">📁</div>
             <h3 className="font-serif text-2xl mb-2">Accessing Records...</h3>
@@ -368,7 +452,6 @@ export default function WerkShopDemo() {
             <div className="font-serif text-lg tracking-tighter mb-2">THE <span className="text-gold">WERK</span> SHOP</div>
             <div className="text-[10px] font-mono text-white/30 uppercase tracking-widest">© 2026 Libertyville, Illinois</div>
           </div>
-          
           <div className="flex gap-12">
             <div className="text-center">
               <div className="text-xs font-mono text-white/30 uppercase tracking-widest mb-1">Support</div>
@@ -379,7 +462,6 @@ export default function WerkShopDemo() {
               <div className="text-sm text-gold hover:underline cursor-pointer transition-all">Registry</div>
             </div>
           </div>
-
           <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/[0.02] border border-white/5">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
             <span className="text-[10px] font-mono text-white/40 uppercase tracking-widest">Vault Encrypted</span>
