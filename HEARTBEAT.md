@@ -7,7 +7,7 @@
 ---
 
 ## Currently In Progress
-- 🔄 **Local Motorsports Playbook** — Building speculative demo library
+- 🔄 **Live Dashboard Sync** — Pushing CPU/MEM and Status to Supabase
 
 ## Just Completed
 - ✅ **The Werk Shop Demo** — Premium "Restoration Timeline" portal mockup
