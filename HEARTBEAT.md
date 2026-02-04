@@ -7,10 +7,13 @@
 ---
 
 ## Currently In Progress
-- 🔧 **Wire Chat to Chase** — Connect dashboard chat to OpenClaw webhook
+None currently running
 
 ## Just Completed
-- ✅ Tasks page seeded with 7 tasks (source of truth)
+- ✅ **Activity Logs Page** — Real-time logs dashboard at /dashboard/logs
+- ✅ **Wire Chat to Chase** — `chat-wiring` sub-agent DONE! API endpoint + typing indicator
+- ✅ **Stripe Integration** — `stripe-integration` sub-agent DONE! Invoices page + checkout
+- ✅ Tasks page seeded with 8 tasks (source of truth)
 - ✅ Dashboard with Supabase Realtime
 - ✅ Davidson Racing demo site (portfolio piece)
 - ✅ Contact/intake form with leads database
