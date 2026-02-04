@@ -2,11 +2,15 @@
 
 ## Current Status: ✅ FULL PLATFORM LIVE
 
-**Last Updated:** 2026-02-04 09:30 CST
+**Last Updated:** 2026-02-04 09:55 CST
 
 ---
 
+## Currently In Progress
+- 🔧 **Wire Chat to Chase** — Connect dashboard chat to OpenClaw webhook
+
 ## Just Completed
+- ✅ Tasks page seeded with 7 tasks (source of truth)
 - ✅ Dashboard with Supabase Realtime
 - ✅ Davidson Racing demo site (portfolio piece)
 - ✅ Contact/intake form with leads database
@@ -14,9 +18,7 @@
 - ✅ Email forwarding: contact@losey.co → loseyp@gmail.com (pending verification)
 
 ## Active Sub-Agents
-- `dashboard-auth` — DONE (added login/auth)
-- `davidson-racing-demo` — DONE (portfolio site)
-- `dashboard-builder` — DONE (realtime dashboard)
+None currently running
 
 ## Previous Milestones
 - ✅ Bootstrap complete (identity, GitHub, Vercel, Supabase)

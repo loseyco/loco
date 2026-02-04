@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { supabase, Task } from '@/lib/supabase'
 
 export default function TasksPage() {
@@ -180,8 +181,8 @@ export default function TasksPage() {
                   </select>
                 </div>
 
-                {/* Task info */}
-                <div className="flex-1">
+                {/* Task info - now clickable */}
+                <Link href={`/dashboard/tasks/${task.id}`} className="flex-1 cursor-pointer hover:opacity-80">
                   <h3
                     className={`font-medium ${
                       task.status === 'completed' ? 'line-through text-zinc-500' : ''
@@ -193,7 +194,7 @@ export default function TasksPage() {
                     {task.description || 'No description'} •{' '}
                     {new Date(task.created_at).toLocaleDateString()}
                   </p>
-                </div>
+                </Link>
 
                 {/* Priority badge */}
                 <span className={`px-3 py-1 rounded-full text-xs font-medium ${priorityColors[task.priority]}`}>
