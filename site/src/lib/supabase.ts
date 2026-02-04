@@ -25,8 +25,32 @@ export interface Project {
   name: string
   description?: string
   status: 'active' | 'completed' | 'archived'
+  budget?: number
+  client?: string
+  start_date?: string
+  end_date?: string
   created_at: string
   updated_at: string
+}
+
+export interface ProjectNote {
+  id: string
+  project_id: string
+  author: string
+  content: string
+  created_at: string
+  updated_at?: string
+}
+
+export interface TimeEntry {
+  id: string
+  project_id?: string
+  task_id?: string
+  description: string
+  minutes: number
+  date: string
+  created_at: string
+  updated_at?: string
 }
 
 export interface Task {

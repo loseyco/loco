@@ -2,23 +2,23 @@
 
 ## Current Status: ✅ FULL PLATFORM LIVE
 
-**Last Updated:** 2026-02-04 10:21 CST
+**Last Updated:** 2026-02-04 10:40 CST
 
 ---
 
 ## Currently In Progress
-- 🔄 **Finance Dashboard** — `finance-dashboard` sub-agent pushing to GitHub (just committed 5839f45)
+- None (awaiting next task)
 
 ## Just Completed
-- ✅ **LLC Finance Dashboard** — Expenses, mileage, tax reports at /dashboard/finance/*
-- ✅ **Activity Logs Page** — Real-time logs dashboard at /dashboard/logs
-- ✅ **Wire Chat to Chase** — `chat-wiring` sub-agent DONE! API endpoint + typing indicator
-- ✅ **Stripe Integration** — `stripe-integration` sub-agent DONE! Invoices page + checkout
-- ✅ Replied to PJ's task note about Stripe logins
-- ✅ Added sample activity logs so PJ can watch progress
+- ✅ **Task creation bug fixed** — `priority` was string but DB expects integer
+- ✅ **Auto-scroll fix** — Notes container scrolls, not whole page
+- ✅ **Finance Dashboard** — `finance-dashboard` sub-agent DONE (commit 5839f45)
+- ✅ **Activity Logs Page** — `activity-logs-page` sub-agent DONE
+- ✅ **Wire Chat to Chase** — `chat-wiring` sub-agent DONE
+- ✅ **Stripe Integration** — `stripe-integration` sub-agent DONE
 
 ## Active Sub-Agents
-- `finance-dashboard` — Pushing commit to GitHub
+- None (all completed)
 
 ## Previous Milestones
 - ✅ Tasks page seeded with 8 tasks (source of truth)
@@ -37,7 +37,7 @@
 - Stripe payments require `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` in Vercel
 
 ## Next Up
-- Check `finance-dashboard` sub-agent completion
+- Build Projects page as full project management hub (per PJ's request)
 - Post Davidson Racing demo on Facebook/loseyco
 - Build memory sync scripts to push/pull to Supabase
 - Decide: client sites on losey.co subdomains vs GridPass community
@@ -49,8 +49,8 @@
 - **Dashboard:** https://www.losey.co/dashboard ✅ LIVE (auth protected)
 - **Login:** https://www.losey.co/login
 - **Contact:** https://www.losey.co/contact
-- **Logs:** https://www.losey.co/dashboard/logs ✅ NEW
-- **Finance:** https://www.losey.co/dashboard/finance ✅ NEW
+- **Logs:** https://www.losey.co/dashboard/logs
+- **Finance:** https://www.losey.co/dashboard/finance
 - **Demo:** https://www.losey.co/demo/davidson-racing
 - **Repo:** https://github.com/loseyco/loco
 - **Supabase:** jxnqsbkvckvfwgmvuajb.supabase.co
