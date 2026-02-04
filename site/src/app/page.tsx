@@ -17,7 +17,7 @@ export default function Home() {
             <Link href="https://pjlosey.com" className="text-neutral-300 hover:text-white transition-colors text-sm font-medium">
               Resume
             </Link>
-            <Link href="mailto:pj@losey.co" className="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+            <Link href="/contact" className="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
               Contact
             </Link>
           </div>
@@ -40,7 +40,7 @@ export default function Home() {
               From proton therapy installations to IndyCar trackside support — we deliver precision where it matters.
             </p>
             <div className="flex flex-wrap gap-4">
-              <Link href="mailto:pj@losey.co" className="bg-red-600 hover:bg-red-500 text-white px-6 py-3 rounded-lg font-semibold transition-colors inline-flex items-center gap-2">
+              <Link href="/contact" className="bg-red-600 hover:bg-red-500 text-white px-6 py-3 rounded-lg font-semibold transition-colors inline-flex items-center gap-2">
                 Get in Touch
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />

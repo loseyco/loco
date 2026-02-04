@@ -68,3 +68,25 @@ CREATE POLICY "service_role_all" ON memory_entries FOR ALL USING (true);
 CREATE POLICY "service_role_all" ON tasks FOR ALL USING (true);
 CREATE POLICY "service_role_all" ON agent_sessions FOR ALL USING (true);
 CREATE POLICY "service_role_all" ON config FOR ALL USING (true);
+
+-- Leads from contact form
+CREATE TABLE IF NOT EXISTS leads (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT,
+  company TEXT,
+  project_type TEXT NOT NULL,
+  budget TEXT,
+  timeline TEXT,
+  description TEXT NOT NULL,
+  status TEXT DEFAULT 'new',
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_leads_status ON leads(status);
+CREATE INDEX IF NOT EXISTS idx_leads_created ON leads(created_at DESC);
+ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "service_role_all" ON leads FOR ALL USING (true);
