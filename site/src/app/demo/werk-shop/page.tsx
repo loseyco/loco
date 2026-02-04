@@ -3,11 +3,6 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
-export const metadata = {
-  title: 'Exclusive: Custom Restoration Portal | The Werk Shop',
-  description: 'Track your Concours build in real-time. A high-performance digital experience for elite BMW enthusiasts.',
-}
-
 export default function WerkShopDemo() {
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white font-sans selection:bg-red-500 selection:text-white">
