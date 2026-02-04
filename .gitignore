@@ -1,0 +1,7 @@
+# Secrets - NEVER commit
+SECRETS.md
+secrets/
+
+# OS files
+.DS_Store
+Thumbs.db
