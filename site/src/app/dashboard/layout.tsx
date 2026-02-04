@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ReactNode } from 'react'
+import { signOut } from '@/app/login/actions'
 
 const navItems = [
   { href: '/dashboard', label: 'Overview', icon: '📊' },
@@ -47,8 +48,17 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           })}
         </nav>
 
-        {/* Status indicator */}
-        <div className="p-4 border-t border-zinc-800">
+        {/* Sign out and status */}
+        <div className="p-4 border-t border-zinc-800 space-y-4">
+          <form action={signOut}>
+            <button
+              type="submit"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all duration-200"
+            >
+              <span className="text-xl">🚪</span>
+              <span className="font-medium">Sign Out</span>
+            </button>
+          </form>
           <div className="flex items-center gap-2 text-sm text-zinc-500">
             <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
             <span>Real-time connected</span>
