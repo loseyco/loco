@@ -60,3 +60,13 @@ export interface Invoice {
   created_at: string
   updated_at: string
 }
+
+// Activity log types
+export interface ActivityLog {
+  id: string
+  agent: string
+  action: string
+  details?: string
+  task_id?: string
+  created_at: string
+}
