@@ -6,7 +6,7 @@ async function check() {
   const client = new Client({ connectionString });
   try {
     await client.connect();
-    const res = await client.query("SELECT * FROM chase_status");
+    const res = await client.query("SELECT * FROM api_usage LIMIT 5");
     console.log(JSON.stringify(res.rows, null, 2));
   } catch (err) {
     console.error(err);

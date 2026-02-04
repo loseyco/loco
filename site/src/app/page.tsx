@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import ApiUsageGraph from './components/ApiUsageGraph'
 
 export default function Home() {
   return (
@@ -81,6 +82,9 @@ export default function Home() {
       {/* Stats Section */}
       <section className="py-16 px-6 bg-neutral-900/50">
         <div className="max-w-6xl mx-auto">
+          <div className="mb-12">
+            <ApiUsageGraph />
+          </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <StatBlock number="20+" label="Years Experience" />
             <StatBlock number="100+" label="Projects Completed" />
