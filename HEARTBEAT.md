@@ -2,20 +2,29 @@
 
 ## Current Status: ✅ FULL PLATFORM LIVE
 
-**Last Updated:** 2026-02-04 10:40 CST
+**Last Updated:** 2026-02-04 13:00 CST
 
 ---
 
 ## Currently In Progress
-- None (awaiting next task)
+- 🔄 **Restoration Timeline Demo** — Building premium client portal for The Werk Shop
+- 🔄 **Local Motorsports Playbook** — Building speculative demo library
 
 ## Just Completed
+- ✅ **PC Telemetry Hub** — Live CPU/MEM streaming to Dashboard
+- ✅ **Memory Cloud Sync** — Local notes automatically push to Supabase
+- ✅ **Logins Secured** — Main credentials stored in SECRETS.md
+- ✅ **Nuclear Recovery** — OC-RECOVERY.bat created on Desktop
+- ✅ **Ops Agent** — 100% Local assistant (llama3.2) for bookkeeping
+- ✅ **PM2 Watchdog** — Automatic gateway recovery on crash
+- ✅ **Projects Hub** — `projects-hub` sub-agent DONE (commit e45e718)
+- ✅ **Schema updates for Projects** — Ran SQL: project_notes, time_entries tables + columns
 - ✅ **Task creation bug fixed** — `priority` was string but DB expects integer
 - ✅ **Auto-scroll fix** — Notes container scrolls, not whole page
-- ✅ **Finance Dashboard** — `finance-dashboard` sub-agent DONE (commit 5839f45)
-- ✅ **Activity Logs Page** — `activity-logs-page` sub-agent DONE
-- ✅ **Wire Chat to Chase** — `chat-wiring` sub-agent DONE
-- ✅ **Stripe Integration** — `stripe-integration` sub-agent DONE
+- ✅ **Finance Dashboard** — expenses, mileage, reports
+- ✅ **Activity Logs Page** — /dashboard/logs
+- ✅ **Wire Chat to Chase** — API endpoint + typing indicator
+- ✅ **Stripe Integration** — Invoices page + checkout
 
 ## Active Sub-Agents
 - None (all completed)
@@ -30,23 +39,24 @@
 - ✅ Bootstrap complete (identity, GitHub, Vercel, Supabase)
 - ✅ losey.co landing page live with red/black branding
 - ✅ Bootstrap script: `irm losey.co/chase | iex`
-- ✅ Database schema (12+ tables incl. finance)
+- ✅ Database schema (14+ tables incl. finance, project_notes, time_entries)
 
 ## Blocked / Waiting on PJ
 - Chat webhook requires `OPENCLAW_WEBHOOK_URL` env var in Vercel
 - Stripe payments require `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` in Vercel
 
 ## Next Up
-- Build Projects page as full project management hub (per PJ's request)
-- Post Davidson Racing demo on Facebook/loseyco
-- Build memory sync scripts to push/pull to Supabase
-- Decide: client sites on losey.co subdomains vs GridPass community
+- Build "High-Velocity Intake" template component (Pivoted: low priority)
+- Create "Restoration Timeline" demo for The Werk Shop (ACTIVE)
+- Deploy Sales Bot agent for automated outreach drafting
+- ROI Calculator component for portfolio
 
 ---
 
 ## Quick Reference
 - **Site:** https://losey.co ✅ LIVE
 - **Dashboard:** https://www.losey.co/dashboard ✅ LIVE (auth protected)
+- **Projects:** https://www.losey.co/dashboard/projects ✅ NEW
 - **Login:** https://www.losey.co/login
 - **Contact:** https://www.losey.co/contact
 - **Logs:** https://www.losey.co/dashboard/logs

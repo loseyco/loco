@@ -5,40 +5,33 @@ const connectionString = 'postgresql://postgres:KN4IBpHwtqF9dwwp@db.jxnqsbkvckvf
 
 async function run() {
   const client = new Client({ connectionString });
+  const args = process.argv.slice(2);
+  const logMsg = args.indexOf('--log') !== -1 ? args[args.indexOf('--log') + 1] : null;
+  const status = args.indexOf('--status') !== -1 ? args[args.indexOf('--status') + 1] : null;
+  const taskName = args.indexOf('--task') !== -1 ? args[args.indexOf('--task') + 1] : null;
+
   try {
     await client.connect();
-    console.log('🐘 Connected to Postgres.');
     
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS systems (
-          id text PRIMARY KEY,
-          hostname text,
-          cpu_usage integer,
-          memory_usage integer,
-          uptime_seconds bigint,
-          last_seen timestamptz DEFAULT now()
-      );
-    `);
-    console.log('✅ Table "systems" verified.');
-
-    // Check if table is in publication
-    const pubCheck = await client.query(`
-      SELECT 1 FROM pg_publication_tables 
-      WHERE pubname = 'supabase_realtime' AND tablename = 'systems';
-    `);
-
-    if (pubCheck.rowCount === 0) {
-      await client.query('ALTER PUBLICATION supabase_realtime ADD TABLE systems;');
-      console.log('✅ Realtime enabled for "systems".');
-    } else {
-      console.log('ℹ️ Realtime already enabled for "systems".');
+    if (logMsg) {
+      await client.query("INSERT INTO activity_logs (agent, action, details) VALUES ('ops', 'update', $1)", [logMsg]);
+      console.log(`✅ Logged: ${logMsg}`);
     }
 
-    await client.query("NOTIFY pgrst, 'reload schema';");
-    console.log('🔄 PostgREST schema reload notified.');
+    if (status) {
+      await client.query("UPDATE chase_status SET status = $1, current_task = $2, last_action = $3, updated_at = NOW()", 
+        [status, taskName, logMsg || 'Status update']);
+      console.log(`✅ Status updated: ${status} - ${taskName}`);
+    }
+
+    if (!logMsg && !status) {
+      // Default setup check
+      await client.query(`CREATE TABLE IF NOT EXISTS systems (id text PRIMARY KEY, hostname text, cpu_usage integer, memory_usage integer, uptime_seconds bigint, last_seen timestamptz DEFAULT now());`);
+      console.log('🐘 Connected to Postgres. Systems table verified.');
+    }
 
   } catch (err) {
-    console.error('❌ Error:', err.message);
+    console.error('❌ DB Error:', err.message);
   } finally {
     await client.end();
   }

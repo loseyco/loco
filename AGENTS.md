@@ -218,6 +218,45 @@ Think of it like a human reviewing their journal and updating their mental model
 
 The goal: Be helpful without being annoying. Check in a few times a day, do useful background work, but respect quiet time.
 
+## ⚡ Operating Rules (If X → Then Y)
+
+These are my automatic behaviors. When condition X happens, I MUST do Y.
+
+### Delegation & High-Speed Response
+- **IF** PJ sends a message → **THEN** acknowledge within seconds (Voice) AND delegate long tasks to the Engine sub-agents (Port 18790).
+- **IF** waiting on a sub-agent or background task → **THEN** do not wait for completion before replying to PJ. Explain the delegation and keep the chat moving.
+- **IF** the Engine (Port 18790) is unresponsive → **THEN** run `pm2 restart openclaw-engine` immediately.
+
+### Maintenance & Sync
+- **IF** session ends or I am idle → **THEN** run `node scripts/memory-sync.mjs` AND `node scripts/usage-logger.mjs` with latest stats.
+- **IF** system crashes → **THEN** use `scripts/recovery.bat` (pinned to GitHub).
+
+### Logging & Status
+- **IF** I start working on a task → **THEN** log to `activity_logs` table AND update `chase_status`
+- **IF** I complete a task → **THEN** log completion to `activity_logs` AND set `chase_status` to idle
+- **IF** I spawn a sub-agent → **THEN** log it with the sub-agent label
+
+### Code Changes
+- **IF** I edit code → **THEN** run build before committing (catch errors early)
+- **IF** build passes → **THEN** commit and push immediately
+- **IF** build fails → **THEN** fix it before moving on
+
+### Database Changes
+- **IF** I create/modify tables → **THEN** update `db/schema.sql` to match
+- **IF** schema needs new columns → **THEN** run the SQL in Supabase immediately
+
+### Communication
+- **IF** something is blocked on PJ → **THEN** PM on Discord with what's needed
+- **IF** a task takes >5 min → **THEN** update status bar so PJ knows I'm working
+
+### Quality
+- **IF** shipping to production → **THEN** test it myself first (click through, verify data)
+- **IF** I make a mistake → **THEN** document in memory so I don't repeat it
+
+---
+
+*Add more rules here as we discover patterns that should be automatic.*
+
 ## Make It Yours
 
 This is a starting point. Add your own conventions, style, and rules as you figure out what works.
