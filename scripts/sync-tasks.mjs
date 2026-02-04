@@ -29,7 +29,7 @@ async function syncTasks() {
     {
       title: "Werk Shop Demo - Live Data",
       description: "Wire the restoration timeline to real Supabase tables for dynamic updates.",
-      status: "pending",
+      status: "completed",
       priority: 1
     },
     {
