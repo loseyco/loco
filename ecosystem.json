@@ -6,7 +6,7 @@
       "args": "C:\\Users\\pjlos\\AppData\\Roaming\\npm\\node_modules\\openclaw\\dist\\index.js gateway --port 18789",
       "env": {
         "OPENCLAW_GATEWAY_PORT": "18789",
-        "OPENCLAW_HOME": "C:\\LoCoOS\\.openclaw-voice"
+        "PM2_HOME": "C:\\Users\\pjlos\\.pm2"
       }
     },
     {
@@ -16,32 +16,43 @@
       "env": {
         "OPENCLAW_GATEWAY_PORT": "18790",
         "OPENCLAW_GATEWAY_TOKEN": "engine-secret-token-2026",
-        "OPENCLAW_HOME": "C:\\LoCoOS\\.openclaw-engine",
-        "OPENCLAW_CONFIG_PATH": "C:\\LoCoOS\\engine-config.json"
+        "OPENCLAW_CONFIG_PATH": "C:\\LoCoOS\\engine-config.json",
+        "PM2_HOME": "C:\\Users\\pjlos\\.pm2"
       }
     },
     {
       "name": "telemetry-sync",
       "script": "C:\\LoCoOS\\scripts\\status-sync.mjs",
       "cwd": "C:\\LoCoOS",
-      "restart_delay": 5000
+      "restart_delay": 5000,
+      "env": {
+        "PM2_HOME": "C:\\Users\\pjlos\\.pm2"
+      }
     },
     {
         "name": "task-sync-hourly",
         "script": "C:\\LoCoOS\\scripts\\sync-tasks.mjs",
         "cwd": "C:\\LoCoOS",
-        "autorestart": false,
-        "cron_restart": "0 * * * *"
+        "cron_restart": "0 * * * *",
+        "env": {
+          "PM2_HOME": "C:\\Users\\pjlos\\.pm2"
+        }
     },
     {
         "name": "usage-logger",
         "script": "C:\\LoCoOS\\scripts\\usage-logger.mjs",
-        "cwd": "C:\\LoCoOS"
+        "cwd": "C:\\LoCoOS",
+        "env": {
+          "PM2_HOME": "C:\\Users\\pjlos\\.pm2"
+        }
     },
     {
         "name": "failure-monitor",
         "script": "C:\\LoCoOS\\scripts\\failure-monitor.mjs",
-        "cwd": "C:\\LoCoOS"
+        "cwd": "C:\\LoCoOS",
+        "env": {
+          "PM2_HOME": "C:\\Users\\pjlos\\.pm2"
+        }
     }
   ]
 }
