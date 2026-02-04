@@ -1,19 +1,33 @@
 @echo off
-echo 🧪 OpenClaw Dual-Bot Nuclear Recovery...
-echo Killing all Node.js and OpenClaw processes...
+setlocal
+cd /d "C:\LoCoOS"
+
+echo [OpenClaw] Starting Recovery System...
+
+:: 1. Force kill existing blocks
 taskkill /F /IM node.exe /T >nul 2>&1
 taskkill /F /IM pm2.exe /T >nul 2>&1
 
-echo Waiting for processes to clear...
-timeout /t 3 /nobreak >nul
+:: 2. Wait for clear
+timeout /t 2 /nobreak >nul
 
-echo Syncing OAuth profiles...
-copy /Y "C:\Users\pjlos\.openclaw\auth-profiles.json" "C:\Users\pjlos\.openclaw\agents\main\agent\auth-profiles.json" >nul 2>&1
-copy /Y "C:\Users\pjlos\.openclaw\auth-profiles.json" "C:\Users\pjlos\.openclaw\agents\ops\agent\auth-profiles.json" >nul 2>&1
+:: 3. Start Primary Gateway (18789)
+echo [OpenClaw] Starting Primary Gateway...
+schtasks /Run /TN "OpenClaw Gateway" >nul 2>&1
 
-echo 🚀 Starting PM2 Ecosystem...
-pm2 start C:\LoCoOS\ecosystem.json
+:: 4. Start PM2 Engine (18790) + Syncers
+echo [OpenClaw] Starting PM2 Ecosystem...
+pm2 start ecosystem.json
+pm2 save
 
-echo ✅ Both bots (Voice + Engine) are recovering in the background via PM2.
-echo Type 'pm2 list' to see status.
+:: 5. Refresh Tasks
+echo [OpenClaw] Syncing Master Tasks...
+node scripts\sync-tasks.mjs
+
+echo ✅ System Recovered.
+echo ------------------------------------------
+echo Gateway (Voice): 18789 (Ready)
+echo Gateway (Engine): 18790 (Ready)
+echo Status Dashboard: https://www.losey.co/dashboard
+echo ------------------------------------------
 pause
