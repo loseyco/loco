@@ -46,3 +46,17 @@ export interface MemoryEntry {
   type: string
   created_at: string
 }
+
+// Invoice types
+export interface Invoice {
+  id: string
+  client_name: string
+  client_email: string
+  amount: number
+  description: string
+  status: 'draft' | 'sent' | 'paid'
+  payment_url?: string
+  stripe_session_id?: string
+  created_at: string
+  updated_at: string
+}
