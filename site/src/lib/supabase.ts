@@ -1,14 +1,22 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-// Create client only if we have valid credentials
-export const supabase: SupabaseClient = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-key'
-)
+// Create client - use a dummy for SSG/build time if env vars not available
+let supabase: SupabaseClient
 
+if (supabaseUrl && supabaseAnonKey) {
+  supabase = createClient(supabaseUrl, supabaseAnonKey)
+} else {
+  // Placeholder client for build time - will be replaced at runtime
+  supabase = createClient(
+    'https://jxnqsbkvckvfwgmvuajb.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder'
+  )
+}
+
+export { supabase }
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey)
 
 // Types for our tables

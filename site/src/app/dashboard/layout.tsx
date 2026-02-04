@@ -2,8 +2,16 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ReactNode } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { signOut } from '@/app/login/actions'
+import { supabase } from '@/lib/supabase'
+
+interface ChaseStatus {
+  status: 'working' | 'idle'
+  current_task: string | null
+  last_action: string | null
+  updated_at: string
+}
 
 const navItems = [
   { href: '/dashboard', label: 'Overview', icon: '📊' },
@@ -14,6 +22,90 @@ const navItems = [
   { href: '/dashboard/chat', label: 'Chat', icon: '💬' },
   { href: '/dashboard/logs', label: 'Logs', icon: '📋' },
 ]
+
+function ChaseStatusBar() {
+  const [status, setStatus] = useState<ChaseStatus | null>(null)
+  const [latestLog, setLatestLog] = useState<{ agent: string; action: string; created_at: string } | null>(null)
+
+  useEffect(() => {
+    fetchStatus()
+    fetchLatestLog()
+
+    // Subscribe to status changes
+    const statusChannel = supabase
+      .channel('chase-status')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'chase_status' }, () => {
+        fetchStatus()
+      })
+      .subscribe()
+
+    // Subscribe to activity log changes
+    const logsChannel = supabase
+      .channel('latest-activity')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'activity_logs' }, () => {
+        fetchLatestLog()
+      })
+      .subscribe()
+
+    // Poll every 30 seconds as backup
+    const interval = setInterval(() => {
+      fetchStatus()
+      fetchLatestLog()
+    }, 30000)
+
+    return () => {
+      supabase.removeChannel(statusChannel)
+      supabase.removeChannel(logsChannel)
+      clearInterval(interval)
+    }
+  }, [])
+
+  async function fetchStatus() {
+    const { data } = await supabase.from('chase_status').select('*').single()
+    if (data) setStatus(data)
+  }
+
+  async function fetchLatestLog() {
+    const { data } = await supabase
+      .from('activity_logs')
+      .select('agent, action, created_at')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single()
+    if (data) setLatestLog(data)
+  }
+
+  const isWorking = status?.status === 'working'
+  const timeSinceUpdate = latestLog ? Math.floor((Date.now() - new Date(latestLog.created_at).getTime()) / 60000) : null
+
+  return (
+    <div className={`px-4 py-2 border-b flex items-center justify-between text-sm ${
+      isWorking ? 'bg-green-950/50 border-green-800/50' : 'bg-zinc-900/50 border-zinc-800'
+    }`}>
+      <div className="flex items-center gap-3">
+        <span className={`w-2 h-2 rounded-full ${isWorking ? 'bg-green-500 animate-pulse' : 'bg-zinc-500'}`} />
+        <span className="font-medium">
+          {isWorking ? '⚡ Chase is working' : '⏸️ Chase is idle'}
+        </span>
+        {status?.current_task && (
+          <span className="text-zinc-400">
+            on: <span className="text-white">{status.current_task}</span>
+          </span>
+        )}
+      </div>
+      <div className="flex items-center gap-4 text-zinc-500">
+        {latestLog && (
+          <span>
+            Last: <span className="text-zinc-300">{latestLog.action}</span>
+            {timeSinceUpdate !== null && timeSinceUpdate > 0 && (
+              <span className="text-zinc-600"> ({timeSinceUpdate}m ago)</span>
+            )}
+          </span>
+        )}
+      </div>
+    </div>
+  )
+}
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname()
@@ -70,8 +162,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto">
-        <div className="p-8">
+      <main className="flex-1 overflow-auto flex flex-col">
+        {/* Chase Status Bar */}
+        <ChaseStatusBar />
+        
+        {/* Page content */}
+        <div className="flex-1 p-8">
           {children}
         </div>
       </main>
