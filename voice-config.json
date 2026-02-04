@@ -1,0 +1,10 @@
+{
+  "meta": {
+    "lastTouchedVersion": "2026.2.2-3"
+  },
+  "gateway": {
+    "port": 18789,
+    "mode": "local",
+    "bind": "loopback"
+  }
+}

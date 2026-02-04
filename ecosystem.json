@@ -5,7 +5,8 @@
       "script": "C:\\Program Files\\nodejs\\node.exe",
       "args": "C:\\Users\\pjlos\\AppData\\Roaming\\npm\\node_modules\\openclaw\\dist\\index.js gateway --port 18789",
       "env": {
-        "OPENCLAW_GATEWAY_PORT": "18789"
+        "OPENCLAW_GATEWAY_PORT": "18789",
+        "OPENCLAW_HOME": "C:\\LoCoOS\\.openclaw-voice"
       }
     },
     {
@@ -15,6 +16,7 @@
       "env": {
         "OPENCLAW_GATEWAY_PORT": "18790",
         "OPENCLAW_GATEWAY_TOKEN": "engine-secret-token-2026",
+        "OPENCLAW_HOME": "C:\\LoCoOS\\.openclaw-engine",
         "OPENCLAW_CONFIG_PATH": "C:\\LoCoOS\\engine-config.json"
       }
     },
