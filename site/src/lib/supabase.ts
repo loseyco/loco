@@ -70,3 +70,37 @@ export interface ActivityLog {
   task_id?: string
   created_at: string
 }
+
+// Finance types
+export interface ExpenseCategory {
+  id: string
+  name: string
+  icon: string
+  color: string
+  created_at: string
+}
+
+export interface Expense {
+  id: string
+  description: string
+  amount: number
+  category_id?: string
+  category?: ExpenseCategory
+  vendor?: string
+  date: string
+  receipt_url?: string
+  notes?: string
+  is_deductible: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface MileageLog {
+  id: string
+  date: string
+  description: string
+  miles: number
+  deduction_rate: number
+  created_at: string
+  updated_at: string
+}
