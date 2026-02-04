@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase, Project, Task, AgentSession } from '@/lib/supabase'
+import { supabase, Project, Task, AgentSession, AgentStatus, SystemStats } from '@/lib/supabase'
 
 interface Stats {
   totalProjects: number
@@ -18,6 +18,8 @@ export default function DashboardOverview() {
     agentSessions: 0,
   })
   const [recentProjects, setRecentProjects] = useState<Project[]>([])
+  const [agentStatus, setAgentStatus] = useState<AgentStatus | null>(null)
+  const [systemStats, setSystemStats] = useState<SystemStats | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -38,18 +40,36 @@ export default function DashboardOverview() {
       })
       .subscribe()
 
+    const statusSub = supabase
+      .channel('agent-status-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'agent_status' }, (payload) => {
+        setAgentStatus(payload.new as AgentStatus)
+      })
+      .subscribe()
+
+    const sysSub = supabase
+      .channel('system-stats-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'system_stats' }, (payload) => {
+        setSystemStats(payload.new as SystemStats)
+      })
+      .subscribe()
+
     return () => {
       projectsSub.unsubscribe()
       tasksSub.unsubscribe()
+      statusSub.unsubscribe()
+      sysSub.unsubscribe()
     }
   }, [])
 
   async function fetchData() {
     try {
-      const [projectsRes, tasksRes, sessionsRes] = await Promise.all([
+      const [projectsRes, tasksRes, sessionsRes, statusRes, sysRes] = await Promise.all([
         supabase.from('projects').select('*').order('created_at', { ascending: false }).limit(5),
         supabase.from('tasks').select('*'),
         supabase.from('agent_sessions').select('*'),
+        supabase.from('agent_status').select('*').eq('agent_id', 'ops').single(),
+        supabase.from('system_stats').select('*').order('last_seen', { ascending: false }).limit(1).single()
       ])
 
       const projects = projectsRes.data || []
@@ -63,6 +83,8 @@ export default function DashboardOverview() {
         agentSessions: sessions.length,
       })
       setRecentProjects(projects.slice(0, 5))
+      setAgentStatus(statusRes.data)
+      setSystemStats(sysRes.data)
     } catch (error) {
       console.error('Error fetching data:', error)
     } finally {
@@ -88,9 +110,98 @@ export default function DashboardOverview() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-zinc-500 mt-1">Real-time overview of your workspace</p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <p className="text-zinc-500 mt-1">Real-time overview of your workspace</p>
+        </div>
+        
+        {systemStats && (
+          <div className="flex gap-4 text-xs font-mono bg-zinc-900 border border-zinc-800 p-3 rounded-lg">
+            <div>
+              <span className="text-zinc-500 uppercase">CPU</span>
+              <p className="text-red-500">{systemStats.cpu_usage.toFixed(1)}%</p>
+            </div>
+            <div className="w-px bg-zinc-800" />
+            <div>
+              <span className="text-zinc-500 uppercase">MEM</span>
+              <p className="text-orange-500">{systemStats.memory_usage.toFixed(1)}%</p>
+            </div>
+            <div className="w-px bg-zinc-800" />
+            <div>
+              <span className="text-zinc-500 uppercase">PC</span>
+              <p className="text-green-500">ONLINE</p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Agent Status Card (NEW) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+          <div className="bg-red-600/10 border-b border-red-600/20 p-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">⚡</span>
+              <h2 className="font-bold text-red-500 uppercase tracking-widest text-sm">Chase Status</h2>
+            </div>
+            <span className="text-[10px] font-mono text-zinc-500">
+              UPDATED: {agentStatus ? new Date(agentStatus.updated_at).toLocaleTimeString() : 'N/A'}
+            </span>
+          </div>
+          <div className="p-6 space-y-6">
+            <div>
+              <p className="text-xs font-mono text-zinc-500 uppercase tracking-widest mb-2">Current Goal</p>
+              <p className="text-xl font-medium text-white">{agentStatus?.current_goal || 'Waiting for tasks...'}</p>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-8">
+              <div>
+                <p className="text-xs font-mono text-zinc-500 uppercase tracking-widest mb-2">Internal Status</p>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                  <p className="text-sm text-zinc-300">{agentStatus?.status_text || 'Active'}</p>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-mono text-zinc-500 uppercase tracking-widest mb-2">Active Sub-Agents</p>
+                <p className="text-lg font-bold text-white">{agentStatus?.active_subagents || 0}</p>
+              </div>
+            </div>
+
+            {agentStatus?.blocked_reason && (
+              <div className="bg-orange-500/10 border border-orange-500/20 p-4 rounded-lg flex items-center gap-3">
+                <span className="text-xl">⚠️</span>
+                <div>
+                  <p className="text-xs font-mono text-orange-500 uppercase tracking-widest">Blocked On PJ</p>
+                  <p className="text-sm text-zinc-300">{agentStatus.blocked_reason}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Quick Task Peek */}
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+           <div className="p-4 border-b border-zinc-800">
+             <h2 className="font-bold text-sm uppercase tracking-widest text-zinc-400">Queue Items</h2>
+           </div>
+           <div className="p-4">
+              <div className="space-y-4">
+                <div className="flex gap-3">
+                   <span className="text-zinc-500 font-mono text-xs">01</span>
+                   <p className="text-xs text-zinc-400">Stable gateway monitoring (5m interval)</p>
+                </div>
+                <div className="flex gap-3">
+                   <span className="text-zinc-500 font-mono text-xs">02</span>
+                   <p className="text-xs text-zinc-400">Wiring Werk Shop demo to live DB</p>
+                </div>
+                <div className="flex gap-3">
+                   <span className="text-zinc-500 font-mono text-xs">03</span>
+                   <p className="text-xs text-zinc-400">Scaffolding Motorsports Playbook</p>
+                </div>
+              </div>
+           </div>
+        </div>
       </div>
 
       {/* Stats Grid */}
@@ -113,8 +224,9 @@ export default function DashboardOverview() {
 
       {/* Recent Projects */}
       <div className="bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden">
-        <div className="p-6 border-b border-zinc-800">
-          <h2 className="text-xl font-semibold">Recent Projects</h2>
+        <div className="p-6 border-b border-zinc-800 flex justify-between items-center">
+          <h2 className="text-xl font-semibold">Active Projects</h2>
+          <span className="text-xs font-mono text-zinc-500">SYNCED LIVE</span>
         </div>
         <div className="divide-y divide-zinc-800">
           {recentProjects.length === 0 ? (
@@ -149,7 +261,7 @@ export default function DashboardOverview() {
       {/* Live indicator */}
       <div className="flex items-center gap-2 text-sm text-zinc-500">
         <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-        <span>Updates appear automatically — no refresh needed</span>
+        <span>System connected to Supabase Realtime</span>
       </div>
     </div>
   )

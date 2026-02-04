@@ -145,3 +145,15 @@ export interface SystemStats {
   uptime_seconds: number
   last_seen: string
 }
+
+export interface AgentStatus {
+  id: string
+  agent_id: string
+  current_goal: string
+  status_text: string
+  last_heartbeat: string
+  active_subagents: number
+  blocked_reason?: string
+  delays?: any
+  updated_at: string
+}
