@@ -26,7 +26,7 @@ async function sync() {
       last_seen: new Date().toISOString()
     });
 
-    // 2. Get Agent Status (from HEARTBEAT.md or local state)
+    // 2. Get Agent Status
     let currentGoal = "Stabilizing Gateway & Workspace";
     try {
         const heartbeat = fs.readFileSync('HEARTBEAT.md', 'utf8');
@@ -34,11 +34,19 @@ async function sync() {
         if (match) currentGoal = match[1].replace(/^[🔄✅] /, '');
     } catch (e) {}
 
+    // 3. Check Staff (Engine 18790)
+    let staffOnline = false;
+    try {
+        const engineRes = await si.inetChecksite('http://127.0.0.1:18790');
+        staffOnline = engineRes.status === 200;
+    } catch (e) {}
+
     await supabase.from('agent_status').upsert({
       agent_id: 'ops',
       current_goal: currentGoal,
       status_text: 'Active - Monitoring System',
-      active_subagents: 0, // Would need sessions_list to be truly dynamic
+      active_subagents: 0,
+      staff_online: staffOnline,
       updated_at: new Date().toISOString()
     });
 

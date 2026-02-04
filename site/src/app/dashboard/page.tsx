@@ -166,6 +166,15 @@ export default function DashboardOverview() {
                 </div>
               </div>
               <div>
+                <p className="text-xs font-mono text-zinc-500 uppercase tracking-widest mb-2">Staff (Pi Engine)</p>
+                <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${agentStatus?.staff_online ? 'bg-blue-500 animate-pulse' : 'bg-zinc-600'}`} />
+                  <p className={`text-sm font-bold ${agentStatus?.staff_online ? 'text-blue-400' : 'text-zinc-500'}`}>
+                    {agentStatus?.staff_online ? 'ONLINE' : 'OFFLINE'}
+                  </p>
+                </div>
+              </div>
+              <div>
                 <p className="text-xs font-mono text-zinc-500 uppercase tracking-widest mb-2">Active Sub-Agents</p>
                 <p className="text-lg font-bold text-white">{agentStatus?.active_subagents || 0}</p>
               </div>

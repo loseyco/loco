@@ -155,5 +155,6 @@ export interface AgentStatus {
   active_subagents: number
   blocked_reason?: string
   delays?: any
+  staff_online?: boolean
   updated_at: string
 }
