@@ -3,6 +3,11 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
+export const metadata = {
+  title: 'Exclusive: Custom Restoration Portal | The Werk Shop',
+  description: 'Track your Concours build in real-time. A high-performance digital experience for elite BMW enthusiasts.',
+}
+
 export default function WerkShopDemo() {
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white font-sans selection:bg-red-500 selection:text-white">
@@ -13,13 +18,17 @@ export default function WerkShopDemo() {
             <span className="text-2xl font-bold tracking-tighter uppercase italic">The Werk Shop</span>
             <div className="hidden md:flex gap-6 text-sm font-medium text-zinc-400">
               <a href="#" className="hover:text-white transition-colors">Current Projects</a>
-              <a href="#" className="hover:text-white transition-colors">Restoration Philosophy</a>
-              <a href="#" className="hover:text-white transition-colors">Our Facility</a>
+              <a href="#" className="hover:text-white transition-colors">Facility</a>
             </div>
           </div>
-          <button className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold skew-x-[-12deg] transition-all">
-            <span className="inline-block skew-x-[12deg]">Initiate Build</span>
-          </button>
+          <div className="flex items-center gap-4">
+            <button className="px-4 py-2 text-xs font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition-colors">
+              Client Login
+            </button>
+            <button className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold skew-x-[-12deg] transition-all">
+              <span className="inline-block skew-x-[12deg]">Initiate Build</span>
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -35,8 +44,28 @@ export default function WerkShopDemo() {
           </h1>
           <p className="text-zinc-400 text-lg max-w-xl mx-auto font-medium leading-relaxed">
             World-class BMW restoration and European performance engineering. 
-            Track your build's heartbeats in real-time.
           </p>
+          
+          <div className="pt-8 flex flex-col md:flex-row gap-4 justify-center items-center">
+            <div className="bg-zinc-900/80 backdrop-blur border border-zinc-800 p-4 rounded-xl flex items-center gap-4 text-left min-w-[300px]">
+              <div className="w-12 h-12 bg-red-600/20 rounded-full flex items-center justify-center text-red-500 font-bold">
+                03
+              </div>
+              <div>
+                <p className="text-[10px] uppercase font-bold text-zinc-500 tracking-tighter">Active Projects</p>
+                <p className="text-sm font-bold">Currently in the Shop</p>
+              </div>
+            </div>
+            <div className="bg-zinc-900/80 backdrop-blur border border-zinc-800 p-4 rounded-xl flex items-center gap-4 text-left min-w-[300px]">
+              <div className="w-12 h-12 bg-blue-600/20 rounded-full flex items-center justify-center text-blue-500 font-bold">
+                LIVE
+              </div>
+              <div>
+                <p className="text-[10px] uppercase font-bold text-zinc-500 tracking-tighter">Owner Portal</p>
+                <p className="text-sm font-bold">Track Your Chassis</p>
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 
