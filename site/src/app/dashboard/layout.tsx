@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ReactNode, useEffect, useState } from 'react'
 import { signOut } from '@/app/login/actions'
-import { supabase } from '@/lib/supabase'
+import { supabase, SystemStats } from '@/lib/supabase'
 
 interface ChaseStatus {
   status: 'working' | 'idle'
@@ -26,10 +26,12 @@ const navItems = [
 function ChaseStatusBar() {
   const [status, setStatus] = useState<ChaseStatus | null>(null)
   const [latestLog, setLatestLog] = useState<{ agent: string; action: string; created_at: string } | null>(null)
+  const [pcStats, setPcStats] = useState<SystemStats | null>(null)
 
   useEffect(() => {
     fetchStatus()
     fetchLatestLog()
+    fetchPcStats()
 
     // Subscribe to status changes
     const statusChannel = supabase
@@ -47,15 +49,25 @@ function ChaseStatusBar() {
       })
       .subscribe()
 
+    // Subscribe to PC telemetry
+    const telemetryChannel = supabase
+      .channel('pc-telemetry')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'systems', filter: 'id=eq.main-pc' }, (payload) => {
+        setPcStats(payload.new as SystemStats)
+      })
+      .subscribe()
+
     // Poll every 30 seconds as backup
     const interval = setInterval(() => {
       fetchStatus()
       fetchLatestLog()
+      fetchPcStats()
     }, 30000)
 
     return () => {
       supabase.removeChannel(statusChannel)
       supabase.removeChannel(logsChannel)
+      supabase.removeChannel(telemetryChannel)
       clearInterval(interval)
     }
   }, [])
@@ -75,24 +87,46 @@ function ChaseStatusBar() {
     if (data) setLatestLog(data)
   }
 
+  async function fetchPcStats() {
+    const { data } = await supabase.from('systems').select('*').eq('id', 'main-pc').single()
+    if (data) setPcStats(data)
+  }
+
   const isWorking = status?.status === 'working'
   const timeSinceUpdate = latestLog ? Math.floor((Date.now() - new Date(latestLog.created_at).getTime()) / 60000) : null
+  const pcOnline = pcStats && (Date.now() - new Date(pcStats.last_seen).getTime()) < 60000
 
   return (
     <div className={`px-4 py-2 border-b flex items-center justify-between text-sm ${
       isWorking ? 'bg-green-950/50 border-green-800/50' : 'bg-zinc-900/50 border-zinc-800'
     }`}>
-      <div className="flex items-center gap-3">
-        <span className={`w-2 h-2 rounded-full ${isWorking ? 'bg-green-500 animate-pulse' : 'bg-zinc-500'}`} />
-        <span className="font-medium">
-          {isWorking ? '⚡ Chase is working' : '⏸️ Chase is idle'}
-        </span>
-        {status?.current_task && (
-          <span className="text-zinc-400">
-            on: <span className="text-white">{status.current_task}</span>
+      <div className="flex items-center gap-6">
+        <div className="flex items-center gap-3">
+          <span className={`w-2 h-2 rounded-full ${isWorking ? 'bg-green-500 animate-pulse' : 'bg-zinc-500'}`} />
+          <span className="font-medium">
+            {isWorking ? '⚡ Chase is working' : '⏸️ Chase is idle'}
           </span>
+          {status?.current_task && (
+            <span className="text-zinc-400">
+              on: <span className="text-white">{status.current_task}</span>
+            </span>
+          )}
+        </div>
+
+        {pcStats && (
+          <div className="hidden md:flex items-center gap-4 text-xs border-l border-zinc-800 pl-6">
+            <div className="flex items-center gap-1.5">
+              <span className={`w-1.5 h-1.5 rounded-full ${pcOnline ? 'bg-blue-500' : 'bg-zinc-600'}`} />
+              <span className="text-zinc-500 uppercase tracking-wider font-bold">PC Host</span>
+            </div>
+            <div className="flex gap-3">
+              <span className="text-zinc-500">CPU <span className={pcStats.cpu_usage > 80 ? 'text-red-400' : 'text-zinc-300'}>{pcStats.cpu_usage}%</span></span>
+              <span className="text-zinc-500">MEM <span className={pcStats.memory_usage > 80 ? 'text-red-400' : 'text-zinc-300'}>{pcStats.memory_usage}%</span></span>
+            </div>
+          </div>
         )}
       </div>
+      
       <div className="flex items-center gap-4 text-zinc-500">
         {latestLog && (
           <span>

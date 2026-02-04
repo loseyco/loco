@@ -136,3 +136,12 @@ export interface MileageLog {
   created_at: string
   updated_at: string
 }
+
+export interface SystemStats {
+  id: string
+  hostname: string
+  cpu_usage: number
+  memory_usage: number
+  uptime_seconds: number
+  last_seen: string
+}
