@@ -14,6 +14,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(true)
+  const [sending, setSending] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -30,11 +31,23 @@ export default function ChatPage() {
           if (entry.type === 'chat') {
             const msg: ChatMessage = {
               id: entry.id,
-              content: entry.content,
+              content: entry.content.replace(/^\[(USER|AGENT)\]\s*/, ''),
               type: entry.content.startsWith('[USER]') ? 'user' : 'agent',
               created_at: entry.created_at,
             }
-            setMessages((prev) => [...prev, msg])
+            // Avoid duplicates from our own optimistic updates
+            setMessages((prev) => {
+              const exists = prev.some(m => m.id === msg.id || 
+                (m.id.startsWith('temp-') && m.content === msg.content && m.type === msg.type))
+              if (exists) {
+                // Replace temp message with real one
+                return prev.map(m => 
+                  (m.id.startsWith('temp-') && m.content === msg.content && m.type === msg.type) 
+                    ? msg : m
+                )
+              }
+              return [...prev, msg]
+            })
           }
         }
       )
@@ -77,29 +90,59 @@ export default function ChatPage() {
 
   async function sendMessage(e: React.FormEvent) {
     e.preventDefault()
-    if (!input.trim()) return
+    if (!input.trim() || sending) return
 
     const messageContent = input.trim()
     setInput('')
+    setSending(true)
 
-    // Optimistically add to UI
-    const optimisticMsg: ChatMessage = {
-      id: `temp-${Date.now()}`,
+    // Optimistically add user message to UI
+    const optimisticUserMsg: ChatMessage = {
+      id: `temp-user-${Date.now()}`,
       content: messageContent,
       type: 'user',
       created_at: new Date().toISOString(),
     }
-    setMessages((prev) => [...prev, optimisticMsg])
+    setMessages((prev) => [...prev, optimisticUserMsg])
 
     try {
-      // Store in memory_entries
-      const { error } = await supabase.from('memory_entries').insert({
-        content: `[USER] ${messageContent}`,
-        type: 'chat',
+      // Call the chat API
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: messageContent }),
       })
-      if (error) throw error
+
+      if (!response.ok) {
+        throw new Error('Failed to send message')
+      }
+
+      const data = await response.json()
+
+      // Add Chase's response to UI
+      if (data.response) {
+        const agentMsg: ChatMessage = {
+          id: data.agentMessage?.id || `temp-agent-${Date.now()}`,
+          content: data.response,
+          type: 'agent',
+          created_at: new Date().toISOString(),
+        }
+        setMessages((prev) => [...prev, agentMsg])
+      }
     } catch (error) {
       console.error('Error sending message:', error)
+      // Show error message
+      const errorMsg: ChatMessage = {
+        id: `error-${Date.now()}`,
+        content: 'Failed to send message. Please try again.',
+        type: 'agent',
+        created_at: new Date().toISOString(),
+      }
+      setMessages((prev) => [...prev, errorMsg])
+    } finally {
+      setSending(false)
     }
   }
 
@@ -115,8 +158,8 @@ export default function ChatPage() {
     <div className="flex flex-col h-[calc(100vh-8rem)]">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">Chat</h1>
-        <p className="text-zinc-500 mt-1">Real-time messaging interface</p>
+        <h1 className="text-3xl font-bold">Chat with Chase</h1>
+        <p className="text-zinc-500 mt-1">Message Chase directly from the web</p>
       </div>
 
       {/* Messages container */}
@@ -155,6 +198,21 @@ export default function ChatPage() {
               </div>
             ))
           )}
+          
+          {/* Typing indicator */}
+          {sending && (
+            <div className="flex justify-start">
+              <div className="bg-zinc-800 rounded-2xl rounded-bl-md px-4 py-3">
+                <div className="flex items-center gap-1">
+                  <span className="w-2 h-2 bg-zinc-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-2 h-2 bg-zinc-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-2 h-2 bg-zinc-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+                <p className="text-xs text-zinc-500 mt-1">Chase is typing...</p>
+              </div>
+            </div>
+          )}
+          
           <div ref={messagesEndRef} />
         </div>
 
@@ -165,14 +223,20 @@ export default function ChatPage() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Type a message..."
-              className="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 transition-colors"
+              placeholder="Type a message to Chase..."
+              disabled={sending}
+              className="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 transition-colors disabled:opacity-50"
             />
             <button
               type="submit"
-              className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl transition-colors"
+              disabled={sending || !input.trim()}
+              className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Send
+              {sending ? (
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                'Send'
+              )}
             </button>
           </div>
         </form>
@@ -181,7 +245,7 @@ export default function ChatPage() {
       {/* Live indicator */}
       <div className="flex items-center gap-2 text-sm text-zinc-500 mt-4">
         <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-        <span>Messages sync in real-time</span>
+        <span>Connected to Chase via OpenClaw</span>
       </div>
     </div>
   )
