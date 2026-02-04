@@ -1,6 +1,14 @@
 {
   "apps": [
     {
+      "name": "openclaw-voice",
+      "script": "C:\\Program Files\\nodejs\\node.exe",
+      "args": "C:\\Users\\pjlos\\AppData\\Roaming\\npm\\node_modules\\openclaw\\dist\\index.js gateway --port 18789",
+      "env": {
+        "OPENCLAW_GATEWAY_PORT": "18789"
+      }
+    },
+    {
       "name": "openclaw-engine",
       "script": "C:\\Program Files\\nodejs\\node.exe",
       "args": "C:\\Users\\pjlos\\AppData\\Roaming\\npm\\node_modules\\openclaw\\dist\\index.js gateway --port 18790",
@@ -20,6 +28,7 @@
         "name": "task-sync-hourly",
         "script": "C:\\LoCoOS\\scripts\\sync-tasks.mjs",
         "cwd": "C:\\LoCoOS",
+        "autorestart": false,
         "cron_restart": "0 * * * *"
     },
     {
