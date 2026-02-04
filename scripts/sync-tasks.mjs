@@ -11,7 +11,7 @@ async function syncTasks() {
     {
       title: "Stabilize OpenClaw Gateway & Pi Engine",
       description: "Ensure both 18789 and 18790 gateways are running. Auto-recovery via PM2 and Watchdog.",
-      status: "in_progress",
+      status: "completed",
       priority: 2
     },
     {
