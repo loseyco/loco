@@ -37,10 +37,12 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [newNote, setNewNote] = useState('');
   const [loading, setLoading] = useState(true);
-  const notesEndRef = useRef<HTMLDivElement>(null);
+  const notesContainerRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    notesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (notesContainerRef.current) {
+      notesContainerRef.current.scrollTop = notesContainerRef.current.scrollHeight;
+    }
   };
 
   useEffect(() => {
@@ -254,7 +256,7 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
         <h2 style={{ margin: '0 0 1rem 0', fontSize: '1.25rem' }}>💬 Discussion</h2>
         
         {/* Notes list */}
-        <div style={{ marginBottom: '1rem', maxHeight: '400px', overflowY: 'auto' }}>
+        <div ref={notesContainerRef} style={{ marginBottom: '1rem', maxHeight: '400px', overflowY: 'auto' }}>
           {notes.length === 0 ? (
             <p style={{ color: '#6b7280', fontStyle: 'italic' }}>No notes yet. Start the conversation!</p>
           ) : (
@@ -278,7 +280,6 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
                   <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{note.content}</p>
                 </div>
               ))}
-              <div ref={notesEndRef} />
             </>
           )}
         </div>
