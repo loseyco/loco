@@ -23,6 +23,11 @@ const navItems = [
   { href: '/dashboard/logs', label: 'Logs', icon: '📋' },
 ]
 
+const demoItems = [
+  { href: '/demo/werk-shop', label: 'Werk Shop', icon: '🚙' },
+  { href: '/demo/davidson-racing', label: 'Davidson Racing', icon: '🏎️' },
+]
+
 function ChaseStatusBar() {
   const [status, setStatus] = useState<ChaseStatus | null>(null)
   const [latestLog, setLatestLog] = useState<{ agent: string; action: string; created_at: string } | null>(null)
@@ -184,25 +189,50 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setIsSidebarOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                  isActive
-                    ? 'bg-red-600/20 text-red-500 border border-red-600/30'
-                    : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
-                }`}
-              >
-                <span className="text-xl">{item.icon}</span>
-                <span className="font-medium">{item.label}</span>
-              </Link>
-            )
-          })}
+        <nav className="flex-1 p-4 space-y-8 overflow-y-auto">
+          <div className="space-y-2">
+            <p className="px-4 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">Management</p>
+            {navItems.map((item) => {
+                const isActive = pathname === item.href
+                return (
+                <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setIsSidebarOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                    isActive
+                        ? 'bg-red-600/20 text-red-500 border border-red-600/30'
+                        : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
+                    }`}
+                >
+                    <span className="text-xl">{item.icon}</span>
+                    <span className="font-medium">{item.label}</span>
+                </Link>
+                )
+            })}
+          </div>
+
+          <div className="space-y-2">
+            <p className="px-4 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">Demos & Spec</p>
+            {demoItems.map((item) => {
+                const isActive = pathname === item.href
+                return (
+                <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setIsSidebarOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                    isActive
+                        ? 'bg-red-600/20 text-red-500 border border-red-600/30'
+                        : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
+                    }`}
+                >
+                    <span className="text-xl">{item.icon}</span>
+                    <span className="font-medium">{item.label}</span>
+                </Link>
+                )
+            })}
+          </div>
         </nav>
 
         {/* Sign out and status */}
