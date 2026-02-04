@@ -37,6 +37,18 @@ async function syncTasks() {
       description: "Build speculative demo library for race teams and automotive shops.",
       status: "pending",
       priority: 1
+    },
+    {
+      title: "Sales Bot Agent",
+      description: "Deploy Sales Bot agent for automated outreach drafting.",
+      status: "pending",
+      priority: 1
+    },
+    {
+      title: "ROI Calculator Component",
+      description: "Build ROI Calculator component for agency portfolio.",
+      status: "pending",
+      priority: 0
     }
   ];
 
