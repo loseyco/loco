@@ -9,46 +9,34 @@ const supabase = createClient(
 async function syncTasks() {
   const currentTasks = [
     {
-      title: "Stabilize OpenClaw Gateway",
-      description: "Fix PID port conflicts and ensure watchdog is monitoring gateway health.",
-      status: "completed",
+      title: "Stabilize OpenClaw Gateway & Pi Engine",
+      description: "Ensure both 18789 and 18790 gateways are running. Auto-recovery via PM2 and Watchdog.",
+      status: "in_progress",
       priority: 2
     },
     {
-      title: "Mobile UI Fix",
-      description: "Update dashboard layout for usable mobile experience and responsive status bar.",
-      status: "completed",
-      priority: 2
-    },
-    {
-      title: "Live Dashboard Status Sync",
-      description: "Push system telemetry and agent goals to Supabase every 30s.",
+      title: "Local Status GUI (MainRig)",
+      description: "Maintain local dashboard access for PJ on the SimRig PC.",
       status: "in_progress",
       priority: 2
     },
     {
       title: "Werk Shop Demo - Live Data",
       description: "Wire the restoration timeline to real Supabase tables for dynamic updates.",
+      status: "in_progress",
+      priority: 2
+    },
+    {
+      title: "Hourly Status Update System",
+      description: "Automated Discord pings with concise status and blocked items.",
       status: "completed",
       priority: 1
     },
     {
-      title: "Motorsports Playbook Library",
-      description: "Build speculative demo library for race teams and automotive shops.",
-      status: "pending",
-      priority: 1
-    },
-    {
-      title: "Sales Bot Agent",
-      description: "Deploy Sales Bot agent for automated outreach drafting.",
-      status: "pending",
-      priority: 1
-    },
-    {
-      title: "ROI Calculator Component",
-      description: "Build ROI Calculator component for agency portfolio.",
-      status: "pending",
-      priority: 0
+      title: "Mobile UI Fix",
+      description: "Update dashboard layout for usable mobile experience and responsive status bar.",
+      status: "completed",
+      priority: 2
     }
   ];
 

@@ -7,11 +7,8 @@ const supabase = createClient(
 );
 
 async function check() {
-  const { data: projects } = await supabase.from('projects').select('*');
-  console.log('Projects:', JSON.stringify(projects, null, 2));
-
-  const { data: tables } = await supabase.rpc('get_tables'); // If exists
-  console.log('Tables check done.');
+  const { data: tasks } = await supabase.from('tasks').select('*');
+  console.log('Tasks:', JSON.stringify(tasks, null, 2));
 }
 
 check();

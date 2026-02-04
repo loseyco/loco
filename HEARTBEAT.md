@@ -7,8 +7,9 @@
 ---
 
 ## Currently In Progress
-- 🔄 **Live Dashboard Sync** — Pushing CPU/MEM and Status to Supabase
-- 🔄 **Werk Shop Demo Evolution** — Connecting data tabs to Supabase
+- 🔄 **Local Status GUI** — Maintaining local dashboard access on SimRig
+- 🔄 **Pi Engine Stability** — Monitoring port 18790 via PM2
+- 🔄 **Werk Shop Evolution** — Scaling the Restoration Timeline demo
 
 ## Just Completed
 - ✅ **Werk Shop Demo Evolution** — Connected timeline and billing tabs to Supabase
