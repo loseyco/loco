@@ -7,11 +7,13 @@
 ---
 
 ## Currently In Progress
+- 🔄 **Live Dashboard Sync** — Pushing CPU/MEM and Status to Supabase
+- 🔄 **Werk Shop Evolution** — Scaling the Restoration Timeline demo
 - 🔄 **Local Status GUI** — Maintaining local dashboard access on SimRig
 - 🔄 **Pi Engine Stability** — Monitoring port 18790 via PM2
-- 🔄 **Werk Shop Evolution** — Scaling the Restoration Timeline demo
 
 ## Just Completed
+- ✅ **The Werk Shop Demo** — Premium "Restoration Timeline" portal mockup
 - ✅ **Werk Shop Demo Evolution** — Connected timeline and billing tabs to Supabase
 - ✅ **PC Restart Recovery** — System synced and stable after host reboot
 - ✅ **Mobile UI Overhaul** — Dashboard now fully responsive and usable on phone
