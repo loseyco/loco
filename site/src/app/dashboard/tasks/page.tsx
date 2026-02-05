@@ -4,7 +4,10 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { supabase, Task } from '@/lib/supabase'
 
+import { useViewMode } from '@/lib/ViewContext'
+
 export default function TasksPage() {
+  const { viewMode } = useViewMode()
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
   const [newTaskTitle, setNewTaskTitle] = useState('')
@@ -114,9 +117,9 @@ export default function TasksPage() {
 
   async function doNow(id: string) {
     try {
-      const { error } = await supabase.from('tasks').update({ 
-        priority: 2, 
-        status: 'in_progress' 
+      const { error } = await supabase.from('tasks').update({
+        priority: 2,
+        status: 'in_progress'
       }).eq('id', id)
       if (error) throw error
     } catch (error) {
@@ -126,9 +129,9 @@ export default function TasksPage() {
 
   async function postpone(id: string) {
     try {
-      const { error } = await supabase.from('tasks').update({ 
-        priority: 0, 
-        status: 'pending' 
+      const { error } = await supabase.from('tasks').update({
+        priority: 0,
+        status: 'pending'
       }).eq('id', id)
       if (error) throw error
     } catch (error) {
@@ -148,7 +151,12 @@ export default function TasksPage() {
     }
   }
 
-  const filteredTasks = tasks
+  // Filter tasks based on viewMode
+  const userTasks = viewMode === 'admin'
+    ? tasks
+    : tasks.filter((t: any) => t.assigned_to === 'kristina') // Mock filter
+
+  const filteredTasks = userTasks
     .filter((t) => {
       if (filter === 'all') return true
       if (filter === 'special') return t.is_special
@@ -159,14 +167,14 @@ export default function TasksPage() {
       const statusOrder = { in_progress: 0, pending: 1, completed: 2 };
       const statusDiff = statusOrder[a.status] - statusOrder[b.status];
       if (statusDiff !== 0) return statusDiff;
-      
+
       // Then sort by priority
       return (b.priority as number) - (a.priority as number);
     })
 
   const priorityLabels: Record<number, string> = {
     0: 'low',
-    1: 'medium', 
+    1: 'medium',
     2: 'high',
   }
 
@@ -229,11 +237,10 @@ export default function TasksPage() {
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              filter === f
-                ? 'bg-red-600 text-white'
-                : 'bg-zinc-800 text-zinc-400 hover:text-white'
-            }`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === f
+              ? 'bg-red-600 text-white'
+              : 'bg-zinc-800 text-zinc-400 hover:text-white'
+              }`}
           >
             {f === 'all' ? 'All' : f.replace('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
           </button>
@@ -274,9 +281,8 @@ export default function TasksPage() {
                       <span className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.6)]" />
                     )}
                     <h3
-                      className={`font-medium ${
-                        task.status === 'completed' ? 'line-through text-zinc-500' : ''
-                      } ${task.status === 'in_progress' ? 'text-yellow-400' : ''}`}
+                      className={`font-medium ${task.status === 'completed' ? 'line-through text-zinc-500' : ''
+                        } ${task.status === 'in_progress' ? 'text-yellow-400' : ''}`}
                     >
                       {task.title}
                     </h3>
@@ -306,14 +312,14 @@ export default function TasksPage() {
 
                 {/* Priority Controls */}
                 <div className="flex items-center gap-1 mr-4 bg-zinc-800/50 p-1 rounded-lg">
-                  <button 
+                  <button
                     onClick={() => updateTaskPriority(task.id, task.priority as number, -1)}
                     className="px-2 hover:text-white"
                   >-</button>
                   <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${priorityColors[priorityLabels[task.priority as number] || 'medium']}`}>
                     {priorityLabels[task.priority as number] || 'medium'}
                   </span>
-                  <button 
+                  <button
                     onClick={() => updateTaskPriority(task.id, task.priority as number, 1)}
                     className="px-2 hover:text-white"
                   >+</button>
@@ -322,9 +328,8 @@ export default function TasksPage() {
                 {/* Special toggle */}
                 <button
                   onClick={() => toggleSpecial(task.id, task.is_special)}
-                  className={`p-2 transition-colors rounded-lg ${
-                    task.is_special ? 'text-yellow-400' : 'text-zinc-600 hover:text-yellow-400'
-                  }`}
+                  className={`p-2 transition-colors rounded-lg ${task.is_special ? 'text-yellow-400' : 'text-zinc-600 hover:text-yellow-400'
+                    }`}
                   title={task.is_special ? "Remove from Special" : "Mark as Special"}
                 >
                   {task.is_special ? '★' : '☆'}

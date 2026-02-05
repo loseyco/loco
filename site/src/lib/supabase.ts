@@ -168,6 +168,10 @@ export interface AgentStatus {
   delays?: any
   staff_online?: boolean
   updated_at: string
+  // Added to fix page.tsx errors
+  current_task?: string
+  status?: string
+  last_action?: string
 }
 
 export interface ChangelogEntry {

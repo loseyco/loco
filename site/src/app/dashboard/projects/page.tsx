@@ -11,12 +11,15 @@ interface ProjectWithStats extends Project {
   totalTime: number
 }
 
+import { useViewMode } from '@/lib/ViewContext'
+
 export default function ProjectsPage() {
+  const { viewMode } = useViewMode()
   const [projects, setProjects] = useState<ProjectWithStats[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [filter, setFilter] = useState<'all' | 'active' | 'completed' | 'archived'>('all')
-  
+
   // Form state
   const [newProject, setNewProject] = useState({
     name: '',
@@ -143,7 +146,13 @@ export default function ProjectsPage() {
     return `${hours}h ${mins}m`
   }
 
-  const filteredProjects = projects.filter((p) => filter === 'all' || p.status === filter)
+  // Filter projects based on viewMode
+  const userProjects = viewMode === 'admin'
+    ? projects
+    : projects.filter((p: any) => p.owner_id === 'kristina')
+
+  // Apply status filter
+  const filteredProjects = userProjects.filter((p) => filter === 'all' || p.status === filter)
 
   const getProgressPercent = (project: ProjectWithStats) => {
     if (project.taskCount === 0) return 0
@@ -247,11 +256,10 @@ export default function ProjectsPage() {
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              filter === f
-                ? 'bg-red-600 text-white'
-                : 'bg-zinc-800 text-zinc-400 hover:text-white'
-            }`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === f
+              ? 'bg-red-600 text-white'
+              : 'bg-zinc-800 text-zinc-400 hover:text-white'
+              }`}
           >
             {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
             {f !== 'all' && (
@@ -285,20 +293,18 @@ export default function ProjectsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-2">
                       <h3
-                        className={`text-xl font-semibold group-hover:text-red-400 transition-colors ${
-                          project.status === 'completed' ? 'line-through text-zinc-500' : ''
-                        }`}
+                        className={`text-xl font-semibold group-hover:text-red-400 transition-colors ${project.status === 'completed' ? 'line-through text-zinc-500' : ''
+                          }`}
                       >
                         {project.name}
                       </h3>
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          project.status === 'active'
-                            ? 'bg-green-600/20 text-green-400'
-                            : project.status === 'completed'
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${project.status === 'active'
+                          ? 'bg-green-600/20 text-green-400'
+                          : project.status === 'completed'
                             ? 'bg-blue-600/20 text-blue-400'
                             : 'bg-zinc-600/20 text-zinc-400'
-                        }`}
+                          }`}
                       >
                         {project.status}
                       </span>
@@ -344,11 +350,10 @@ export default function ProjectsPage() {
                         e.preventDefault()
                         toggleStatus(project)
                       }}
-                      className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors ${
-                        project.status === 'completed'
-                          ? 'bg-green-600 border-green-600'
-                          : 'border-zinc-600 hover:border-red-500'
-                      }`}
+                      className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors ${project.status === 'completed'
+                        ? 'bg-green-600 border-green-600'
+                        : 'border-zinc-600 hover:border-red-500'
+                        }`}
                     >
                       {project.status === 'completed' && (
                         <span className="text-white text-sm">✓</span>
@@ -400,30 +405,32 @@ export default function ProjectsPage() {
       </div>
 
       {/* Stats Summary */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-zinc-900 rounded-lg p-4 border border-zinc-800">
-          <p className="text-zinc-500 text-sm">Total Projects</p>
-          <p className="text-2xl font-bold text-white">{projects.length}</p>
+      {viewMode === 'admin' && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-zinc-900 rounded-lg p-4 border border-zinc-800">
+            <p className="text-zinc-500 text-sm">Total Projects</p>
+            <p className="text-2xl font-bold text-white">{projects.length}</p>
+          </div>
+          <div className="bg-zinc-900 rounded-lg p-4 border border-zinc-800">
+            <p className="text-zinc-500 text-sm">Active</p>
+            <p className="text-2xl font-bold text-green-400">
+              {projects.filter((p) => p.status === 'active').length}
+            </p>
+          </div>
+          <div className="bg-zinc-900 rounded-lg p-4 border border-zinc-800">
+            <p className="text-zinc-500 text-sm">Total Budget</p>
+            <p className="text-2xl font-bold text-white">
+              {formatCurrency(projects.reduce((sum, p) => sum + (p.budget || 0), 0))}
+            </p>
+          </div>
+          <div className="bg-zinc-900 rounded-lg p-4 border border-zinc-800">
+            <p className="text-zinc-500 text-sm">Total Spent</p>
+            <p className="text-2xl font-bold text-red-400">
+              {formatCurrency(projects.reduce((sum, p) => sum + p.totalSpent, 0))}
+            </p>
+          </div>
         </div>
-        <div className="bg-zinc-900 rounded-lg p-4 border border-zinc-800">
-          <p className="text-zinc-500 text-sm">Active</p>
-          <p className="text-2xl font-bold text-green-400">
-            {projects.filter((p) => p.status === 'active').length}
-          </p>
-        </div>
-        <div className="bg-zinc-900 rounded-lg p-4 border border-zinc-800">
-          <p className="text-zinc-500 text-sm">Total Budget</p>
-          <p className="text-2xl font-bold text-white">
-            {formatCurrency(projects.reduce((sum, p) => sum + (p.budget || 0), 0))}
-          </p>
-        </div>
-        <div className="bg-zinc-900 rounded-lg p-4 border border-zinc-800">
-          <p className="text-zinc-500 text-sm">Total Spent</p>
-          <p className="text-2xl font-bold text-red-400">
-            {formatCurrency(projects.reduce((sum, p) => sum + p.totalSpent, 0))}
-          </p>
-        </div>
-      </div>
+      )}
 
       {/* Live indicator */}
       <div className="flex items-center gap-2 text-sm text-zinc-500">

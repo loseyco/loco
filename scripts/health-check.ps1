@@ -37,24 +37,24 @@ function LogToSupabase($action, $details) {
     }
 }
 
-# Check openclaw-engine (Port 18790)
-$enginePort = Get-NetTCPConnection -LocalPort 18790 -ErrorAction SilentlyContinue
-if ($enginePort) {
-    $report += "- **openclaw-engine (18790):** ONLINE & LISTENING`n"
-} else {
-    $report += "- **openclaw-engine (18790):** OFFLINE or NOT LISTENING. Attempting restart...`n"
-    pm2 restart openclaw-engine
-    LogToSupabase "RESTART" "Restarted openclaw-engine due to port 18790 timeout"
-}
+# Check openclaw-engine (Port 18790) - SKIPPED (Engine is integrated in Gateway)
+# $enginePort = Get-NetTCPConnection -LocalPort 18790 -ErrorAction SilentlyContinue
+# if ($enginePort) {
+#     $report += "- **openclaw-engine (18790):** ONLINE & LISTENING`n"
+# } else {
+#     $report += "- **openclaw-engine (18790):** OFFLINE or NOT LISTENING. Attempting restart...`n"
+#     pm2 restart openclaw-engine
+#     LogToSupabase "RESTART" "Restarted openclaw-engine due to port 18790 timeout"
+# }
 
-# Check openclaw-voice (Port 18789)
+# Check openclaw gateway (Port 18789)
 $voicePort = Get-NetTCPConnection -LocalPort 18789 -ErrorAction SilentlyContinue
 if ($voicePort) {
-    $report += "- **openclaw-voice (18789):** ONLINE & LISTENING`n"
+    $report += "- **openclaw-gateway (18789):** ONLINE & LISTENING`n"
 } else {
-    $report += "- **openclaw-voice (18789):** OFFLINE or NOT LISTENING. Attempting restart...`n"
-    pm2 restart openclaw-voice
-    LogToSupabase "RESTART" "Restarted openclaw-voice due to port 18789 timeout"
+    $report += "- **openclaw-gateway (18789):** OFFLINE or NOT LISTENING. Attempting restart...`n"
+    openclaw gateway restart
+    LogToSupabase "RESTART" "Restarted openclaw gateway due to port 18789 timeout"
 }
 
 # Check PM2 status for other services

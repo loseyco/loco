@@ -1,3 +1,7 @@
 @echo off
 cd /d "C:\LoCoOS\gui"
-npm start
+
+echo Launching LoCo Control...
+call npm start
+echo LoCo Control closed.
+pause

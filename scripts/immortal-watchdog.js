@@ -5,7 +5,7 @@ const path = require('path');
 
 const PRIMARY_PORT = 18789;
 const ENGINE_PORT = 18790;
-const RECOVERY_PATH = 'C:\\LoCoOS\\scripts\\recovery.bat';
+const RECOVERY_PATH = 'C:\\LoCoOS\\scripts\\infra\\recovery.bat';
 const LOG_FILE = 'C:\\LoCoOS\\logs\\watchdog.log';
 
 function log(msg) {

@@ -6,6 +6,8 @@ import { ReactNode, useEffect, useState } from 'react'
 import { signOut } from '@/app/login/actions'
 import { supabase, SystemStats } from '@/lib/supabase'
 
+import { ViewContext } from '@/lib/ViewContext'
+
 interface ChaseStatus {
   status: 'working' | 'idle'
   current_task: string | null
@@ -16,6 +18,7 @@ interface ChaseStatus {
 const navItems = [
   { href: '/dashboard', label: 'Overview', icon: '📊' },
   { href: '/dashboard/staff', label: 'Staff', icon: '🛠️' },
+  { href: '/dashboard/work', label: 'Found Work', icon: '🔍' },
   { href: '/dashboard/projects', label: 'Projects', icon: '📁' },
   { href: '/dashboard/tasks', label: 'Tasks', icon: '✅' },
   { href: '/dashboard/invoices', label: 'Invoices', icon: '🧾' },
@@ -109,9 +112,8 @@ function ChaseStatusBar() {
   const pcOnline = pcStats && (Date.now() - new Date(pcStats.last_seen).getTime()) < 60000
 
   return (
-    <div className={`px-4 py-2 border-b flex flex-col md:flex-row md:items-center justify-between text-sm gap-2 ${
-      isWorking ? 'bg-green-950/50 border-green-800/50' : 'bg-zinc-900/50 border-zinc-800'
-    }`}>
+    <div className={`px-4 py-2 border-b flex flex-col md:flex-row md:items-center justify-between text-sm gap-2 ${isWorking ? 'bg-green-950/50 border-green-800/50' : 'bg-zinc-900/50 border-zinc-800'
+      }`}>
       <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
         <div className="flex items-center gap-3">
           <span className={`w-2 h-2 rounded-full flex-shrink-0 ${isWorking ? 'bg-green-500 animate-pulse' : 'bg-zinc-500'}`} />
@@ -135,16 +137,15 @@ function ChaseStatusBar() {
               <span className="text-zinc-500 whitespace-nowrap">CPU <span className={pcStats.cpu_usage > 80 ? 'text-red-400' : 'text-zinc-300'}>{pcStats.cpu_usage}%</span></span>
               <span className="text-zinc-500 whitespace-nowrap">MEM <span className={pcStats.memory_usage > 80 ? 'text-red-400' : 'text-zinc-300'}>{pcStats.memory_usage}%</span></span>
             </div>
-            
+
             {/* PM2 Processes */}
             {pcStats.metadata?.pm2 && (
               <div className="hidden lg:flex items-center gap-4 pl-4 border-l border-zinc-800/50">
                 {pcStats.metadata.pm2.map((proc) => (
                   <div key={proc.name} className="flex items-center gap-1.5 group relative" title={`${proc.name}: ${proc.status}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${
-                      proc.status === 'online' ? 'bg-emerald-500' : 
+                    <span className={`w-1.5 h-1.5 rounded-full ${proc.status === 'online' ? 'bg-emerald-500' :
                       proc.status === 'stopped' ? 'bg-orange-500' : 'bg-red-500'
-                    }`} />
+                      }`} />
                     <span className="text-[10px] text-zinc-500 uppercase tracking-tight font-medium group-hover:text-zinc-300 transition-colors whitespace-nowrap">
                       {proc.name.replace('openclaw-', '')}
                     </span>
@@ -155,7 +156,7 @@ function ChaseStatusBar() {
           </div>
         )}
       </div>
-      
+
       <div className="flex items-center gap-4 text-zinc-500 text-xs md:text-sm">
         {latestLog && (
           <span className="truncate">
@@ -173,136 +174,171 @@ function ChaseStatusBar() {
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [viewMode, setViewMode] = useState<'admin' | 'user'>('admin')
+
+  // Filter items based on viewMode
+  const visibleNavItems = viewMode === 'admin'
+    ? navItems
+    : navItems.filter(item => ['Projects', 'Tasks'].includes(item.label));
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col md:flex-row relative">
-      {/* Mobile Header */}
-      <div className="md:hidden bg-zinc-950 border-b border-zinc-800 p-4 flex items-center justify-between sticky top-0 z-50">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="text-xl font-bold text-red-500">Losey</span>
-          <span className="text-xl font-light text-zinc-400">.co</span>
-        </Link>
-        <button 
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="p-2 text-zinc-400 hover:text-white"
-        >
-          <span className="text-2xl">{isSidebarOpen ? '✕' : '☰'}</span>
-        </button>
-      </div>
+    <ViewContext.Provider value={{ viewMode, setViewMode }}>
+      <div className="min-h-screen bg-black text-white flex flex-col md:flex-row relative">
+        {/* Mobile Header */}
+        <div className="md:hidden bg-zinc-950 border-b border-zinc-800 p-4 flex items-center justify-between sticky top-0 z-50">
+          <Link href="/" className="flex items-center gap-2">
+            <span className="text-xl font-bold text-red-500">Losey</span>
+            <span className="text-xl font-light text-zinc-400">.co</span>
+          </Link>
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="p-2 text-zinc-400 hover:text-white"
+          >
+            <span className="text-2xl">{isSidebarOpen ? '✕' : '☰'}</span>
+          </button>
+        </div>
 
-      {/* Sidebar Overlay (Mobile) */}
-      {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 md:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
+        {/* Sidebar Overlay (Mobile) */}
+        {isSidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 md:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
 
-      {/* Sidebar */}
-      <aside className={`
+        {/* Sidebar */}
+        <aside className={`
         fixed md:sticky top-0 left-0 h-screen w-64 bg-zinc-950 border-r border-zinc-800 flex flex-col z-50
         transition-transform duration-300 md:translate-x-0
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        {/* Logo (Desktop) */}
-        <div className="p-6 border-b border-zinc-800 hidden md:block">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-red-500">Losey</span>
-            <span className="text-2xl font-light text-zinc-400">.co</span>
-          </Link>
-        </div>
+          {/* Logo (Desktop) */}
+          <div className="p-6 border-b border-zinc-800 hidden md:block">
+            <Link href="/" className="flex items-center gap-2">
+              <span className="text-2xl font-bold text-red-500">Losey</span>
+              <span className="text-2xl font-light text-zinc-400">.co</span>
+            </Link>
+          </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-8 overflow-y-auto">
-          <div className="space-y-2">
-            <p className="px-4 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">Management</p>
-            {navItems.map((item) => {
+          {/* Navigation */}
+          <nav className="flex-1 p-4 space-y-8 overflow-y-auto">
+            {/* Management Links */}
+            <div className="space-y-2">
+              <p className="px-4 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">Management</p>
+              {visibleNavItems.map((item) => {
                 const isActive = pathname === item.href
                 return (
-                <Link
+                  <Link
                     key={item.href}
                     href={item.href}
                     onClick={() => setIsSidebarOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                    isActive
-                        ? 'bg-red-600/20 text-red-500 border border-red-600/30'
-                        : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
-                    }`}
-                >
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${isActive
+                      ? 'bg-red-600/20 text-red-500 border border-red-600/30'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
+                      }`}
+                  >
                     <span className="text-xl">{item.icon}</span>
                     <span className="font-medium">{item.label}</span>
-                </Link>
+                  </Link>
                 )
-            })}
-          </div>
+              })}
+            </div>
 
-          <div className="space-y-2">
-            <p className="px-4 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">Demos & Spec</p>
-            {demoItems.map((item) => {
-                const isActive = pathname === item.href
-                return (
-                <Link
+            {/* Demos & Spec - HIDDEN IN USER MODE */}
+            {viewMode === 'admin' && (
+              <div className="space-y-2">
+                <p className="px-4 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">Demos & Spec</p>
+                {demoItems.map((item) => {
+                  const isActive = pathname === item.href
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setIsSidebarOpen(false)}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${isActive
+                        ? 'bg-red-600/20 text-red-500 border border-red-600/30'
+                        : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
+                        }`}
+                    >
+                      <span className="text-xl">{item.icon}</span>
+                      <span className="font-medium">{item.label}</span>
+                    </Link>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* External Links - HIDDEN IN USER MODE */}
+            {viewMode === 'admin' && (
+              <div className="space-y-2">
+                <p className="px-4 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">External</p>
+                {externalLinks.map((item) => (
+                  <a
                     key={item.href}
                     href={item.href}
-                    onClick={() => setIsSidebarOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                    isActive
-                        ? 'bg-red-600/20 text-red-500 border border-red-600/30'
-                        : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
-                    }`}
-                >
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all duration-200"
+                  >
                     <span className="text-xl">{item.icon}</span>
                     <span className="font-medium">{item.label}</span>
-                </Link>
-                )
-            })}
-          </div>
+                  </a>
+                ))}
+              </div>
+            )}
+          </nav>
 
-          <div className="space-y-2">
-            <p className="px-4 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">External</p>
-            {externalLinks.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 px-4 py-3 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all duration-200"
+          {/* View Mode Toggle & Sign Out */}
+          <div className="p-4 border-t border-zinc-800 space-y-4">
+            {/* View Mode Switcher */}
+            <div className="flex bg-zinc-900 rounded-lg p-1 border border-zinc-800">
+              <button
+                onClick={() => setViewMode('admin')}
+                className={`flex-1 text-xs font-medium py-1.5 rounded-md transition-all ${viewMode === 'admin'
+                  ? 'bg-red-600 text-white shadow-lg'
+                  : 'text-zinc-500 hover:text-zinc-300'
+                  }`}
               >
-                <span className="text-xl">{item.icon}</span>
-                <span className="font-medium">{item.label}</span>
-              </a>
-            ))}
-          </div>
-        </nav>
+                PJ (Admin)
+              </button>
+              <button
+                onClick={() => setViewMode('user')}
+                className={`flex-1 text-xs font-medium py-1.5 rounded-md transition-all ${viewMode === 'user'
+                  ? 'bg-blue-600 text-white shadow-lg'
+                  : 'text-zinc-500 hover:text-zinc-300'
+                  }`}
+              >
+                Kristina
+              </button>
+            </div>
 
-        {/* Sign out and status */}
-        <div className="p-4 border-t border-zinc-800 space-y-4">
-          <form action={signOut}>
-            <button
-              type="submit"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all duration-200"
-            >
-              <span className="text-xl">🚪</span>
-              <span className="font-medium">Sign Out</span>
-            </button>
-          </form>
-          <div className="flex items-center gap-2 text-sm text-zinc-500">
-            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-            <span>Real-time connected</span>
+            <form action={signOut}>
+              <button
+                type="submit"
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all duration-200"
+              >
+                <span className="text-xl">🚪</span>
+                <span className="font-medium">Sign Out</span>
+              </button>
+            </form>
+            <div className="flex items-center gap-2 text-sm text-zinc-500">
+              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <span>Real-time connected</span>
+            </div>
           </div>
-        </div>
-      </aside>
+        </aside>
 
-      {/* Main content */}
-      <main className="flex-1 overflow-x-hidden flex flex-col">
-        {/* Chase Status Bar */}
-        <ChaseStatusBar />
-        
-        {/* Page content */}
-        <div className="flex-1 p-4 md:p-8 overflow-x-hidden">
-          {children}
-        </div>
-      </main>
-    </div>
+        {/* Main content */}
+        <main className="flex-1 overflow-x-hidden flex flex-col">
+          {/* Chase Status Bar */}
+          <ChaseStatusBar />
+
+          {/* Page content */}
+          <div className="flex-1 p-4 md:p-8 overflow-x-hidden">
+            {children}
+          </div>
+        </main>
+      </div>
+    </ViewContext.Provider >
   )
 }

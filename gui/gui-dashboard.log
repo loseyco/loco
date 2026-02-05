@@ -1,0 +1,691 @@
+
+> site@0.1.0 dev
+> next dev -p 3300
+
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\LoCoOS\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\LoCoOS\site\package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3300
+- Network:       http://169.254.83.107:3300
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 824ms
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard 200 in 445ms (compile: 230ms, render: 215ms)
+ GET /dashboard/tasks 200 in 87ms (compile: 57ms, render: 30ms)
+ GET /dashboard 200 in 20ms (compile: 4ms, render: 16ms)
+ GET /dashboard/tasks/f42208d1-7c69-4d88-b4ee-276d6c8a830f 200 in 467ms (compile: 435ms, render: 32ms)
+ GET /dashboard/tasks 200 in 20ms (compile: 3ms, render: 17ms)
+ GET /dashboard/tasks/c459cb5c-b253-48fa-9315-e3eb80228d75 200 in 27ms (compile: 9ms, render: 18ms)
+ GET /dashboard/tasks 200 in 24ms (compile: 3ms, render: 21ms)
+ GET /dashboard/tasks/f143d9ea-3f30-491d-8847-48e702419f2a 200 in 32ms (compile: 10ms, render: 22ms)
+ GET /dashboard/tasks 200 in 20ms (compile: 3ms, render: 17ms)
+ GET /dashboard/tasks/c459cb5c-b253-48fa-9315-e3eb80228d75 200 in 33ms (compile: 8ms, render: 25ms)
+ GET /dashboard/staff 200 in 60ms (compile: 38ms, render: 22ms)
+✓ Compiled in 628ms
+⨯ ./site/src/app/dashboard/page.tsx:265:24
+Parsing ecmascript source code failed
+[0m [90m 263 |[39m
+ [90m 264 |[39m                 [33mStart[39m [33mAll[39m
+[31m[1m>[22m[39m[90m 265 |[39m               [33m<[39m[33m/[39m[33mbutton[39m[33m>[39m
+ [90m     |[39m                        [31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 266 |[39m               [33m<[39m[33mbutton[39m
+ [90m     |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 267 |[39m                 onClick[33m=[39m{() [33m=>[39m (window [36mas[39m any)[33m.[39mapi[33m?[39m[33m.[39mcontrolSystem([32m'stop'[39m)}
+ [90m 268 |[39m                 className[33m=[39m[32m"px-2 py-3 bg-orange-900/30 hover:bg-orange-800/50 border border-orange-800 text-orange-400 rounded text-[10px] font-bold uppercase transition-all"[39m
+ [90m 269 |[39m               [33m>[39m[0m
+
+Expected '</', got 'jsx text'
+
+
+ GET /dashboard 500 in 1094ms (compile: 977ms, render: 117ms)
+✓ Compiled in 202ms
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard 200 in 419ms (compile: 164ms, render: 255ms)
+ GET /dashboard/staff 200 in 25ms (compile: 6ms, render: 20ms)
+ GET /dashboard 200 in 22ms (compile: 4ms, render: 19ms)
+ GET /dashboard/tasks 200 in 27ms (compile: 9ms, render: 18ms)
+ GET /dashboard 200 in 22ms (compile: 3ms, render: 18ms)
+✓ Compiled in 79ms
+ GET /dashboard/projects 200 in 478ms (compile: 448ms, render: 30ms)
+ GET /dashboard/projects/fcc7da00-aeb8-4954-a197-e42c4770dac5 200 in 664ms (compile: 637ms, render: 27ms)
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard 200 in 142ms (compile: 86ms, render: 56ms)
+✓ Compiled in 71ms
+
+> site@0.1.0 dev
+> next dev -p 3300
+
+[?25h
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\LoCoOS\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\LoCoOS\site\package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3300
+- Network:       http://169.254.83.107:3300
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 890ms
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard 200 in 545ms (compile: 259ms, render: 286ms)
+ GET /dashboard 200 in 551ms (compile: 350ms, render: 201ms)
+ GET /dashboard/staff 200 in 74ms (compile: 38ms, render: 36ms)
+ GET /dashboard 200 in 22ms (compile: 5ms, render: 17ms)
+ GET /dashboard/staff 200 in 19ms (compile: 3ms, render: 16ms)
+ GET /dashboard/projects 200 in 46ms (compile: 21ms, render: 25ms)
+ GET /dashboard/tasks 200 in 44ms (compile: 22ms, render: 22ms)
+ GET /dashboard/invoices 200 in 427ms (compile: 403ms, render: 24ms)
+ GET /dashboard/finance 200 in 282ms (compile: 262ms, render: 21ms)
+ GET /dashboard/chat 200 in 276ms (compile: 251ms, render: 25ms)
+ GET /dashboard/changelog 200 in 64ms (compile: 40ms, render: 24ms)
+ GET /dashboard/logs 200 in 51ms (compile: 31ms, render: 20ms)
+ GET /demo/werk-shop 200 in 419ms (compile: 395ms, render: 24ms)
+ GET /dashboard 200 in 63ms (compile: 3ms, render: 60ms)
+ GET /dashboard/tasks 200 in 23ms (compile: 3ms, render: 20ms)
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+⚠ Fast Refresh had to perform a full reload when ./site/src/app/dashboard/layout.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /dashboard/tasks 200 in 281ms (compile: 89ms, render: 193ms)
+ GET /dashboard/tasks 200 in 117ms (compile: 4ms, render: 113ms)
+ GET /dashboard/tasks 200 in 118ms (compile: 25ms, render: 93ms)
+ GET /dashboard/tasks 200 in 118ms (compile: 47ms, render: 71ms)
+ GET /dashboard/tasks 200 in 118ms (compile: 88ms, render: 30ms)
+ GET /dashboard/tasks 200 in 119ms (compile: 66ms, render: 53ms)
+ GET /dashboard/tasks 200 in 63ms (compile: 44ms, render: 19ms)
+ GET /dashboard/tasks 200 in 70ms (compile: 28ms, render: 41ms)
+ GET /dashboard/tasks 200 in 71ms (compile: 10ms, render: 61ms)
+ GET /dashboard/tasks 200 in 199ms (compile: 7ms, render: 192ms)
+✓ Compiled in 67ms
+✓ Compiled in 55ms
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+⚠ Fast Refresh had to perform a full reload when ./site/src/app/dashboard/layout.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /dashboard/tasks 200 in 265ms (compile: 81ms, render: 185ms)
+ GET /dashboard/tasks 200 in 108ms (compile: 4ms, render: 104ms)
+ GET /dashboard/tasks 200 in 109ms (compile: 23ms, render: 86ms)
+ GET /dashboard/tasks 200 in 110ms (compile: 82ms, render: 28ms)
+ GET /dashboard/tasks 200 in 218ms (compile: 41ms, render: 177ms)
+ GET /dashboard/tasks 200 in 218ms (compile: 59ms, render: 159ms)
+ GET /dashboard/tasks 200 in 67ms (compile: 26ms, render: 41ms)
+ GET /dashboard/tasks 200 in 67ms (compile: 45ms, render: 21ms)
+ GET /dashboard/tasks 200 in 70ms (compile: 5ms, render: 65ms)
+ GET /dashboard/tasks 200 in 229ms (compile: 8ms, render: 221ms)
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard 200 in 142ms (compile: 84ms, render: 58ms)
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard/chat 200 in 192ms (compile: 99ms, render: 93ms)
+Error saving user message: {
+  code: 'PGRST204',
+  details: null,
+  hint: null,
+  message: "Could not find the 'role' column of 'messages' in the schema cache"
+}
+Error saving agent message: {
+  code: 'PGRST204',
+  details: null,
+  hint: null,
+  message: "Could not find the 'role' column of 'messages' in the schema cache"
+}
+ POST /api/chat 200 in 912ms (compile: 380ms, render: 532ms)
+✓ Compiled in 61ms
+✓ Compiled in 73ms
+✓ Compiled in 57ms
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+✓ Compiled in 55ms
+ GET /dashboard/chat 200 in 156ms (compile: 92ms, render: 65ms)
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard/projects 200 in 134ms (compile: 90ms, render: 45ms)
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard 200 in 266ms (compile: 84ms, render: 183ms)
+ GET /dashboard/projects 200 in 18ms (compile: 2ms, render: 16ms)
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard/tasks 200 in 125ms (compile: 80ms, render: 46ms)
+ GET /dashboard/projects 200 in 18ms (compile: 2ms, render: 16ms)
+✓ Compiled in 61ms
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+⨯ ReferenceError: viewMode is not defined
+    at ProjectsPage (src\app\dashboard\projects\page.tsx:147:24)
+  145 |
+  146 |   // Filter projects based on viewMode
+> 147 |   const userProjects = viewMode === 'admin'
+      |                        ^
+  148 |     ? projects
+  149 |     : projects.filter((p: any) => p.owner_id === 'kristina')
+  150 | {
+  digest: '1623271364'
+}
+✓ Compiled in 51ms
+ GET /dashboard/projects 500 in 296ms (compile: 86ms, render: 210ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+✓ Compiled in 55ms
+ GET /dashboard/projects 200 in 258ms (compile: 86ms, render: 172ms)
+ GET /dashboard 200 in 26ms (compile: 6ms, render: 20ms)
+ GET /dashboard/projects 200 in 19ms (compile: 3ms, render: 16ms)
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard/tasks 200 in 131ms (compile: 90ms, render: 41ms)
+ GET /dashboard/projects 200 in 19ms (compile: 3ms, render: 16ms)
+✓ Compiled in 49ms
+✓ Compiled in 49ms
+✓ Compiled in 52ms
+✓ Compiled in 60ms
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard/projects 200 in 130ms (compile: 80ms, render: 50ms)
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard 200 in 235ms (compile: 86ms, render: 149ms)
+ GET /dashboard/projects 200 in 24ms (compile: 3ms, render: 21ms)
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard/tasks 200 in 140ms (compile: 85ms, render: 55ms)
+ GET /dashboard 200 in 19ms (compile: 5ms, render: 14ms)
+ GET /dashboard 200 in 19ms (compile: 3ms, render: 16ms)
+ GET /dashboard/tasks 200 in 20ms (compile: 3ms, render: 16ms)
+ GET /dashboard/tasks/eadd5968-287d-4d5f-a79a-d555db7e043e 200 in 461ms (compile: 429ms, render: 32ms)
+ GET /dashboard/tasks 200 in 21ms (compile: 3ms, render: 18ms)
+ GET /dashboard 200 in 23ms (compile: 6ms, render: 18ms)
+ GET /dashboard/tasks 200 in 20ms (compile: 2ms, render: 17ms)
+ GET /dashboard/tasks/f42208d1-7c69-4d88-b4ee-276d6c8a830f 200 in 31ms (compile: 9ms, render: 22ms)
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard/staff 200 in 177ms (compile: 104ms, render: 73ms)
+ GET /dashboard 200 in 16ms (compile: 3ms, render: 14ms)
+
+> site@0.1.0 dev
+> next dev -p 3300
+
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\LoCoOS\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\LoCoOS\site\package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3300
+- Network:       http://169.254.83.107:3300
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 1009ms
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard 200 in 503ms (compile: 262ms, render: 240ms)
+ GET /dashboard 200 in 53ms (compile: 5ms, render: 49ms)
+
+> site@0.1.0 dev
+> next dev -p 3300
+
+[?25h
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\LoCoOS\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\LoCoOS\site\package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3300
+- Network:       http://169.254.83.107:3300
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 935ms
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard 200 in 613ms (compile: 279ms, render: 334ms)
+ GET /dashboard 200 in 610ms (compile: 363ms, render: 247ms)
+
+> site@0.1.0 dev
+> next dev -p 3300
+
+[?25h
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\LoCoOS\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\LoCoOS\site\package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3300
+- Network:       http://169.254.83.107:3300
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 856ms
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard 200 in 628ms (compile: 284ms, render: 343ms)
+ GET /dashboard 200 in 624ms (compile: 372ms, render: 252ms)
+
+> site@0.1.0 dev
+> next dev -p 3300
+
+[?25h
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\LoCoOS\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\LoCoOS\site\package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3300
+- Network:       http://169.254.83.107:3300
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 1034ms
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard 200 in 115ms (compile: 24ms, render: 91ms)
+ GET /dashboard 200 in 762ms (compile: 320ms, render: 442ms)
+
+> site@0.1.0 dev
+> next dev -p 3300
+
+[?25h
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\LoCoOS\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\LoCoOS\site\package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3300
+- Network:       http://169.254.83.107:3300
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 1011ms
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard 200 in 625ms (compile: 402ms, render: 222ms)
+ GET /dashboard 200 in 654ms (compile: 320ms, render: 334ms)
+
+> site@0.1.0 dev
+> next dev -p 3300
+
+[?25h
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\LoCoOS\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\LoCoOS\site\package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3300
+- Network:       http://169.254.83.107:3300
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 896ms
+
+> site@0.1.0 dev
+> next dev -p 3300
+
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\LoCoOS\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\LoCoOS\site\package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3300
+- Network:       http://169.254.83.107:3300
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 859ms
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard 200 in 502ms (compile: 269ms, render: 232ms)
+
+> site@0.1.0 dev
+> next dev -p 3300
+
+[?25h
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\LoCoOS\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\LoCoOS\site\package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3300
+- Network:       http://169.254.83.107:3300
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 968ms
+
+> site@0.1.0 dev
+> next dev -p 3300
+
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\LoCoOS\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\LoCoOS\site\package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3300
+- Network:       http://169.254.83.107:3300
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 1527ms
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard 200 in 602ms (compile: 332ms, render: 270ms)
+
+> site@0.1.0 dev
+> next dev -p 3300
+
+[?25h
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\LoCoOS\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\LoCoOS\site\package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3300
+- Network:       http://169.254.83.107:3300
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 1066ms
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard 200 in 870ms (compile: 518ms, render: 352ms)
+ GET /dashboard 200 in 867ms (compile: 392ms, render: 475ms)
+
+> site@0.1.0 dev
+> next dev -p 3300
+
+[?25h
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\LoCoOS\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\LoCoOS\site\package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3300
+- Network:       http://169.254.83.107:3300
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 900ms
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard 200 in 569ms (compile: 360ms, render: 209ms)
+ GET /dashboard 200 in 566ms (compile: 271ms, render: 295ms)
+
+> site@0.1.0 dev
+> next dev -p 3300
+
+[?25h
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\LoCoOS\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\LoCoOS\site\package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3300
+- Network:       http://169.254.83.107:3300
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 911ms
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard 200 in 546ms (compile: 262ms, render: 284ms)
+ GET /dashboard 200 in 554ms (compile: 350ms, render: 205ms)
+
+> site@0.1.0 dev
+> next dev -p 3300
+
+[?25h
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\LoCoOS\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\LoCoOS\site\package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3300
+- Network:       http://169.254.83.107:3300
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 1113ms
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard 200 in 918ms (compile: 400ms, render: 518ms)
+ GET /dashboard 200 in 926ms (compile: 716ms, render: 211ms)
+
+> site@0.1.0 dev
+> next dev -p 3300
+
+[?25h
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\LoCoOS\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\LoCoOS\site\package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3300
+- Network:       http://169.254.83.107:3300
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 889ms
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard 200 in 549ms (compile: 271ms, render: 278ms)
+ GET /dashboard 200 in 555ms (compile: 358ms, render: 198ms)
+
+> site@0.1.0 dev
+> next dev -p 3300
+
+[?25h
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\LoCoOS\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\LoCoOS\site\package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3300
+- Network:       http://169.254.83.107:3300
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 980ms
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard 200 in 616ms (compile: 337ms, render: 279ms)
+
+> site@0.1.0 dev
+> next dev -p 3300
+
+[?25h
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\LoCoOS\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\LoCoOS\site\package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3300
+- Network:       http://169.254.83.107:3300
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 1144ms
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard 200 in 641ms (compile: 336ms, render: 305ms)
+ GET /dashboard 200 in 650ms (compile: 423ms, render: 228ms)
+
+> site@0.1.0 dev
+> next dev -p 3300
+
+
+> site@0.1.0 dev
+> next dev -p 3300
+
+⨯ Failed to start server
+Error: listen EADDRINUSE: address already in use :::3300
+    at <unknown> (Error: listen EADDRINUSE: address already in use :::3300)
+    at new Promise (<anonymous>) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::',
+  port: 3300
+}
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\LoCoOS\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\LoCoOS\site\package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3300
+- Network:       http://169.254.83.107:3300
+- Environments: .env.local
+
+✓ Starting...
+[?25h
+✓ Ready in 1253ms
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard 200 in 626ms (compile: 359ms, render: 266ms)
+
+> site@0.1.0 dev
+> next dev -p 3300
+
+
+> site@0.1.0 dev
+> next dev -p 3300
+
+⨯ Failed to start server
+Error: listen EADDRINUSE: address already in use :::3300
+    at <unknown> (Error: listen EADDRINUSE: address already in use :::3300)
+    at new Promise (<anonymous>) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::',
+  port: 3300
+}
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\LoCoOS\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\LoCoOS\site\package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3300
+- Network:       http://169.254.83.107:3300
+- Environments: .env.local
+
+✓ Starting...
+[?25h
+✓ Ready in 1037ms
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard 200 in 647ms (compile: 377ms, render: 271ms)
+ GET /dashboard/tasks 200 in 59ms (compile: 29ms, render: 30ms)
+✓ Compiled in 431ms
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard 200 in 94ms (compile: 51ms, render: 43ms)
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+✓ Compiled in 129ms
+ GET /dashboard 200 in 156ms (compile: 41ms, render: 116ms)
+ GET /dashboard 200 in 85ms (compile: 3ms, render: 81ms)
+ GET /dashboard 200 in 86ms (compile: 4ms, render: 82ms)
+ GET /dashboard 200 in 85ms (compile: 3ms, render: 82ms)
+ GET /dashboard 200 in 87ms (compile: 3ms, render: 84ms)
+ GET /dashboard 200 in 85ms (compile: 4ms, render: 80ms)
+ GET /dashboard 200 in 83ms (compile: 3ms, render: 79ms)
+ GET /dashboard 200 in 83ms (compile: 3ms, render: 80ms)
+ GET /dashboard 200 in 83ms (compile: 3ms, render: 80ms)
+ GET /dashboard 200 in 85ms (compile: 3ms, render: 82ms)
+ GET /dashboard 200 in 86ms (compile: 3ms, render: 83ms)
+ GET /dashboard 200 in 86ms (compile: 3ms, render: 83ms)
+ GET /dashboard 200 in 84ms (compile: 3ms, render: 81ms)
+ GET /dashboard 200 in 88ms (compile: 4ms, render: 84ms)
+ GET /dashboard 200 in 86ms (compile: 4ms, render: 83ms)
+ GET /dashboard 200 in 86ms (compile: 3ms, render: 83ms)
+ GET /dashboard 200 in 88ms (compile: 3ms, render: 85ms)
+ GET /dashboard 200 in 85ms (compile: 3ms, render: 82ms)
+ GET /dashboard 200 in 83ms (compile: 3ms, render: 81ms)
+ GET /dashboard 200 in 84ms (compile: 3ms, render: 81ms)
+ GET /dashboard 200 in 83ms (compile: 5ms, render: 78ms)
+ GET /dashboard 200 in 79ms (compile: 3ms, render: 76ms)
+ GET /dashboard 200 in 79ms (compile: 3ms, render: 76ms)
+ GET /dashboard 200 in 78ms (compile: 3ms, render: 75ms)
+ GET /dashboard 200 in 78ms (compile: 3ms, render: 74ms)
+ GET /dashboard 200 in 82ms (compile: 3ms, render: 79ms)
+ GET /dashboard 200 in 83ms (compile: 3ms, render: 80ms)
+ GET /dashboard 200 in 82ms (compile: 3ms, render: 79ms)
+ GET /dashboard 200 in 83ms (compile: 3ms, render: 80ms)
+ GET /dashboard 200 in 79ms (compile: 3ms, render: 76ms)
+ GET /dashboard 200 in 79ms (compile: 3ms, render: 76ms)
+ GET /dashboard 200 in 78ms (compile: 3ms, render: 76ms)
+ GET /dashboard 200 in 86ms (compile: 3ms, render: 83ms)
+ GET /dashboard 200 in 84ms (compile: 3ms, render: 81ms)
+ GET /dashboard 200 in 84ms (compile: 4ms, render: 81ms)
+ GET /dashboard 200 in 84ms (compile: 6ms, render: 78ms)
+ GET /dashboard 200 in 76ms (compile: 3ms, render: 74ms)
+ GET /dashboard 200 in 77ms (compile: 3ms, render: 75ms)
+ GET /dashboard 200 in 79ms (compile: 4ms, render: 75ms)
+ GET /dashboard 200 in 84ms (compile: 3ms, render: 81ms)
+ GET /dashboard 200 in 83ms (compile: 3ms, render: 80ms)
+ GET /dashboard 200 in 81ms (compile: 3ms, render: 78ms)
+ GET /dashboard 200 in 80ms (compile: 3ms, render: 78ms)
+ GET /dashboard 200 in 76ms (compile: 3ms, render: 73ms)
+ GET /dashboard 200 in 76ms (compile: 3ms, render: 73ms)
+ GET /dashboard 200 in 76ms (compile: 2ms, render: 74ms)
+ GET /dashboard 200 in 79ms (compile: 3ms, render: 76ms)
+ GET /dashboard 200 in 83ms (compile: 2ms, render: 81ms)
+ GET /dashboard 200 in 82ms (compile: 4ms, render: 79ms)
+ GET /dashboard 200 in 80ms (compile: 3ms, render: 77ms)
+ GET /dashboard 200 in 80ms (compile: 7ms, render: 73ms)
+ GET /dashboard 200 in 78ms (compile: 3ms, render: 75ms)
+ GET /dashboard 200 in 79ms (compile: 3ms, render: 76ms)
+ GET /dashboard 200 in 80ms (compile: 3ms, render: 77ms)
+ GET /dashboard 200 in 82ms (compile: 3ms, render: 79ms)
+ GET /dashboard 200 in 81ms (compile: 3ms, render: 79ms)
+ GET /dashboard 200 in 81ms (compile: 3ms, render: 78ms)
+ GET /dashboard 200 in 81ms (compile: 3ms, render: 78ms)
+ GET /dashboard 200 in 74ms (compile: 2ms, render: 72ms)
+ GET /dashboard 200 in 75ms (compile: 2ms, render: 72ms)
+ GET /dashboard 200 in 75ms (compile: 3ms, render: 73ms)
+ GET /dashboard 200 in 58ms (compile: 3ms, render: 55ms)
+ GET /dashboard 200 in 76ms (compile: 2ms, render: 74ms)
+ GET /dashboard 200 in 77ms (compile: 3ms, render: 74ms)
+ GET /dashboard 200 in 78ms (compile: 3ms, render: 75ms)
+ GET /dashboard 200 in 80ms (compile: 2ms, render: 78ms)
+ GET /dashboard 200 in 81ms (compile: 3ms, render: 78ms)
+ GET /dashboard 200 in 80ms (compile: 3ms, render: 77ms)
+ GET /dashboard 200 in 81ms (compile: 3ms, render: 77ms)
+ GET /dashboard 200 in 60ms (compile: 3ms, render: 58ms)
+ GET /dashboard 200 in 42ms (compile: 3ms, render: 39ms)
+ GET /dashboard 200 in 23ms (compile: 3ms, render: 20ms)
+✓ Compiled in 53ms
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard/tasks 200 in 113ms (compile: 53ms, render: 59ms)
+✓ Compiled in 54ms

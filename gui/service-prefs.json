@@ -1,0 +1,30 @@
+{
+    "openclaw-voice": {
+        "boot": true,
+        "crash": true
+    },
+    "openclaw-engine": {
+        "boot": true,
+        "crash": true
+    },
+    "telemetry-sync": {
+        "boot": true,
+        "crash": true
+    },
+    "task-sync-hourly": {
+        "boot": true,
+        "crash": true
+    },
+    "usage-logger": {
+        "boot": true,
+        "crash": true
+    },
+    "failure-monitor": {
+        "boot": true,
+        "crash": true
+    },
+    "task-watcher": {
+        "boot": true,
+        "crash": true
+    }
+}

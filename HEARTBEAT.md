@@ -2,7 +2,7 @@
 
 ## Current Status: ✅ FULL PLATFORM LIVE
 
-**Last Updated:** 02/05/2026, 12:32 PM CST
+**Last Updated:** 02/05/2026, 01:52 PM CST
 
 ---
 
@@ -12,15 +12,16 @@
 ## Currently In Progress
 
 ### 🛠️ Task Summary
-* **Active:** `lets find some quick sale cheap work`
-* **Pending:** 12 total pending tasks.
-* **Latest Change:** Local Status GUI and Task Page Upgrades completed.
-
-- 🔄 **Task Watcher Active** — Monitoring https://www.losey.co/dashboard/tasks for live updates.
-- 🔄 **Discord Context Sync** — Monitoring #chase-log for instructions and updates.
-- 🔄 **Live Dashboard Sync** — Pushing CPU/MEM, PM2 Status, and API Usage (Stable).
+* **Active:** `lets find some quick sale cheap work`, `Vercel Env Vars Setup`, `build more control and information into each tasks view`, `check task comments / conversations so you can make those into task as needed`, `we neeed a dashboard vivew to manage found work and what we need to do to manage it complete it, talk to the client etc`
+* **Pending:** 11 total pending tasks.
+* **Latest Change:** Detected at 02/05/2026, 01:50 PM
 
 ## Just Completed
+- ✅ **Found Work View** — Created a dedicated CRM-style lead management page at `/dashboard/work`.
+- ✅ **Database Migration** — Added `owner_id` to `projects` table for granular user ownership.
+- ✅ **Command Queue Setup** — Created `system_commands` table and enabled Supabase Realtime for local PC orchestration.
+- ✅ **Workspace Cleanup** — Deleted redundant development and migration scripts to keep the environment lean.
+- ✅ **Werk Shop Integration** — Deep integration complete; updated `/demo/werk-shop` to pull live restoration data from Supabase.
 - ✅ **Task Detail Upgrade** — Overhauled the task detail page with real-time logs, chat-style discussion, and action buttons.
 - ✅ **Local Status GUI** — Built a dedicated `/monitor` route for small displays with live system and process metrics.
 - ✅ **Changelog Feature** — Added a dedicated Changelog page to the dashboard to track site updates and new features.
@@ -30,7 +31,6 @@
 - ✅ **Notification Routing** — All automated system alerts and cron summaries redirected to #chase-logs and #voice-reports.
 - ✅ **Fuel Gauge UI** — Integrated real-time token usage (TPM, RPM, RPD) into the losey.co dashboard.
 - ✅ **System Self-Check** — Verified all PM2 processes (engine, voice, telemetry, etc.) are online and ports 18790/18789 are listening.
-- ✅ **Werk Shop Integration** — Deep integration complete; updated `/demo/werk-shop` to pull live restoration data from Supabase.
 - ✅ **Multi-Bot Health Indicator** — Added real-time PM2 process health dots to the Dashboard header.
 - ✅ **Lead Gen & Outreach** — Initial research and outreach drafts completed (memory/outreach-drafts.md).
 - ✅ **Build Verification** — Confirmed production build is passing on Next.js 16.1.6.
@@ -93,6 +93,7 @@
 - **Discord Guild:** 1270550797335134229
 - **Discord Channel:** 1468827838395187365 (#chase-log)
 - **Projects:** https://www.losey.co/dashboard/projects ✅ NEW
+- **Work (Leads):** https://www.losey.co/dashboard/work ✅ NEW
 - **Login:** https://www.losey.co/login
 - **Contact:** https://www.losey.co/contact
 - **Logs:** https://www.losey.co/dashboard/logs
@@ -107,5 +108,5 @@
 ## ⛽ Fuel Gauge (Token Usage)
 - **TPM (Tokens/Min):** 0 / 1,000,000 (0.0%)
 - **RPM (Req/Min):** 0 / 15 (0.0%)
-- **RPD (Req/Day):** 138 / 1,500 (9.2%)
+- **RPD (Req/Day):** 153 / 1,500 (10.2%)
 - **Status:** ✅ TANK FULL

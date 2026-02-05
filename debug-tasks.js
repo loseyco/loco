@@ -9,17 +9,11 @@ const supabase = createClient(
 async function listTasks() {
     const { data: tasks, error } = await supabase
         .from('tasks')
-        .select('id, title, status, priority, description')
+        .select('*')
         .order('priority', { ascending: false });
 
-    if (error) { console.error(error); return; }
-
-    console.log('--- TASKS ---');
-    tasks.forEach(t => {
-        console.log(`[${t.status.toUpperCase()}] ID:${t.id} P:${t.priority} ${t.title}`);
-        console.log(`   > ${t.description}`);
-    });
-    console.log('-------------');
+    if (error) { console.error(JSON.stringify(error)); return; }
+    console.log(JSON.stringify(tasks, null, 2));
 }
 
 listTasks();

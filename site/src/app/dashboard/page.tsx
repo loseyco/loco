@@ -4,13 +4,18 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { supabase, Project, Task, AgentSession, AgentStatus, SystemStats } from '@/lib/supabase'
+import { useViewMode } from '@/lib/ViewContext'
 
 interface Stats {
   totalProjects: number
   activeTasks: number
   completedTasks: number
   agentSessions: number
+  // Add filtered count for display
+  userProjects?: number
+  userTasks?: number
 }
+
 
 export default function DashboardOverview() {
   const [stats, setStats] = useState<Stats>({
@@ -33,6 +38,7 @@ export default function DashboardOverview() {
     rpdPercent: 0
   })
   const [loading, setLoading] = useState(true)
+  const { viewMode, setViewMode } = useViewMode()
 
   useEffect(() => {
     fetchData()
@@ -136,10 +142,47 @@ export default function DashboardOverview() {
     }
   }
 
+  // Handle Remote System Control
+  async function handleSystemControl(command: string) {
+    // 1. Local Electron Mode
+    if ((window as any).api) {
+      await (window as any).api.controlSystem(command);
+      return;
+    }
+
+    // 2. Remote Web Mode
+    if (command === 'kill' && !confirm('⚠️ NUCLEAR OPTION ⚠️\n\nThis will force kill ALL OpenClaw robots and services on the remote host.\n\nProceed?')) return
+
+    const confirmMsg = `REMOTE: Send '${command}' command to Main PC?`;
+    if (command !== 'kill' && !confirm(confirmMsg)) return;
+
+    try {
+      const { error } = await supabase
+        .from('system_commands')
+        .insert({
+          target_system: 'main-pc',
+          command: command,
+          status: 'pending'
+        })
+
+      if (error) throw error
+      alert(`Command '${command}' sent to Main PC.`)
+    } catch (err: any) {
+      alert(`Failed to send command: ${err.message}`)
+    }
+  }
+
+  // Filter content based on View Mode
+  const filteredProjects = viewMode === 'admin'
+    ? recentProjects
+    : recentProjects.filter((p: any) => p.owner_id === 'kristina') // Mock filter - works if owner_id exists
+
+  // If filtered lists are empty in user mode, we might want to show placeholders or nothing.
+
   const statCards = [
-    { label: 'Total Projects', value: stats.totalProjects, icon: '📁', color: 'from-red-600 to-red-800' },
-    { label: 'Active Tasks', value: stats.activeTasks, icon: '🔥', color: 'from-orange-600 to-orange-800' },
-    { label: 'Completed', value: stats.completedTasks, icon: '✅', color: 'from-green-600 to-green-800' },
+    { label: 'Total Projects', value: viewMode === 'admin' ? stats.totalProjects : filteredProjects.length, icon: '📁', color: 'from-red-600 to-red-800' },
+    { label: 'Active Tasks', value: viewMode === 'admin' ? stats.activeTasks : 0, icon: '🔥', color: 'from-orange-600 to-orange-800' }, // Todo: correct filter
+    { label: 'Completed', value: viewMode === 'admin' ? stats.completedTasks : 0, icon: '✅', color: 'from-green-600 to-green-800' },
     { label: 'Agent Sessions', value: stats.agentSessions, icon: '🤖', color: 'from-purple-600 to-purple-800' },
   ]
 
@@ -160,7 +203,17 @@ export default function DashboardOverview() {
           <p className="text-zinc-500 mt-1">Real-time overview of your workspace</p>
         </div>
 
-        {systemStats && (
+        <div className="flex items-center gap-4">
+          <div className="text-right hidden md:block">
+            <h1 className="text-xl font-bold">Welcome back, PJ</h1>
+            <p className="text-xs text-zinc-400">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          </div>
+          <div className="w-10 h-10 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-sm font-bold text-zinc-400">
+            PJ
+          </div>
+        </div>
+
+        {systemStats && viewMode === 'admin' && ( // <--- HIDDEN FOR USER
           <div className="flex gap-4 text-xs font-mono bg-zinc-900 border border-zinc-800 p-3 rounded-lg">
             <div>
               <span className="text-zinc-500 uppercase">CPU</span>
@@ -180,224 +233,230 @@ export default function DashboardOverview() {
         )}
       </div>
 
-      {/* Agent Status Card (NEW) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
-          <div className="bg-red-600/10 border-b border-red-600/20 p-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-lg">⚡</span>
-              <h2 className="font-bold text-red-500 uppercase tracking-widest text-sm">Chase Status</h2>
-            </div>
-            <span className="text-[10px] font-mono text-zinc-500">
-              UPDATED: {agentStatus ? new Date(agentStatus.updated_at).toLocaleTimeString() : 'N/A'}
-            </span>
-          </div>
-          <div className="p-6 space-y-6">
-            <div>
-              <p className="text-xs font-mono text-zinc-500 uppercase tracking-widest mb-2">Current Goal</p>
-              <p className="text-xl font-medium text-white">{agentStatus?.current_task || 'Waiting for tasks...'}</p>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-8">
-              <div>
-                <p className="text-xs font-mono text-zinc-500 uppercase tracking-widest mb-2">Internal Status</p>
-                <div className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full animate-pulse ${agentStatus?.status === 'working' ? 'bg-green-500' : 'bg-zinc-500'}`} />
-                  <p className="text-sm text-zinc-300 capitalize">{agentStatus?.status || 'Active'}</p>
-                </div>
+      {/* Agent Status Card (NEW) - HIDDEN FOR USER */}
+      {viewMode === 'admin' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+            <div className="bg-red-600/10 border-b border-red-600/20 p-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">⚡</span>
+                <h2 className="font-bold text-red-500 uppercase tracking-widest text-sm">Chase Status</h2>
               </div>
-              <div>
-                <p className="text-xs font-mono text-zinc-500 uppercase tracking-widest mb-2">Staff (Pi Engine)</p>
-                <div className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${systemStats?.metadata?.pm2?.some(p => p.name === 'openclaw-engine' && p.status === 'online') ? 'bg-blue-500 animate-pulse' : 'bg-zinc-600'}`} />
-                  <p className={`text-sm font-bold ${systemStats?.metadata?.pm2?.some(p => p.name === 'openclaw-engine' && p.status === 'online') ? 'text-blue-400' : 'text-zinc-500'}`}>
-                    {systemStats?.metadata?.pm2?.some(p => p.name === 'openclaw-engine' && p.status === 'online') ? 'ONLINE' : 'OFFLINE'}
-                  </p>
-                </div>
-              </div>
-              <div>
-                <p className="text-xs font-mono text-zinc-500 uppercase tracking-widest mb-2">Active Sub-Agents</p>
-                <p className="text-lg font-bold text-white">{agentStatus?.active_subagents || 0}</p>
-              </div>
+              <span className="text-[10px] font-mono text-zinc-500">
+                UPDATED: {agentStatus ? new Date(agentStatus.updated_at).toLocaleTimeString() : 'N/A'}
+              </span>
             </div>
+            <div className="p-6 space-y-6">
+              <div>
+                <p className="text-xs font-mono text-zinc-500 uppercase tracking-widest mb-2">Current Goal</p>
+                <p className="text-xl font-medium text-white">{agentStatus?.current_task || 'Waiting for tasks...'}</p>
+              </div>
 
-            {agentStatus?.last_action && (
-              <div className="bg-orange-500/10 border border-orange-500/20 p-4 rounded-lg flex items-center gap-3">
-                <span className="text-xl">⚠️</span>
+              <div className="grid grid-cols-2 gap-8">
                 <div>
-                  <p className="text-xs font-mono text-orange-500 uppercase tracking-widest">Latest Action</p>
-                  <p className="text-sm text-zinc-300">{agentStatus.last_action}</p>
+                  <p className="text-xs font-mono text-zinc-500 uppercase tracking-widest mb-2">Internal Status</p>
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full animate-pulse ${agentStatus?.status === 'working' ? 'bg-green-500' : 'bg-zinc-500'}`} />
+                    <p className="text-sm text-zinc-300 capitalize">{agentStatus?.status || 'Active'}</p>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs font-mono text-zinc-500 uppercase tracking-widest mb-2">Staff (Pi Engine)</p>
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${systemStats?.metadata?.pm2?.some(p => p.name === 'openclaw-engine' && p.status === 'online') ? 'bg-blue-500 animate-pulse' : 'bg-zinc-600'}`} />
+                    <p className={`text-sm font-bold ${systemStats?.metadata?.pm2?.some(p => p.name === 'openclaw-engine' && p.status === 'online') ? 'text-blue-400' : 'text-zinc-500'}`}>
+                      {systemStats?.metadata?.pm2?.some(p => p.name === 'openclaw-engine' && p.status === 'online') ? 'ONLINE' : 'OFFLINE'}
+                    </p>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs font-mono text-zinc-500 uppercase tracking-widest mb-2">Active Sub-Agents</p>
+                  <p className="text-lg font-bold text-white">{agentStatus?.active_subagents || 0}</p>
                 </div>
               </div>
-            )}
-          </div>
-        </div>
 
-        {/* Quick Task Peek */}
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden flex flex-col">
-          <div className="p-4 border-b border-zinc-800 flex justify-between items-center bg-orange-500/5">
-            <h2 className="font-bold text-sm uppercase tracking-widest text-orange-500 flex items-center gap-2">
-              <span>⚠️</span> Needs Your Attention
-            </h2>
-            <Link href="/dashboard/tasks?filter=special" className="text-[10px] text-zinc-500 hover:text-white underline">VIEW ALL</Link>
-          </div>
-          <div className="p-4 flex-1 overflow-y-auto max-h-[300px]">
-            <div className="space-y-4">
-              {specialTasks.length === 0 ? (
-                <p className="text-xs text-zinc-500 italic">No urgent tasks requiring your action.</p>
-              ) : (
-                specialTasks.map((task, idx) => (
-                  <Link key={task.id} href={`/dashboard/tasks/${task.id}`} className="block group">
-                    <div className="flex gap-3">
-                      <span className="text-orange-500/50 font-mono text-xs">{String(idx + 1).padStart(2, '0')}</span>
-                      <div>
-                        <p className="text-xs font-bold text-zinc-300 group-hover:text-orange-400 transition-colors">{task.title}</p>
-                        <p className="text-left text-[10px] text-zinc-500 line-clamp-1">{task.description}</p>
-                      </div>
-                    </div>
-                  </Link>
-                ))
+              {agentStatus?.last_action && (
+                <div className="bg-orange-500/10 border border-orange-500/20 p-4 rounded-lg flex items-center gap-3">
+                  <span className="text-xl">⚠️</span>
+                  <div>
+                    <p className="text-xs font-mono text-orange-500 uppercase tracking-widest">Latest Action</p>
+                    <p className="text-sm text-zinc-300">{agentStatus.last_action}</p>
+                  </div>
+                </div>
               )}
             </div>
           </div>
 
-          {/* SYSTEM CONTROL PANEL (ELECTRON INTEGRATION) */}
-          <div className="p-4 border-t border-zinc-800 bg-zinc-950/80">
-            <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-              <span>☢️</span> Mission Control
-            </p>
-            <div className="grid grid-cols-3 gap-2 mb-2">
-              <button
-                onClick={() => (window as any).api?.controlSystem('start')}
-                className="px-2 py-3 bg-green-900/30 hover:bg-green-800/50 border border-green-800 text-green-400 rounded text-[10px] font-bold uppercase transition-all"
-              >
-                Start All
-              </button>
-              <button
-                onClick={() => (window as any).api?.controlSystem('stop')}
-                className="px-2 py-3 bg-orange-900/30 hover:bg-orange-800/50 border border-orange-800 text-orange-400 rounded text-[10px] font-bold uppercase transition-all"
-              >
-                Stop All
-              </button>
-              <button
-                onClick={() => {
-                  if (confirm('FORCE KILL ALL BOTS?')) (window as any).api?.controlSystem('kill')
-                }}
-                className="px-2 py-3 bg-red-900/30 hover:bg-red-800/50 border border-red-800 text-red-400 rounded text-[10px] font-bold uppercase transition-all"
-              >
-                💀 KILL
-              </button>
+          {/* Quick Task Peek */}
+          <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden flex flex-col">
+            <div className="p-4 border-b border-zinc-800 flex justify-between items-center bg-orange-500/5">
+              <h2 className="font-bold text-sm uppercase tracking-widest text-orange-500 flex items-center gap-2">
+                <span>⚠️</span> Needs Your Attention
+              </h2>
+              <Link href="/dashboard/tasks?filter=special" className="text-[10px] text-zinc-500 hover:text-white underline">VIEW ALL</Link>
             </div>
-          </div>
-
-          <div className="mt-auto p-4 border-t border-zinc-800 bg-zinc-950/50">
-            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3">Quick Actions</p>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => window.open('https://github.com/loseyco/loco', '_blank')}
-                className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold uppercase transition-all flex items-center justify-center gap-2"
-              >
-                <span>🐙</span> GitHub
-              </button>
-              <button
-                onClick={() => window.location.href = '/dashboard/invoices/new'}
-                className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold uppercase transition-all flex items-center justify-center gap-2"
-              >
-                <span>💵</span> New Invoice
-              </button>
-              <button
-                onClick={() => window.location.href = '/dashboard/chat'}
-                className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold uppercase transition-all flex items-center justify-center gap-2"
-              >
-                <span>💬</span> AI Chat
-              </button>
-              <button
-                onClick={() => window.location.href = '/dashboard/staff'}
-                className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold uppercase transition-all flex items-center justify-center gap-2"
-              >
-                <span>🛠️</span> System
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {statCards.map((stat) => (
-          <div
-            key={stat.label}
-            className={`bg-gradient-to-br ${stat.color} rounded-xl p-6 shadow-lg`}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-white/70 text-sm">{stat.label}</p>
-                <p className="text-3xl font-bold text-white mt-1">{stat.value}</p>
+            <div className="p-4 flex-1 overflow-y-auto max-h-[300px]">
+              <div className="space-y-4">
+                {specialTasks.length === 0 ? (
+                  <p className="text-xs text-zinc-500 italic">No urgent tasks requiring your action.</p>
+                ) : (
+                  specialTasks.map((task, idx) => (
+                    <Link key={task.id} href={`/dashboard/tasks/${task.id}`} className="block group">
+                      <div className="flex gap-3">
+                        <span className="text-orange-500/50 font-mono text-xs">{String(idx + 1).padStart(2, '0')}</span>
+                        <div>
+                          <p className="text-xs font-bold text-zinc-300 group-hover:text-orange-400 transition-colors">{task.title}</p>
+                          <p className="text-left text-[10px] text-zinc-500 line-clamp-1">{task.description}</p>
+                        </div>
+                      </div>
+                    </Link>
+                  ))
+                )}
               </div>
-              <span className="text-4xl opacity-50">{stat.icon}</span>
+            </div>
+
+            {/* SYSTEM CONTROL PANEL (ELECTRON INTEGRATION) */}
+            <div className="p-4 border-t border-zinc-800 bg-zinc-950/80">
+              <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                <span>☢️</span> Mission Control
+              </p>
+              <div className="grid grid-cols-3 gap-2 mb-2">
+                <button
+                  onClick={() => handleSystemControl('start')}
+                  className="px-2 py-3 bg-green-900/30 hover:bg-green-800/50 border border-green-800 text-green-400 rounded text-[10px] font-bold uppercase transition-all"
+                >
+                  Start All
+                </button>
+                <button
+                  onClick={() => handleSystemControl('stop')}
+                  className="px-2 py-3 bg-orange-900/30 hover:bg-orange-800/50 border border-orange-800 text-orange-400 rounded text-[10px] font-bold uppercase transition-all"
+                >
+                  Stop All
+                </button>
+                <button
+                  onClick={() => handleSystemControl('kill')}
+                  className="px-2 py-3 bg-red-900/30 hover:bg-red-800/50 border border-red-800 text-red-400 rounded text-[10px] font-bold uppercase transition-all"
+                >
+                  💀 KILL
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-auto p-4 border-t border-zinc-800 bg-zinc-950/50">
+              <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3">Quick Actions</p>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => window.open('https://github.com/loseyco/loco', '_blank')}
+                  className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold uppercase transition-all flex items-center justify-center gap-2"
+                >
+                  <span>🐙</span> GitHub
+                </button>
+                <button
+                  onClick={() => window.location.href = '/dashboard/invoices/new'}
+                  className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold uppercase transition-all flex items-center justify-center gap-2"
+                >
+                  <span>💵</span> New Invoice
+                </button>
+                <button
+                  onClick={() => window.location.href = '/dashboard/chat'}
+                  className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold uppercase transition-all flex items-center justify-center gap-2"
+                >
+                  <span>💬</span> AI Chat
+                </button>
+                <button
+                  onClick={() => window.location.href = '/dashboard/staff'}
+                  className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold uppercase transition-all flex items-center justify-center gap-2"
+                >
+                  <span>🛠️</span> System
+                </button>
+              </div>
+            </div>
+          </div >
+        </div >
+      )}
+
+      {/* Stats Grid - HIDDEN FOR USER */}
+      {viewMode === 'admin' && (
+        < div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" >
+          {
+            statCards.map((stat) => (
+              <div
+                key={stat.label}
+                className={`bg-gradient-to-br ${stat.color} rounded-xl p-6 shadow-lg`}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-white/70 text-sm">{stat.label}</p>
+                    <p className="text-3xl font-bold text-white mt-1">{stat.value}</p>
+                  </div>
+                  <span className="text-4xl opacity-50">{stat.icon}</span>
+                </div>
+              </div>
+            ))
+          }
+        </div >
+      )}
+
+      {/* Fuel Gauge Section - HIDDEN FOR USER */}
+      {viewMode === 'admin' && (
+        < div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6" >
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold flex items-center gap-2">
+              <span>⛽</span> Fuel Gauge (API Usage)
+            </h2>
+            <span className={`px-3 py-1 rounded-full text-xs font-bold ${usageStats.tpmPercent > 80 || usageStats.rpmPercent > 80 ? 'bg-red-500/20 text-red-500' : 'bg-green-500/20 text-green-500'}`}>
+              {usageStats.tpmPercent > 80 || usageStats.rpmPercent > 80 ? 'LOW FUEL' : 'TANK FULL'}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-zinc-400">TPM (Tokens/Min)</span>
+                <span className="text-zinc-300 font-mono">{usageStats.tpm.toLocaleString()} / 1,000,000</span>
+              </div>
+              <div className="h-3 bg-zinc-800 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min(usageStats.tpmPercent, 100)}%` }}
+                  className={`h-full ${usageStats.tpmPercent > 80 ? 'bg-red-500' : 'bg-blue-500'}`}
+                />
+              </div>
+              <p className="text-[10px] text-zinc-500 font-mono text-right">{usageStats.tpmPercent.toFixed(1)}%</p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-zinc-400">RPM (Requests/Min)</span>
+                <span className="text-zinc-300 font-mono">{usageStats.rpm} / 15</span>
+              </div>
+              <div className="h-3 bg-zinc-800 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min(usageStats.rpmPercent, 100)}%` }}
+                  className={`h-full ${usageStats.rpmPercent > 80 ? 'bg-red-500' : 'bg-green-500'}`}
+                />
+              </div>
+              <p className="text-[10px] text-zinc-500 font-mono text-right">{usageStats.rpmPercent.toFixed(1)}%</p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-zinc-400">RPD (Requests/Day)</span>
+                <span className="text-zinc-300 font-mono">{usageStats.rpd.toLocaleString()} / 1,500</span>
+              </div>
+              <div className="h-3 bg-zinc-800 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min(usageStats.rpdPercent, 100)}%` }}
+                  className={`h-full ${usageStats.rpdPercent > 80 ? 'bg-red-500' : 'bg-purple-500'}`}
+                />
+              </div>
+              <p className="text-[10px] text-zinc-500 font-mono text-right">{usageStats.rpdPercent.toFixed(1)}%</p>
             </div>
           </div>
-        ))}
-      </div>
-
-      {/* Fuel Gauge Section */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <span>⛽</span> Fuel Gauge (API Usage)
-          </h2>
-          <span className={`px-3 py-1 rounded-full text-xs font-bold ${usageStats.tpmPercent > 80 || usageStats.rpmPercent > 80 ? 'bg-red-500/20 text-red-500' : 'bg-green-500/20 text-green-500'}`}>
-            {usageStats.tpmPercent > 80 || usageStats.rpmPercent > 80 ? 'LOW FUEL' : 'TANK FULL'}
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-zinc-400">TPM (Tokens/Min)</span>
-              <span className="text-zinc-300 font-mono">{usageStats.tpm.toLocaleString()} / 1,000,000</span>
-            </div>
-            <div className="h-3 bg-zinc-800 rounded-full overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${Math.min(usageStats.tpmPercent, 100)}%` }}
-                className={`h-full ${usageStats.tpmPercent > 80 ? 'bg-red-500' : 'bg-blue-500'}`}
-              />
-            </div>
-            <p className="text-[10px] text-zinc-500 font-mono text-right">{usageStats.tpmPercent.toFixed(1)}%</p>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-zinc-400">RPM (Requests/Min)</span>
-              <span className="text-zinc-300 font-mono">{usageStats.rpm} / 15</span>
-            </div>
-            <div className="h-3 bg-zinc-800 rounded-full overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${Math.min(usageStats.rpmPercent, 100)}%` }}
-                className={`h-full ${usageStats.rpmPercent > 80 ? 'bg-red-500' : 'bg-green-500'}`}
-              />
-            </div>
-            <p className="text-[10px] text-zinc-500 font-mono text-right">{usageStats.rpmPercent.toFixed(1)}%</p>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-zinc-400">RPD (Requests/Day)</span>
-              <span className="text-zinc-300 font-mono">{usageStats.rpd.toLocaleString()} / 1,500</span>
-            </div>
-            <div className="h-3 bg-zinc-800 rounded-full overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${Math.min(usageStats.rpdPercent, 100)}%` }}
-                className={`h-full ${usageStats.rpdPercent > 80 ? 'bg-red-500' : 'bg-purple-500'}`}
-              />
-            </div>
-            <p className="text-[10px] text-zinc-500 font-mono text-right">{usageStats.rpdPercent.toFixed(1)}%</p>
-          </div>
-        </div>
-      </div>
+        </div >
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Projects */}
@@ -407,10 +466,12 @@ export default function DashboardOverview() {
             <span className="text-xs font-mono text-zinc-500">SYNCED LIVE</span>
           </div>
           <div className="divide-y divide-zinc-800">
-            {recentProjects.length === 0 ? (
-              <div className="p-6 text-center text-zinc-500">No projects yet</div>
+            {filteredProjects.length === 0 ? (
+              <div className="p-6 text-center text-zinc-500">
+                {viewMode === 'admin' ? 'No projects yet' : 'No projects assigned to you'}
+              </div>
             ) : (
-              recentProjects.map((project) => (
+              filteredProjects.map((project) => (
                 <div
                   key={project.id}
                   className="p-4 hover:bg-zinc-800/50 transition-colors flex items-center justify-between"
@@ -421,10 +482,10 @@ export default function DashboardOverview() {
                   </div>
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-medium ${project.status === 'active'
-                        ? 'bg-green-600/20 text-green-400'
-                        : project.status === 'completed'
-                          ? 'bg-blue-600/20 text-blue-400'
-                          : 'bg-zinc-600/20 text-zinc-400'
+                      ? 'bg-green-600/20 text-green-400'
+                      : project.status === 'completed'
+                        ? 'bg-blue-600/20 text-blue-400'
+                        : 'bg-zinc-600/20 text-zinc-400'
                       }`}
                   >
                     {project.status}
@@ -471,6 +532,6 @@ export default function DashboardOverview() {
         <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
         <span>System connected to Supabase Realtime</span>
       </div>
-    </div>
+    </div >
   )
 }
