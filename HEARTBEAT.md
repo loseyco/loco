@@ -13,6 +13,8 @@
 - 🔄 **Multi-Bot Monitoring** — Implementing fail-safe status indicators
 
 ## Just Completed
+- ✅ **Headless Boot Recovery** — System survives power loss and reboots without user login
+- ✅ **UAC Prompts Disabled** — User Account Control disabled for seamless background management
 - ✅ **Immortal Watchdog** — PowerShell monitor that survives node taskkills
 - ✅ **Discord Failure Alerts** — Watchdog now pings Discord if systems go down
 - ✅ **API Usage Tracking** — Token and rate limit monitoring live on Dashboard
