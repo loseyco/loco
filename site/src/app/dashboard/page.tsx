@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 import { supabase, Project, Task, AgentSession, AgentStatus, SystemStats } from '@/lib/supabase'
 
 interface Stats {
