@@ -39,7 +39,8 @@ while($true) {
     if (-not $primaryStatus -or -not $engineStatus) {
         Write-Log "CRITICAL: Port(s) down (Primary: $primaryStatus, Engine: $engineStatus). Executing Recovery..."
         
-        Send-DiscordAlert "I've detected the system is down (Primary: $primaryStatus, Engine: $engineStatus). I'm initiating auto-recovery now—hang tight."
+        # Notify Discord via node script
+        node C:\LoCoOS\scripts\discord-alert.mjs "System went down (Primary: $primaryStatus, Engine: $engineStatus). I'm working on fixing it."
 
         # Launch recovery in a new window
         Start-Process -FilePath $RECOVERY_BAT

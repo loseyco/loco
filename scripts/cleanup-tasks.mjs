@@ -7,32 +7,23 @@ const supabase = createClient(
 );
 
 async function cleanup() {
-  // Master list of tasks to keep (unified and prioritized)
   const targetTasks = [
     { title: "Stabilize OpenClaw Gateway & Pi Engine", status: "completed", priority: 3, description: "Auto-recovery via PM2 and Watchdog." },
     { title: "Mobile UI Polish", status: "completed", priority: 3, description: "Responsive dashboard and status bar for phone usage." },
-    { title: "Local Status GUI (MainRig)", status: "completed", priority: 2, description: "Auto-login dashboard access on SimRig PC." },
     { title: "Hourly Status Update System", status: "completed", priority: 2, description: "Automated Discord pings every 15m." },
-    { title: "Werk Shop Demo - Live Data", status: "in_progress", priority: 3, description: "Wire restoration timeline to real Supabase tables." },
-    { title: "Audit GridPass.App", status: "pending", priority: 2, description: "Full site audit and strategy development." },
-    { title: "Build Jobs/Income Section", status: "pending", priority: 2, description: "Remote job hunting and service offering plan." },
-    { title: "Setup Sales Bot Agent", status: "pending", priority: 2, description: "Automated outreach and lead generation drafting." },
-    { title: "Facebook Page Management", status: "pending", priority: 1, description: "Manage and update loseyco social presence." }
+    { title: "Failsafe Bot Recovery", status: "in_progress", priority: 3, description: "Auto-recover and notify Discord on system down." },
+    { title: "Headless Boot persistent setup", status: "pending", priority: 3, description: "Launch bots before Windows PIN login." },
+    { title: "Boot Notification System", status: "pending", priority: 2, description: "First thing on boot: PM Discord and get directions from losey.co file." },
+    { title: "Remote Reboot Capability", status: "pending", priority: 1, description: "Way to remotely reboot the PC via command." },
+    { title: "Multi-Bot Health Indicator", status: "pending", priority: 2, description: "Header status for all running bots (Yellow/Red if down)." },
+    { title: "API Limit Notification", status: "completed", priority: 3, description: "Dashboard now alerts when Google Rate Limits are hit." },
+    { title: "Werk Shop Demo - Live Data", status: "in_progress", priority: 3, description: "Wire restoration timeline to real Supabase tables." }
   ];
 
   const { data: allTasks } = await supabase.from('tasks').select('*');
+  for (const t of allTasks) { await supabase.from('tasks').delete().eq('id', t.id); }
+  for (const task of targetTasks) { await supabase.from('tasks').insert(task); }
   
-  // 1. Delete everything currently in the table to start fresh
-  for (const t of allTasks) {
-      await supabase.from('tasks').delete().eq('id', t.id);
-  }
-
-  // 2. Insert the unified master list
-  for (const task of targetTasks) {
-      await supabase.from('tasks').insert(task);
-  }
-  
-  console.log('Task list unified and cleaned.');
+  console.log('Task list unified.');
 }
-
 cleanup();

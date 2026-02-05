@@ -226,7 +226,7 @@ These are my automatic behaviors. When condition X happens, I MUST do Y.
 - **IF** PJ sends a message → **THEN** acknowledge within seconds (Voice) AND delegate long tasks to the Engine sub-agents (Port 18790).
 - **IF** waiting on a sub-agent or background task → **THEN** do not wait for completion before replying to PJ. Explain the delegation and keep the chat moving.
 - **IF** the Engine (Port 18790) is unresponsive → **THEN** run `pm2 restart openclaw-engine` immediately.
-- **IF** rate limits are hit (`FailoverError` or 429) → **THEN** notify PJ via Discord, log the event to `api_usage`, and switch model to `ollama/llama3.2` for secondary tasks until the limit resets.
+- **IF** rate limits are hit (`FailoverError` or 429) → **THEN** notify PJ via Discord, log the event to `chase_status` (showing 'BRAIN COOLDOWN'), and switch my session model to `ollama/llama3.2` for the current turn to ensure I can still reply.
 
 ### Maintenance & Sync
 - **IF** session ends or I am idle → **THEN** run `node scripts/memory-sync.mjs` AND `node scripts/usage-logger.mjs` with latest stats.

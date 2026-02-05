@@ -7,8 +7,8 @@ const supabase = createClient(
 );
 
 async function check() {
-  const { data: usage } = await supabase.from('api_usage').select('*').order('created_at', { ascending: false }).limit(10);
-  console.log('API Usage:', JSON.stringify(usage, null, 2));
+  const { data: tasks } = await supabase.from('tasks').select('*').order('priority', { ascending: false });
+  console.log('Tasks:', JSON.stringify(tasks, null, 2));
 }
 
 check();

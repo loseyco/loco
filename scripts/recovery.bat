@@ -21,7 +21,10 @@ pm2 start ecosystem.json
 pm2 save
 
 :: 5. Refresh Tasks
-start /min node scripts\sync-tasks.mjs
+node scripts\sync-tasks.mjs
+
+:: 6. Notify Discord of success
+node scripts\discord-alert.mjs "System recovery successful. Both gateways and support staff are back online."
 
 echo ✅ Headless Recovery Complete.
 exit
