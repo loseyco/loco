@@ -16,16 +16,24 @@ async function cleanup() {
     { title: "Disable UAC", status: "completed", priority: 3, description: "User Account Control disabled for seamless background management." },
     { title: "Boot Notification System", status: "completed", priority: 2, description: "First thing on boot: PM Discord and refresh tasks." },
     { title: "Remote Reboot Capability", status: "pending", priority: 1, description: "Way to remotely reboot the PC via command." },
-    { title: "Staff PM2 Dashboard", status: "pending", priority: 2, description: "Show real-time PM2 process list and statuses in the dashboard header." },
-    { title: "Multi-Bot Health Indicator", status: "pending", priority: 2, description: "Header status for all running bots (Yellow/Red if down)." },
+    { title: "Find Remote Jobs & Lead Gen", status: "in_progress", priority: 3, description: "High-priority hunt for remote dev work, shop sites, and side hustles." },
+    { title: "Setup Sales Bot Agent", status: "in_progress", priority: 3, description: "Automated outreach drafting and lead follow-up system." },
+    { title: "Werk Shop Demo - Live Data", status: "completed", priority: 3, description: "Wire restoration timeline to real Supabase tables." },
     { title: "API Limit Notification", status: "completed", priority: 3, description: "Dashboard now alerts when Google Rate Limits are hit." },
-    { title: "Werk Shop Demo - Live Data", status: "in_progress", priority: 3, description: "Wire restoration timeline to real Supabase tables." }
+    { title: "Staff PM2 Dashboard", status: "pending", priority: 2, description: "Show real-time PM2 process list and statuses in the dashboard header." },
+    { title: "Multi-Bot Health Indicator", status: "pending", priority: 2, description: "Header status for all running bots (Yellow/Red if down)." }
   ];
 
   const { data: allTasks } = await supabase.from('tasks').select('*');
-  for (const t of allTasks) { await supabase.from('tasks').delete().eq('id', t.id); }
-  for (const task of targetTasks) { await supabase.from('tasks').insert(task); }
+  for (const t of allTasks) {
+      await supabase.from('tasks').delete().eq('id', t.id);
+  }
+
+  for (const task of targetTasks) {
+      await supabase.from('tasks').insert(task);
+  }
   
   console.log('Task list unified and cleaned.');
 }
+
 cleanup();

@@ -6,8 +6,11 @@ import { supabase } from '@/lib/supabase';
 
 export default function WerkShopDemo() {
   const [activeTab, setActiveTab] = useState('timeline');
+  const [selectedStep, setSelectedStep] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedProjectId, setSelectedProjectId] = useState('bmw-30-cs');
   const [carDetails, setCarDetails] = useState({
+    id: "bmw-30-cs",
     make: "BMW",
     model: "3.0 CS",
     year: "1973",
@@ -18,6 +21,20 @@ export default function WerkShopDemo() {
     percentComplete: 65,
     status: "In Progress - Body & Paint",
   });
+
+  const demoProjects = [
+    { id: 'bmw-30-cs', name: '1973 BMW 3.0 CS', year: '1973', model: '3.0 CS' },
+    { id: 'porsche-911s', name: '1967 Porsche 911S', year: '1967', model: '911S' }
+  ];
+
+  const galleryImages = [
+    { url: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=800", caption: "Bare metal restoration start" },
+    { url: "https://images.unsplash.com/photo-1542282088-fe8426682b8f?auto=format&fit=crop&q=80&w=800", caption: "Engine assembly" },
+    { url: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?auto=format&fit=crop&q=80&w=800", caption: "Custom leather interior" },
+    { url: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=800", caption: "Paint booth - Fjord Blue" },
+    { url: "https://images.unsplash.com/photo-1489824904134-891ab64532f1?auto=format&fit=crop&q=80&w=800", caption: "Wiring harness routing" },
+    { url: "https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&q=80&w=800", caption: "Suspension component detail" },
+  ];
 
   const [timelineSteps, setTimelineSteps] = useState([
     {
@@ -74,15 +91,18 @@ export default function WerkShopDemo() {
 
   useEffect(() => {
     async function loadData() {
+      setLoading(true);
       try {
+        const searchTerm = selectedProjectId === 'bmw-30-cs' ? 'BMW 3.0 CS' : 'Porsche 911S';
         const { data: project } = await supabase
           .from('projects')
           .select('*')
-          .ilike('name', '%BMW 3.0 CS%')
+          .ilike('name', `%${searchTerm}%`)
           .single();
 
         if (project) {
           setCarDetails({
+            id: project.id,
             make: project.metadata?.make || "BMW",
             model: project.metadata?.model || "3.0 CS",
             year: project.metadata?.year || "1973",
@@ -140,6 +160,25 @@ export default function WerkShopDemo() {
             .order('created_at', { ascending: false });
           
           if (invData) setInvoices(invData);
+        } else if (selectedProjectId === 'porsche-911s') {
+          // Mock data for the Porsche demo
+          setCarDetails({
+            id: "porsche-911s",
+            make: "Porsche",
+            model: "911S",
+            year: "1967",
+            chassis: "305101",
+            owner: "S. McQueen",
+            estimatedCompletion: "December 2026",
+            daysInShop: 24,
+            percentComplete: 15,
+            status: "In Progress - Disassembly",
+          });
+          setTimelineSteps([
+            { id: 1, title: "Intake", date: "Jan 10, 2026", status: "completed", description: "Vehicle arrived via covered transport. Initial inspection complete.", details: ["Numbers verified", "Original color: Slate Grey"] },
+            { id: 2, title: "Disassembly", date: "Jan 25, 2026", status: "current", description: "Removing drivetrain and interior components.", details: ["Engine pulled", "Glass removed"] },
+            { id: 3, title: "Metal Work", date: "Est. March 2026", status: "pending", description: "Body work and rust remediation.", details: [] },
+          ]);
         }
       } catch (err) {
         console.error('Error loading Werk Shop data:', err);
@@ -149,7 +188,7 @@ export default function WerkShopDemo() {
     }
 
     loadData();
-  }, []);
+  }, [selectedProjectId]);
 
   const stats = [
     { label: "Stages Complete", value: `${timelineSteps.filter(s => s.status === 'completed').length} of ${timelineSteps.length}` },
@@ -211,6 +250,21 @@ export default function WerkShopDemo() {
         <div className="flex items-center gap-6">
           <div className="text-2xl font-serif tracking-tighter">
             THE <span className="text-gold">WERK</span> SHOP
+          </div>
+          <div className="h-6 w-px bg-white/10 hidden md:block" />
+          <div className="relative group">
+            <select 
+              value={selectedProjectId}
+              onChange={(e) => setSelectedProjectId(e.target.value)}
+              className="bg-transparent border-none text-gold font-mono text-[10px] tracking-widest uppercase cursor-pointer focus:ring-0 appearance-none pr-4"
+            >
+              {demoProjects.map(p => (
+                <option key={p.id} value={p.id} className="bg-[#0a0a0b] text-white">{p.name}</option>
+              ))}
+            </select>
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-gold/40">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>
+            </div>
           </div>
           <div className="h-6 w-px bg-white/10 hidden md:block" />
           <div className="hidden md:flex items-center gap-2 font-mono text-xs tracking-widest text-white/40 uppercase">
@@ -280,13 +334,20 @@ export default function WerkShopDemo() {
         </section>
 
         {/* Content Tabs */}
-        <div className="flex gap-8 border-b border-white/5 mb-12 font-mono text-xs uppercase tracking-[0.2em]">
+        <div className="flex gap-8 border-b border-white/5 mb-12 font-mono text-xs uppercase tracking-[0.2em] overflow-x-auto whitespace-nowrap scrollbar-hide">
           <button 
             onClick={() => setActiveTab('timeline')}
             className={`pb-4 transition-colors relative ${activeTab === 'timeline' ? 'text-gold' : 'text-white/40 hover:text-white'}`}
           >
             Restoration Timeline
             {activeTab === 'timeline' && <motion.div layoutId="tab-active" className="absolute bottom-0 left-0 right-0 h-0.5 bg-gold" />}
+          </button>
+          <button 
+            onClick={() => setActiveTab('gallery')}
+            className={`pb-4 transition-colors relative ${activeTab === 'gallery' ? 'text-gold' : 'text-white/40 hover:text-white'}`}
+          >
+            Media Gallery
+            {activeTab === 'gallery' && <motion.div layoutId="tab-active" className="absolute bottom-0 left-0 right-0 h-0.5 bg-gold" />}
           </button>
           <button 
             onClick={() => setActiveTab('documentation')}
@@ -305,6 +366,33 @@ export default function WerkShopDemo() {
         </div>
 
         {/* Content Tabs Content */}
+        {activeTab === 'gallery' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {galleryImages.map((img, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                className="group relative overflow-hidden rounded-xl border border-white/10 bg-white/[0.02]"
+              >
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img 
+                    src={img.url} 
+                    alt={img.caption}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-100"
+                  />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
+                  <p className="text-xs font-mono tracking-widest text-gold uppercase mb-1">Restoration Log</p>
+                  <p className="text-sm font-medium">{img.caption}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+
         {activeTab === 'timeline' && (
           <div className="grid lg:grid-cols-3 gap-12">
             <div className="lg:col-span-1 space-y-8">
@@ -343,7 +431,13 @@ export default function WerkShopDemo() {
             </div>
 
             <div className="lg:col-span-2 relative">
-              <div className="absolute left-[27px] top-8 bottom-8 w-px bg-white/5" />
+              <div className="mb-8 p-4 rounded-xl border border-gold/20 bg-gold/5 flex items-center gap-4">
+                <div className="w-2 h-2 rounded-full bg-gold animate-ping" />
+                <div className="text-[10px] font-mono tracking-widest text-gold uppercase">
+                  Live from Shop: Lead artisan is currently verifying {carDetails.model} panel alignment.
+                </div>
+              </div>
+              <div className="absolute left-[27px] top-28 bottom-8 w-px bg-white/5" />
               <div className="space-y-12">
                 {timelineSteps.map((step, idx) => (
                   <motion.div 
@@ -352,7 +446,8 @@ export default function WerkShopDemo() {
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.1 }}
                     viewport={{ once: true }}
-                    className="relative pl-16 group"
+                    onClick={() => setSelectedStep(step)}
+                    className="relative pl-16 group cursor-pointer"
                   >
                     <div className={`absolute left-0 top-0 w-14 h-14 rounded-full flex items-center justify-center z-10 transition-all duration-500 ${
                       step.status === 'completed' 
@@ -444,6 +539,60 @@ export default function WerkShopDemo() {
           </div>
         )}
       </main>
+
+      {/* Step Detail Modal */}
+      {selectedStep && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            onClick={() => setSelectedStep(null)}
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm" 
+          />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="relative w-full max-w-2xl bg-[#161618] border border-white/10 rounded-2xl p-8 shadow-2xl"
+          >
+            <button 
+              onClick={() => setSelectedStep(null)}
+              className="absolute top-6 right-6 text-white/20 hover:text-white transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></svg>
+            </button>
+
+            <div className="text-[10px] font-mono tracking-[0.3em] text-gold uppercase mb-2">{selectedStep.date}</div>
+            <h3 className="text-3xl font-serif mb-6">{selectedStep.title}</h3>
+            
+            <p className="text-lg text-white/60 mb-8 font-light leading-relaxed">
+              {selectedStep.description}
+            </p>
+
+            <div className="space-y-4">
+              <div className="text-xs font-mono text-white/30 uppercase tracking-widest">Stage Checkpoints</div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {selectedStep.details.map((detail: string, i: number) => (
+                  <div key={i} className="flex items-center gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/5">
+                    <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                      <svg className="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3"/></svg>
+                    </div>
+                    <span className="text-xs font-medium text-white/80">{detail}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-12 flex gap-4">
+              <button className="flex-1 py-4 rounded-xl bg-gold text-black font-semibold text-xs uppercase tracking-widest hover:bg-[#d4b570] transition-colors">
+                View Full Documentation
+              </button>
+              <button className="px-6 py-4 rounded-xl bg-white/5 text-white font-semibold text-xs uppercase tracking-widest hover:bg-white/10 transition-colors">
+                Share
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="border-t border-white/5 py-12 px-6">

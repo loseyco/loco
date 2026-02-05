@@ -32,6 +32,7 @@
 ## Significant Events
 - **2026-02-04:** Bootstrap Day. Identity established, dashboard built, auth added, chat wired to OpenClaw.
 - **2026-02-04:** Built "The Werk Shop" restoration timeline demo. Verified build success.
+- **2026-02-04:** Stabilized telemetry and usage logging. Fixed schema mismatches and PM2 status tracking. Dashboard now has live multi-bot indicators.
 
 ## Todos & Future Ideas
 - Set `OPENCLAW_WEBHOOK_URL` in Vercel.

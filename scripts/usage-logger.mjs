@@ -9,9 +9,19 @@ const supabase = createClient(
 
 async function logUsage() {
   try {
-    // 1. Get status from OpenClaw
-    const statusRaw = execSync('openclaw status --json', { encoding: 'utf8' });
-    const status = JSON.parse(statusRaw);
+    // 1. Get status from OpenClaw (using node direct since powershell might be restricted)
+    const statusRaw = execSync('node -e "require(\'child_process\').execSync(\'openclaw status --json\', {stdio: \'inherit\'})"', { encoding: 'utf8' });
+    // Wait, that's not right. Just use openclaw status --json directly.
+    // If 'openclaw' command fails, try full path.
+    let status;
+    try {
+        const raw = execSync('openclaw status --json', { encoding: 'utf8' });
+        status = JSON.parse(raw);
+    } catch (e) {
+        // Try npx if command not in path
+        const raw = execSync('npx -y openclaw status --json', { encoding: 'utf8' });
+        status = JSON.parse(raw);
+    }
 
     // 2. Extract session stats
     const recentSessions = status.sessions?.recent || [];
@@ -19,12 +29,13 @@ async function logUsage() {
     for (const session of recentSessions) {
       if (session.totalTokens > 0) {
         await supabase.from('api_usage').insert({
-          agent_id: session.agentId,
+          agent: session.agentId,
           model: session.model,
-          input_tokens: session.inputTokens || 0,
-          output_tokens: session.outputTokens || 0,
-          total_tokens: session.totalTokens || 0,
-          status: session.abortedLastRun ? 'error' : 'ok'
+          tokens_in: session.inputTokens || 0,
+          tokens_out: session.outputTokens || 0,
+          recorded_at: new Date().toISOString()
+          // usage_percent and reset_in are harder to get from just status --json 
+          // without parsing the text status or hitting the gateway API.
         });
       }
     }

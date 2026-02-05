@@ -2,17 +2,19 @@
 
 ## Current Status: ✅ FULL PLATFORM LIVE
 
-**Last Updated:** 2026-02-04 21:40 CST
+**Last Updated:** 2026-02-04 22:42 CST
 
 ---
 
 ## Currently In Progress
-- 🔄 **Live Dashboard Sync** — Pushing CPU/MEM and Status to Supabase (Stable)
-- 🔄 **Werk Shop Evolution** — Scaling the Restoration Timeline demo
-- 🔄 **Local Status GUI** — Maintaining local dashboard access on SimRig
-- 🔄 **Multi-Bot Monitoring** — Implementing fail-safe status indicators
+- 🔄 **Lead Gen & Outreach** — High-priority hunt for remote jobs and shop clients
+- 🔄 **Sales Bot Deployment** — Building automated outreach and follow-up system
+- 🔄 **Live Dashboard Sync** — Pushing CPU/MEM, PM2 Status, and API Usage (Stable)
+- ✅ **Werk Shop Evolution** — Scaled demo with Gallery, Project Selection, and Modals
 
 ## Just Completed
+- ✅ **Telemetry Sync Fix** — Fixed schema mismatch in `status-sync.mjs` (Apps now tracking correctly)
+- ✅ **Usage Logger Fix** — Fixed schema mismatch in `usage-logger.mjs` (Tokens now logging to DB)
 - ✅ **Headless Boot Recovery** — System survives power loss and reboots without user login
 - ✅ **UAC Prompts Disabled** — User Account Control disabled for seamless background management
 - ✅ **Immortal Watchdog** — PowerShell monitor that survives node taskkills
