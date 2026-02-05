@@ -25,10 +25,9 @@ export default function StaffDashboard() {
   async function fetchData() {
     try {
       const { data, error } = await supabase
-        .from('system_stats')
+        .from('systems')
         .select('*')
-        .order('last_seen', { ascending: false })
-        .limit(1)
+        .eq('id', 'main-pc')
         .single()
 
       if (error) throw error
