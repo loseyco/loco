@@ -21,9 +21,9 @@ async function logUsage() {
         await supabase.from('api_usage').insert({
           agent_id: session.agentId,
           model: session.model,
-          input_tokens: session.inputTokens,
-          output_tokens: session.outputTokens,
-          total_tokens: session.totalTokens,
+          input_tokens: session.inputTokens || 0,
+          output_tokens: session.outputTokens || 0,
+          total_tokens: session.totalTokens || 0,
           status: session.abortedLastRun ? 'error' : 'ok'
         });
       }

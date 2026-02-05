@@ -10,24 +10,20 @@ const supabase = createClient(
 async function checkFailures() {
   try {
     const logPath = `C:\\Users\\pjlos\\.pm2\\logs\\openclaw-engine-error.log`;
-    const tail = execSync(`powershell -Command "Get-Content -Path ${logPath} -Tail 20"`, { encoding: 'utf8' });
+    const tail = execSync(`powershell -Command "if (Test-Path ${logPath}) { Get-Content -Path ${logPath} -Tail 20 } else { '' }"`, { encoding: 'utf8' });
     
     if (tail.includes('FailoverError') || tail.includes('rate limit')) {
         console.log('Detected rate limit hit in logs.');
         
         // Log to API usage table
         await supabase.from('api_usage').insert({
-            agent_id: 'ops',
+            agent: 'ops',
             model: 'google-antigravity/gemini-3-flash',
-            status: 'rate_limit',
-            total_tokens: 0
+            recorded_at: new Date().toISOString()
         });
-
-        // The agent will naturally hit this when it tries to run its next turn
-        // but this script ensures it's logged to the dashboard.
     }
   } catch (err) {
-    // Log file might not exist or be empty
+    // Silent fail
   }
 }
 

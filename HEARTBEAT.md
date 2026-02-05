@@ -2,16 +2,22 @@
 
 ## Current Status: ✅ FULL PLATFORM LIVE
 
-**Last Updated:** 2026-02-04 14:46 CST
+**Last Updated:** 2026-02-04 18:35 CST
 
 ---
 
 ## Currently In Progress
-- 🔄 **Live Dashboard Sync** — Pushing CPU/MEM and Status to Supabase
-- 🔄 **Werk Shop Evolution** — Scaling the Restoration Timeline demo
+- 🔄 **Live Dashboard Sync** — Pushing CPU/MEM and Status to Supabase (Stable)
+- 🔄 **Scaling Agency** — Researching shop outreach strategy
 - 🔄 **Local Status GUI** — Maintaining local dashboard access on SimRig
+- 🔄 **Fail-Safe Monitoring** — Implementing multi-bot status indicators (P1)
 
 ## Just Completed
+- ✅ **Telemetry Sync Upgrade** — Added PM2 app status tracking to Supabase
+- ✅ **Werk Shop Evolution** — Connected timeline and billing tabs to Supabase
+- ✅ **Voice Gateway Recovery** — Fixed port conflict for openclaw-voice (18789)
+- ✅ **Task Sync Optimization** — Fixed PM2 autorestart loop for hourly tasks
+- ✅ **Telemetry Schema Alignment** — Fixed table names and columns for live sync
 - ✅ **Pi Engine Stability** — Monitoring port 18790 via PM2
 - ✅ **The Werk Shop Demo** — Premium "Restoration Timeline" portal mockup
 - ✅ **Werk Shop Demo Evolution** — Connected timeline and billing tabs to Supabase
@@ -54,7 +60,6 @@
 
 ## Next Up
 - Build "High-Velocity Intake" template component (Pivoted: low priority)
-- Create "Restoration Timeline" demo for The Werk Shop (ACTIVE)
 - Deploy Sales Bot agent for automated outreach drafting
 - ROI Calculator component for portfolio
 

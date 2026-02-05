@@ -33,7 +33,6 @@
         "name": "task-sync-hourly",
         "script": "C:\\LoCoOS\\scripts\\sync-tasks.mjs",
         "cwd": "C:\\LoCoOS",
-        "cron_restart": "0 * * * *",
         "env": {
           "PM2_HOME": "C:\\Users\\pjlos\\.pm2"
         }

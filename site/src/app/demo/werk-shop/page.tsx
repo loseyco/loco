@@ -136,7 +136,7 @@ export default function WerkShopDemo() {
           const { data: invData } = await supabase
             .from('invoices')
             .select('*')
-            .eq('client_name', project.client)
+            .eq('project_id', project.id)
             .order('created_at', { ascending: false });
           
           if (invData) setInvoices(invData);
@@ -418,7 +418,7 @@ export default function WerkShopDemo() {
                   <div key={inv.id} className="p-6 rounded-xl border border-white/10 bg-white/[0.03] flex items-center justify-between">
                     <div>
                       <div className="text-[10px] font-mono text-gold uppercase tracking-widest mb-1">{new Date(inv.created_at).toLocaleDateString()}</div>
-                      <div className="text-xl font-serif">{inv.description}</div>
+                      <div className="text-xl font-serif">{inv.notes}</div>
                       <div className={`text-[10px] font-mono mt-2 uppercase tracking-widest ${inv.status === 'paid' ? 'text-emerald-500' : 'text-orange-500'}`}>
                         {inv.status}
                       </div>
