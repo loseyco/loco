@@ -65,6 +65,8 @@
 ## Quick Reference
 - **Site:** https://losey.co ✅ LIVE
 - **Dashboard:** https://www.losey.co/dashboard ✅ LIVE (auth protected)
+- **Discord Guild:** 1270550797335134229
+- **Discord Channel:** 1468827838395187365 (#chase-log)
 - **Projects:** https://www.losey.co/dashboard/projects ✅ NEW
 - **Login:** https://www.losey.co/login
 - **Contact:** https://www.losey.co/contact
