@@ -4,7 +4,7 @@
   },
   "browser": {
     "executablePath": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
-    "defaultProfile": "openclaw-engine"
+    "defaultProfile": "openclaw"
   },
   "auth": {
     "profiles": {
