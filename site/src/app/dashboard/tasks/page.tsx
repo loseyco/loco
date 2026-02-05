@@ -154,7 +154,15 @@ export default function TasksPage() {
       if (filter === 'special') return t.is_special
       return t.status === filter
     })
-    .sort((a, b) => (b.priority as number) - (a.priority as number))
+    .sort((a, b) => {
+      // First sort by status: in_progress > pending > completed
+      const statusOrder = { in_progress: 0, pending: 1, completed: 2 };
+      const statusDiff = statusOrder[a.status] - statusOrder[b.status];
+      if (statusDiff !== 0) return statusDiff;
+      
+      // Then sort by priority
+      return (b.priority as number) - (a.priority as number);
+    })
 
   const priorityLabels: Record<number, string> = {
     0: 'low',
@@ -261,16 +269,20 @@ export default function TasksPage() {
 
                 {/* Task info - now clickable */}
                 <Link href={`/dashboard/tasks/${task.id}`} className="flex-1 cursor-pointer hover:opacity-80">
-                  <h3
-                    className={`font-medium ${
-                      task.status === 'completed' ? 'line-through text-zinc-500' : ''
-                    }`}
-                  >
-                    {task.title}
-                  </h3>
-                  <p className="text-sm text-zinc-500">
-                    {task.description || 'No description'} •{' '}
-                    {new Date(task.created_at).toLocaleDateString()}
+                  <div className="flex items-center gap-2">
+                    {task.status === 'in_progress' && (
+                      <span className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.6)]" />
+                    )}
+                    <h3
+                      className={`font-medium ${
+                        task.status === 'completed' ? 'line-through text-zinc-500' : ''
+                      } ${task.status === 'in_progress' ? 'text-yellow-400' : ''}`}
+                    >
+                      {task.title}
+                    </h3>
+                  </div>
+                  <p className="text-sm text-zinc-500 line-clamp-1">
+                    {task.description || 'No description'}
                   </p>
                 </Link>
 

@@ -1,5 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
 import { execSync } from 'child_process';
+import { createClient } from '@supabase/supabase-js';
 import fs from 'fs';
 import 'dotenv/config';
 
@@ -28,10 +28,16 @@ async function runHealthCheck() {
 
   try {
     // 1. Check openclaw-engine (Port 18790)
+    let engineOnline = false;
     try {
-      execSync('netstat -ano | findstr :18790');
-      report += "- **openclaw-engine (18790):** ONLINE & LISTENING\n";
-    } catch (e) {
+      const output = execSync('netstat -ano').toString();
+      if (output.includes(':18790') && output.includes('LISTENING')) {
+        engineOnline = true;
+        report += "- **openclaw-engine (18790):** ONLINE & LISTENING\n";
+      }
+    } catch (e) {}
+
+    if (!engineOnline) {
       report += "- **openclaw-engine (18790):** OFFLINE or NOT LISTENING. Attempting restart...\n";
       execSync('pm2 restart openclaw-engine');
       await logToSupabase("RESTART", "Restarted openclaw-engine due to port 18790 timeout");
@@ -39,10 +45,16 @@ async function runHealthCheck() {
     }
 
     // 2. Check openclaw-voice (Port 18789)
+    let voiceOnline = false;
     try {
-      execSync('netstat -ano | findstr :18789');
-      report += "- **openclaw-voice (18789):** ONLINE & LISTENING\n";
-    } catch (e) {
+      const output = execSync('netstat -ano').toString();
+      if (output.includes(':18789') && output.includes('LISTENING')) {
+        voiceOnline = true;
+        report += "- **openclaw-voice (18789):** ONLINE & LISTENING\n";
+      }
+    } catch (e) {}
+
+    if (!voiceOnline) {
       report += "- **openclaw-voice (18789):** OFFLINE or NOT LISTENING. Attempting restart...\n";
       execSync('pm2 restart openclaw-voice');
       await logToSupabase("RESTART", "Restarted openclaw-voice due to port 18789 timeout");
@@ -57,7 +69,7 @@ async function runHealthCheck() {
       if (app.name !== "openclaw-engine" && app.name !== "openclaw-voice") {
         const status = app.pm2_env.status;
         report += `- **${app.name}:** ${status}\n`;
-        if (status !== "online") {
+        if (status !== "online" && app.name !== "local-web") { // Don't auto-restart local-web if it's intentionally off
           execSync(`pm2 restart ${app.name}`);
           await logToSupabase("RESTART", `Restarted ${app.name} (status: ${status})`);
           allHealthy = false;

@@ -20,6 +20,7 @@ async function sync() {
 
     // 2. Get PM2 status for all apps
     let pm2Stats = [];
+    let engineOnline = false;
     try {
         const pm2ListRaw = execSync('pm2.cmd jlist', { 
             encoding: 'utf8', 
@@ -27,16 +28,21 @@ async function sync() {
             env: { ...process.env, PM2_HOME: 'C:\\Users\\pjlos\\.pm2' }
         });
         const pm2List = JSON.parse(pm2ListRaw);
-        pm2Stats = pm2List.map(app => ({
-            name: app.name,
-            status: app.pm2_env.status,
-            cpu: app.monit?.cpu || 0,
-            memory: app.monit?.memory || 0,
-            uptime: app.pm2_env.pm_uptime,
-            restarts: app.pm2_env.restart_time
-        }));
+        pm2Stats = pm2List.map(app => {
+            if (app.name === 'openclaw-engine' && app.pm2_env.status === 'online') {
+                engineOnline = true;
+            }
+            return {
+                name: app.name,
+                status: app.pm2_env.status,
+                cpu: app.monit?.cpu || 0,
+                memory: app.monit?.memory || 0,
+                uptime: app.pm2_env.pm_uptime,
+                restarts: app.pm2_env.restart_time
+            };
+        });
     } catch (e) {
-        // Silent error for PM2
+        console.error('PM2 list error:', e);
     }
 
     const { error: sError } = await supabase.from('systems').upsert({
@@ -50,58 +56,61 @@ async function sync() {
     });
     if (sError) console.error('Systems sync error:', sError);
 
-    // 3. Get Agent Status (from HEARTBEAT.md)
-    let currentGoal = "Stabilizing Gateway & Workspace";
+    // 3. Get Active Task from DB
+    let currentGoal = "Idle";
     try {
-        const heartbeat = fs.readFileSync('HEARTBEAT.md', 'utf8');
-        const match = heartbeat.match(/## Currently In Progress\n- (.*)/);
-        if (match) currentGoal = match[1].replace(/^[🔄✅] /, '');
+        const { data: activeTask } = await supabase
+            .from('tasks')
+            .select('title')
+            .eq('status', 'in_progress')
+            .order('priority', { ascending: false })
+            .limit(1)
+            .single();
+        
+        if (activeTask) {
+            currentGoal = activeTask.title;
+        }
     } catch (e) {}
 
-    // 4. Get active sessions (sub-agents)
-    let subagents = [];
+    // 4. Get active sessions count (sub-agents)
+    let activeSubagentsCount = 0;
+    let subagentsList = [];
     try {
         const statusRaw = execSync('openclaw status --json', { encoding: 'utf8' });
         const status = JSON.parse(statusRaw);
         const recentSessions = status.sessions?.recent || [];
-        // Map recent sessions to a readable format
-        subagents = recentSessions
-            .filter(s => s.age < 300000) // Active in the last 5 mins
-            .map(s => ({
-                label: s.label || s.agentId,
-                status: 'active',
-                model: s.model,
-                last_updated: new Date(s.updatedAt).toISOString()
-            }));
+        
+        const filtered = recentSessions.filter(s => s.agentId !== 'ops' && s.age < 600000);
+        activeSubagentsCount = filtered.length;
+        subagentsList = filtered.map(s => ({
+            label: s.label || s.agentId,
+            status: 'active',
+            model: s.model,
+            last_updated: new Date(s.updatedAt).toISOString()
+        }));
     } catch (e) {}
 
     const allOnline = pm2Stats.length > 0 && pm2Stats.every(app => app.status === 'online');
-    let status = allOnline ? 'idle' : 'working';
-    let lastAction = allOnline ? 'Telemetry sync active.' : 'Detected process failures in PM2.';
+    let status = (activeSubagentsCount > 0 || currentGoal !== "Idle") ? 'working' : 'idle';
+    let lastAction = `System monitoring active. ${activeSubagentsCount} sub-agents running.`;
 
-    // 5. Check for Rate Limits/Failures in OpenClaw logs
-    try {
-        const logPath = `\\tmp\\openclaw\\openclaw-${new Date().toISOString().split('T')[0]}.log`;
-        if (fs.existsSync(logPath)) {
-            const logs = fs.readFileSync(logPath, 'utf8');
-            if (logs.includes('FailoverError') || logs.includes('rate limit')) {
-                lastAction = '⚠️ BRAIN COOLDOWN: Hitting Google Rate Limits';
-            }
-        }
-    } catch (e) {}
-
-    const { error: cError } = await supabase.from('chase_status').upsert({
+    // 5. Update chase_status
+    // Note: Since we can't add columns easily, we'll store subagents in the metadata if needed, 
+    // but the dashboard expects them in certain places.
+    // For now, let's just make sure the basic status is correct.
+    const statusUpdate = {
       id: 'cc7493e5-2b6a-4ece-a148-e0d1a8f12c5b',
       current_task: currentGoal,
       status: status,
       last_action: lastAction,
       updated_at: new Date().toISOString()
-      // Note: subagents column not added yet due to SQL migration failure
-    });
+    };
+
+    const { error: cError } = await supabase.from('chase_status').upsert(statusUpdate);
     if (cError) console.error('Chase Status sync error:', cError);
 
     if (!sError && !cError) {
-        console.log(`[${new Date().toLocaleTimeString()}] Stats synced (Apps: ${pm2Stats.length}).`);
+        console.log(`[${new Date().toLocaleTimeString()}] Stats synced. Goal: ${currentGoal}, Sub-agents: ${activeSubagentsCount}`);
     }
   } catch (err) {
     console.error('Sync error:', err);

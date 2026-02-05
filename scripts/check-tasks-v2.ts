@@ -20,12 +20,14 @@ async function checkTasks() {
     return;
   }
 
-  console.log('--- ALL TASKS ---');
+  console.log('--- TODO TASKS ---');
   if (!tasks || tasks.length === 0) {
     console.log('No tasks found.');
   } else {
     tasks.forEach(task => {
-      console.log(`[Priority: ${task.priority}] [Status: ${task.status}] ${task.title} (${task.id})`);
+        if (task.status !== 'completed') {
+            console.log(`[Priority: ${task.priority}] [Status: ${task.status}] ${task.title} (${task.id})`);
+        }
     });
   }
 }
