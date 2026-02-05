@@ -24,7 +24,7 @@ pm2 save
 node scripts\sync-tasks.mjs
 
 :: 6. Notify Discord of success
-node scripts\discord-alert.mjs "System recovery successful. Both gateways and support staff are back online."
+echo System recovery successful. Both gateways and support staff are back online.
 
 echo ✅ Headless Recovery Complete.
 exit

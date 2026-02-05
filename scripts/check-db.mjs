@@ -7,8 +7,8 @@ const supabase = createClient(
 );
 
 async function check() {
-  const { data: status } = await supabase.from('chase_status').select('*');
-  console.log('Chase Status:', JSON.stringify(status, null, 2));
+  const { data: tasks } = await supabase.from('tasks').select('*');
+  console.log('Tasks:', JSON.stringify(tasks, null, 2));
 }
 
 check();

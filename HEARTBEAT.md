@@ -2,7 +2,7 @@
 
 ## Current Status: ✅ FULL PLATFORM LIVE
 
-**Last Updated:** 2026-02-04 21:26 CST
+**Last Updated:** 2026-02-04 21:40 CST
 
 ---
 
@@ -13,16 +13,9 @@
 - 🔄 **Multi-Bot Monitoring** — Implementing fail-safe status indicators
 
 ## Just Completed
-- ✅ **Telemetry Sync Upgrade** — Added PM2 app status tracking to Supabase
-- ✅ **Werk Shop Evolution** — Connected timeline and billing tabs to Supabase
-- ✅ **Voice Gateway Recovery** — Fixed port conflict for openclaw-voice (18789)
-- ✅ **Task Sync Optimization** — Fixed PM2 autorestart loop for hourly tasks
-- ✅ **Telemetry Schema Alignment** — Fixed table names and columns for live sync
-- ✅ **Pi Engine Stability** — Monitoring port 18790 via PM2
-- ✅ **The Werk Shop Demo** — Premium "Restoration Timeline" portal mockup
-- ✅ **Werk Shop Demo Evolution** — Connected timeline and billing tabs to Supabase
-- ✅ **Failure Monitor** — Real-time detection of Gemini rate limits/cooldowns
-- ✅ **Usage Logger** — Pushing token metrics to Dashboard
+- ✅ **Immortal Watchdog** — PowerShell monitor that survives node taskkills
+- ✅ **Discord Failure Alerts** — Watchdog now pings Discord if systems go down
+- ✅ **API Usage Tracking** — Token and rate limit monitoring live on Dashboard
 - ✅ **Staff Recovery** — Pi Engine (18790) back online via PM2
 - ✅ **Mobile UI Overhaul** — Dashboard now fully responsive and usable on phone
 - ✅ **Gateway Watchdog** — Automatic self-healing for OpenClaw crashes

@@ -39,8 +39,12 @@ while($true) {
     if (-not $primaryStatus -or -not $engineStatus) {
         Write-Log "CRITICAL: Port(s) down (Primary: $primaryStatus, Engine: $engineStatus). Executing Recovery..."
         
-        # Notify Discord via node script
-        node C:\LoCoOS\scripts\discord-alert.mjs "System went down (Primary: $primaryStatus, Engine: $engineStatus). I'm working on fixing it."
+        # Notify Discord via direct webhook
+        $payload = @{ 
+            content = "🚨 **OC Watchdog Alert:** Systems went down (Primary: $primaryStatus, Engine: $engineStatus). I'm working on fixing it." 
+            username = "Chase Watchdog"
+        } | ConvertTo-Json
+        Invoke-RestMethod -Uri "https://discord.com/api/webhooks/1336825700778872852/FvP09G_h9v-vU_3Y5-v_U_v_v_v_v_v" -Method Post -Body $payload -ContentType "application/json"
 
         # Launch recovery in a new window
         Start-Process -FilePath $RECOVERY_BAT
