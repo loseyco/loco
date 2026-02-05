@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
+import Link from 'next/link'
 import { supabase, Project, Task, AgentSession, AgentStatus, SystemStats } from '@/lib/supabase'
 
 interface Stats {
