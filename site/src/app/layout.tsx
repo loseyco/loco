@@ -17,11 +17,22 @@ export const metadata: Metadata = {
     description: "Technical services spanning motorsport engineering, medical systems, and software development.",
     url: "https://losey.co",
     siteName: "Losey.Co",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Losey.Co - Engineering Excellence",
+      },
+    ],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     site: "@loseyco",
+    title: "Losey.Co — Engineering Excellence",
+    description: "Technical services spanning motorsport engineering, medical systems, and software development.",
+    images: ["/og-image.png"],
   },
 };
 

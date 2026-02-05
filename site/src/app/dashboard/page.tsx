@@ -21,6 +21,14 @@ export default function DashboardOverview() {
   const [agentStatus, setAgentStatus] = useState<AgentStatus | null>(null)
   const [systemStats, setSystemStats] = useState<SystemStats | null>(null)
   const [apiUsage, setApiUsage] = useState<any[]>([])
+  const [usageStats, setUsageStats] = useState({
+    tpm: 0,
+    rpm: 0,
+    rpd: 0,
+    tpmPercent: 0,
+    rpmPercent: 0,
+    rpdPercent: 0
+  })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -55,28 +63,46 @@ export default function DashboardOverview() {
       })
       .subscribe()
 
+    const usageSub = supabase
+      .channel('api-usage-changes')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'api_usage' }, () => {
+        fetchData()
+      })
+      .subscribe()
+
     return () => {
       projectsSub.unsubscribe()
       tasksSub.unsubscribe()
       statusSub.unsubscribe()
       sysSub.unsubscribe()
+      usageSub.unsubscribe()
     }
   }, [])
 
   async function fetchData() {
     try {
-      const [projectsRes, tasksRes, sessionsRes, statusRes, sysRes, usageRes] = await Promise.all([
+      const now = new Date()
+      const oneMinuteAgo = new Date(now.getTime() - 60000).toISOString()
+      const todayStart = new Date(now.setHours(0,0,0,0)).toISOString()
+
+      const [projectsRes, tasksRes, sessionsRes, statusRes, sysRes, usageRes, minUsageRes, dayUsageRes] = await Promise.all([
         supabase.from('projects').select('*').order('created_at', { ascending: false }).limit(5),
         supabase.from('tasks').select('*'),
         supabase.from('agent_sessions').select('*'),
         supabase.from('agent_status').select('*').eq('agent_id', 'ops').single(),
         supabase.from('system_stats').select('*').order('last_seen', { ascending: false }).limit(1).single(),
-        supabase.from('api_usage').select('*').order('created_at', { ascending: false }).limit(5)
+        supabase.from('api_usage').select('*').order('created_at', { ascending: false }).limit(5),
+        supabase.from('api_usage').select('total_tokens').gte('created_at', oneMinuteAgo),
+        supabase.from('api_usage').select('id').gte('created_at', todayStart)
       ])
 
       const projects = projectsRes.data || []
       const tasks = tasksRes.data || []
       const sessions = sessionsRes.data || []
+      
+      const usedTPM = (minUsageRes.data || []).reduce((sum, row) => sum + (row.total_tokens || 0), 0)
+      const usedRPM = (minUsageRes.data || []).length
+      const usedRPD = (dayUsageRes.data || []).length
 
       setStats({
         totalProjects: projects.length,
@@ -84,6 +110,16 @@ export default function DashboardOverview() {
         completedTasks: tasks.filter((t: Task) => t.status === 'completed').length,
         agentSessions: sessions.length,
       })
+      
+      setUsageStats({
+        tpm: usedTPM,
+        rpm: usedRPM,
+        rpd: usedRPD,
+        tpmPercent: (usedTPM / 1000000) * 100,
+        rpmPercent: (usedRPM / 15) * 100,
+        rpdPercent: (usedRPD / 1500) * 100
+      })
+
       setRecentProjects(projects.slice(0, 5))
       setAgentStatus(statusRes.data)
       setSystemStats(sysRes.data)
@@ -232,6 +268,65 @@ export default function DashboardOverview() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Fuel Gauge Section */}
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <span>⛽</span> Fuel Gauge (API Usage)
+          </h2>
+          <span className={`px-3 py-1 rounded-full text-xs font-bold ${usageStats.tpmPercent > 80 || usageStats.rpmPercent > 80 ? 'bg-red-500/20 text-red-500' : 'bg-green-500/20 text-green-500'}`}>
+            {usageStats.tpmPercent > 80 || usageStats.rpmPercent > 80 ? 'LOW FUEL' : 'TANK FULL'}
+          </span>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-zinc-400">TPM (Tokens/Min)</span>
+              <span className="text-zinc-300 font-mono">{usageStats.tpm.toLocaleString()} / 1,000,000</span>
+            </div>
+            <div className="h-3 bg-zinc-800 rounded-full overflow-hidden">
+              <motion.div 
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.min(usageStats.tpmPercent, 100)}%` }}
+                className={`h-full ${usageStats.tpmPercent > 80 ? 'bg-red-500' : 'bg-blue-500'}`}
+              />
+            </div>
+            <p className="text-[10px] text-zinc-500 font-mono text-right">{usageStats.tpmPercent.toFixed(1)}%</p>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-zinc-400">RPM (Requests/Min)</span>
+              <span className="text-zinc-300 font-mono">{usageStats.rpm} / 15</span>
+            </div>
+            <div className="h-3 bg-zinc-800 rounded-full overflow-hidden">
+              <motion.div 
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.min(usageStats.rpmPercent, 100)}%` }}
+                className={`h-full ${usageStats.rpmPercent > 80 ? 'bg-red-500' : 'bg-green-500'}`}
+              />
+            </div>
+            <p className="text-[10px] text-zinc-500 font-mono text-right">{usageStats.rpmPercent.toFixed(1)}%</p>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-zinc-400">RPD (Requests/Day)</span>
+              <span className="text-zinc-300 font-mono">{usageStats.rpd.toLocaleString()} / 1,500</span>
+            </div>
+            <div className="h-3 bg-zinc-800 rounded-full overflow-hidden">
+              <motion.div 
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.min(usageStats.rpdPercent, 100)}%` }}
+                className={`h-full ${usageStats.rpdPercent > 80 ? 'bg-red-500' : 'bg-purple-500'}`}
+              />
+            </div>
+            <p className="text-[10px] text-zinc-500 font-mono text-right">{usageStats.rpdPercent.toFixed(1)}%</p>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

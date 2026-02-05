@@ -124,15 +124,32 @@ function ChaseStatusBar() {
         </div>
 
         {pcStats && (
-          <div className="flex items-center gap-4 text-xs md:border-l border-zinc-800 md:pl-6">
-            <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-4 text-xs md:border-l border-zinc-800 md:pl-6 overflow-x-auto scrollbar-hide">
+            <div className="flex items-center gap-1.5 flex-shrink-0">
               <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${pcOnline ? 'bg-blue-500' : 'bg-zinc-600'}`} />
               <span className="text-zinc-500 uppercase tracking-wider font-bold whitespace-nowrap">PC Host</span>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-3 flex-shrink-0">
               <span className="text-zinc-500 whitespace-nowrap">CPU <span className={pcStats.cpu_usage > 80 ? 'text-red-400' : 'text-zinc-300'}>{pcStats.cpu_usage}%</span></span>
               <span className="text-zinc-500 whitespace-nowrap">MEM <span className={pcStats.memory_usage > 80 ? 'text-red-400' : 'text-zinc-300'}>{pcStats.memory_usage}%</span></span>
             </div>
+            
+            {/* PM2 Processes */}
+            {pcStats.metadata?.pm2 && (
+              <div className="hidden lg:flex items-center gap-4 pl-4 border-l border-zinc-800/50">
+                {pcStats.metadata.pm2.map((proc) => (
+                  <div key={proc.name} className="flex items-center gap-1.5 group relative" title={`${proc.name}: ${proc.status}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${
+                      proc.status === 'online' ? 'bg-emerald-500' : 
+                      proc.status === 'stopped' ? 'bg-orange-500' : 'bg-red-500'
+                    }`} />
+                    <span className="text-[10px] text-zinc-500 uppercase tracking-tight font-medium group-hover:text-zinc-300 transition-colors whitespace-nowrap">
+                      {proc.name.replace('openclaw-', '')}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

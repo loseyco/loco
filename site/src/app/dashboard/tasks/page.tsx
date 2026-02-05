@@ -90,7 +90,55 @@ export default function TasksPage() {
     }
   }
 
-  const filteredTasks = tasks.filter((t) => filter === 'all' || t.status === filter)
+  async function updateTaskPriority(id: string, currentPriority: number, increment: number) {
+    try {
+      const newPriority = Math.max(0, Math.min(2, currentPriority + increment))
+      const { error } = await supabase.from('tasks').update({ priority: newPriority }).eq('id', id)
+      if (error) throw error
+    } catch (error) {
+      console.error('Error updating priority:', error)
+    }
+  }
+
+  async function doNow(id: string) {
+    try {
+      const { error } = await supabase.from('tasks').update({ 
+        priority: 2, 
+        status: 'in_progress' 
+      }).eq('id', id)
+      if (error) throw error
+    } catch (error) {
+      console.error('Error in doNow:', error)
+    }
+  }
+
+  async function postpone(id: string) {
+    try {
+      const { error } = await supabase.from('tasks').update({ 
+        priority: 0, 
+        status: 'pending' 
+      }).eq('id', id)
+      if (error) throw error
+    } catch (error) {
+      console.error('Error in postpone:', error)
+    }
+  }
+
+  async function stopAllTasks() {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ status: 'pending' })
+        .eq('status', 'in_progress')
+      if (error) throw error
+    } catch (error) {
+      console.error('Error stopping all tasks:', error)
+    }
+  }
+
+  const filteredTasks = tasks
+    .filter((t) => filter === 'all' || t.status === filter)
+    .sort((a, b) => (b.priority as number) - (a.priority as number))
 
   const priorityLabels: Record<number, string> = {
     0: 'low',
@@ -121,9 +169,17 @@ export default function TasksPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Tasks</h1>
-        <p className="text-zinc-500 mt-1">Track and manage your tasks</p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">Tasks</h1>
+          <p className="text-zinc-500 mt-1">Track and manage your tasks</p>
+        </div>
+        <button
+          onClick={stopAllTasks}
+          className="px-4 py-2 bg-zinc-800 hover:bg-red-900/40 text-red-500 border border-red-500/20 rounded-lg text-sm font-medium transition-all"
+        >
+          🛑 Stop All Tasks
+        </button>
       </div>
 
       {/* Create Task Form */}
@@ -202,10 +258,38 @@ export default function TasksPage() {
                   </p>
                 </Link>
 
-                {/* Priority badge */}
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${priorityColors[priorityLabels[task.priority as number] || 'medium']}`}>
-                  {priorityLabels[task.priority as number] || 'medium'}
-                </span>
+                {/* Quick Actions */}
+                <div className="flex items-center gap-2 mr-4">
+                  <button
+                    onClick={() => doNow(task.id)}
+                    title="Do Now"
+                    className="p-1.5 text-green-500 hover:bg-green-500/10 rounded-md transition-colors text-xs border border-green-500/20"
+                  >
+                    NOW
+                  </button>
+                  <button
+                    onClick={() => postpone(task.id)}
+                    title="Postpone"
+                    className="p-1.5 text-yellow-500 hover:bg-yellow-500/10 rounded-md transition-colors text-xs border border-yellow-500/20"
+                  >
+                    LATER
+                  </button>
+                </div>
+
+                {/* Priority Controls */}
+                <div className="flex items-center gap-1 mr-4 bg-zinc-800/50 p-1 rounded-lg">
+                  <button 
+                    onClick={() => updateTaskPriority(task.id, task.priority as number, -1)}
+                    className="px-2 hover:text-white"
+                  >-</button>
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${priorityColors[priorityLabels[task.priority as number] || 'medium']}`}>
+                    {priorityLabels[task.priority as number] || 'medium'}
+                  </span>
+                  <button 
+                    onClick={() => updateTaskPriority(task.id, task.priority as number, 1)}
+                    className="px-2 hover:text-white"
+                  >+</button>
+                </div>
 
                 {/* Delete button */}
                 <button

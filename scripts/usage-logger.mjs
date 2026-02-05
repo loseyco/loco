@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { execSync } from 'child_process';
+import fs from 'fs';
 import 'dotenv/config';
 
 const supabase = createClient(
@@ -7,45 +8,117 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
+const LIMITS = {
+  TPM: 1000000,
+  RPM: 15,
+  RPD: 1500
+};
+
+// Track already logged session IDs to avoid double counting
+const loggedSessionIds = new Set();
+
+async function getStats() {
+  const now = new Date();
+  const oneMinuteAgo = new Date(now.getTime() - 60000).toISOString();
+  const todayStart = new Date(now.setHours(0,0,0,0)).toISOString();
+
+  // Get minute stats
+  const { data: minData, error: minError } = await supabase
+    .from('api_usage')
+    .select('total_tokens')
+    .gte('created_at', oneMinuteAgo);
+
+  // Get day stats
+  const { data: dayData, error: dayError } = await supabase
+    .from('api_usage')
+    .select('id')
+    .gte('created_at', todayStart);
+
+  if (minError || dayError) throw minError || dayError;
+
+  const usedTPM = minData.reduce((sum, row) => sum + (row.total_tokens || 0), 0);
+  const usedRPM = minData.length;
+  const usedRPD = dayData.length;
+
+  return {
+    tpmPercent: (usedTPM / LIMITS.TPM) * 100,
+    rpmPercent: (usedRPM / LIMITS.RPM) * 100,
+    rpdPercent: (usedRPD / LIMITS.RPD) * 100,
+    usedTPM,
+    usedRPM,
+    usedRPD
+  };
+}
+
+async function updateHeartbeat(stats) {
+  const path = 'HEARTBEAT.md';
+  let content = fs.readFileSync(path, 'utf8');
+  
+  const now = new Date();
+  const timestamp = now.toLocaleString('en-US', { timeZone: 'America/Chicago', hour12: true, month: '2-digit', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  
+  // Update the "Last Updated" line
+  content = content.replace(/\*\*Last Updated:\*\* .*/, `**Last Updated:** ${timestamp} CST`);
+
+  const fuelGauge = `
+## ⛽ Fuel Gauge (Token Usage)
+- **TPM (Tokens/Min):** ${stats.usedTPM.toLocaleString()} / ${LIMITS.TPM.toLocaleString()} (${stats.tpmPercent.toFixed(1)}%)
+- **RPM (Req/Min):** ${stats.usedRPM} / ${LIMITS.RPM} (${stats.rpmPercent.toFixed(1)}%)
+- **RPD (Req/Day):** ${stats.usedRPD.toLocaleString()} / ${LIMITS.RPD.toLocaleString()} (${stats.rpdPercent.toFixed(1)}%)
+- **Status:** ${stats.tpmPercent > 80 || stats.rpmPercent > 80 ? '⚠️ LOW FUEL' : '✅ TANK FULL'}
+`;
+
+  const regex = /## ⛽ Fuel Gauge[\s\S]*?(?=\n##|$)/;
+  if (regex.test(content)) {
+    content = content.replace(regex, fuelGauge.trim());
+  } else {
+    content += '\n' + fuelGauge;
+  }
+
+  fs.writeFileSync(path, content);
+}
+
 async function logUsage() {
   try {
-    // 1. Get status from OpenClaw (using node direct since powershell might be restricted)
-    const statusRaw = execSync('node -e "require(\'child_process\').execSync(\'openclaw status --json\', {stdio: \'inherit\'})"', { encoding: 'utf8' });
-    // Wait, that's not right. Just use openclaw status --json directly.
-    // If 'openclaw' command fails, try full path.
     let status;
     try {
         const raw = execSync('openclaw status --json', { encoding: 'utf8' });
         status = JSON.parse(raw);
     } catch (e) {
-        // Try npx if command not in path
+        // Fallback for Windows if 'openclaw' command isn't resolved nicely
         const raw = execSync('npx -y openclaw status --json', { encoding: 'utf8' });
         status = JSON.parse(raw);
     }
 
-    // 2. Extract session stats
     const recentSessions = status.sessions?.recent || [];
     
     for (const session of recentSessions) {
-      if (session.totalTokens > 0) {
-        await supabase.from('api_usage').insert({
-          agent: session.agentId,
+      if (session.totalTokens > 0 && !loggedSessionIds.has(session.sessionId)) {
+        const { error } = await supabase.from('api_usage').insert({
+          id: session.sessionId,
+          agent_id: session.agentId,
           model: session.model,
-          tokens_in: session.inputTokens || 0,
-          tokens_out: session.outputTokens || 0,
-          recorded_at: new Date().toISOString()
-          // usage_percent and reset_in are harder to get from just status --json 
-          // without parsing the text status or hitting the gateway API.
+          input_tokens: session.inputTokens || 0,
+          output_tokens: session.outputTokens || 0,
+          total_tokens: session.totalTokens || 0,
+          status: 'success'
         });
+        
+        if (!error) {
+            loggedSessionIds.add(session.sessionId);
+        }
       }
     }
 
-    console.log(`[${new Date().toLocaleTimeString()}] Usage logged.`);
+    const stats = await getStats();
+    await updateHeartbeat(stats);
+
+    console.log(`[${new Date().toLocaleTimeString()}] Usage logged & Heartbeat updated.`);
   } catch (err) {
     console.error('Usage logging error:', err);
   }
 }
 
-// Run every 10 minutes
-setInterval(logUsage, 600000);
+// Run every 1 minute
+setInterval(logUsage, 60000);
 logUsage();

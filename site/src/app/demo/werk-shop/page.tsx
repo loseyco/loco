@@ -103,52 +103,64 @@ export default function WerkShopDemo() {
         if (project) {
           setCarDetails({
             id: project.id,
-            make: project.metadata?.make || "BMW",
-            model: project.metadata?.model || "3.0 CS",
-            year: project.metadata?.year || "1973",
-            chassis: project.metadata?.chassis || "2262554",
-            owner: project.client || "M. Kaufmann",
-            estimatedCompletion: "August 2026",
+            make: project.make || "BMW",
+            model: project.model || "3.0 CS",
+            year: project.year || "1973",
+            chassis: project.chassis_number || "2262554",
+            owner: project.owner_name || project.client || "M. Kaufmann",
+            estimatedCompletion: project.estimated_completion ? new Date(project.estimated_completion).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : "August 2026",
             daysInShop: 142,
-            percentComplete: 65,
-            status: project.status === 'active' ? "In Progress - Body & Paint" : project.status,
+            percentComplete: project.progress_percent || 65,
+            status: project.status === 'active' ? `In Progress - ${project.model || 'Restoration'}` : project.status,
           });
 
-          const { data: notes } = await supabase
-            .from('project_notes')
+          const { data: milestones } = await supabase
+            .from('project_milestones')
             .select('*')
             .eq('project_id', project.id)
-            .order('created_at', { ascending: true });
+            .order('order_index', { ascending: true });
 
-          if (notes && notes.length > 0) {
-            const mappedSteps = notes.map((n, idx) => {
-              const statusMatch = n.content.match(/\[STAGE: (.*?)\]/);
-              const status = statusMatch ? statusMatch[1].toLowerCase() : 'completed';
-              const cleanContent = n.content.replace(/\[STAGE: .*?\] /, '');
-              const parts = cleanContent.split(': ');
-              const title = parts[0] || "Update";
-              const descAndDetails = parts[1] || "";
-              const subParts = descAndDetails.split('. ');
-              const description = subParts[0] || "";
-              const details = subParts[1]?.replace('Verified: ', '').replace('Active: ', '').split(', ') || [];
+          if (milestones && milestones.length > 0) {
+            const mappedSteps = milestones.map((m) => ({
+              id: m.order_index,
+              title: m.title,
+              date: m.status === 'completed' && m.completed_at 
+                ? new Date(m.completed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                : m.target_date ? new Date(m.target_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Pending',
+              status: m.status as 'completed' | 'current' | 'pending',
+              description: m.description,
+              details: Array.isArray(m.details) ? m.details : []
+            }));
+            setTimelineSteps(mappedSteps);
+          } else {
+            // Fallback to old mapping if milestones table is empty but notes exist
+            const { data: notes } = await supabase
+                .from('project_notes')
+                .select('*')
+                .eq('project_id', project.id)
+                .order('created_at', { ascending: true });
 
-              return {
-                id: idx + 1,
-                title,
-                date: new Date(n.created_at).toLocaleDateString(),
-                status: status as 'completed' | 'current' | 'pending',
-                description,
-                details
-              };
-            });
-            
-            if (mappedSteps.length < 6) {
-                const remaining = [
-                    { id: 5, title: "Mechanical Restoration", date: "Est. May 2026", status: "pending", description: "Full rebuild of the M30 straight-six, suspension, and drivetrain components.", details: ["Engine rebuild", "Suspension powder coating", "Brake system overhaul"] },
-                    { id: 6, title: "Final Assembly", date: "Est. July 2026", status: "pending", description: "Installation of interior, glass, trim, and mechanical systems.", details: ["Leather upholstery", "Wiring harness installation", "Chrome trim fitment"] }
-                ];
-                setTimelineSteps([...mappedSteps, ...remaining]);
-            } else {
+            if (notes && notes.length > 0) {
+                const mappedSteps = notes.map((n, idx) => {
+                const statusMatch = n.content.match(/\[STAGE: (.*?)\]/);
+                const status = statusMatch ? statusMatch[1].toLowerCase() : 'completed';
+                const cleanContent = n.content.replace(/\[STAGE: .*?\] /, '');
+                const parts = cleanContent.split(': ');
+                const title = parts[0] || "Update";
+                const descAndDetails = parts[1] || "";
+                const subParts = descAndDetails.split('. ');
+                const description = subParts[0] || "";
+                const details = subParts[1]?.replace('Verified: ', '').replace('Active: ', '').split(', ') || [];
+
+                return {
+                    id: idx + 1,
+                    title,
+                    date: new Date(n.created_at).toLocaleDateString(),
+                    status: status as 'completed' | 'current' | 'pending',
+                    description,
+                    details
+                };
+                });
                 setTimelineSteps(mappedSteps);
             }
           }

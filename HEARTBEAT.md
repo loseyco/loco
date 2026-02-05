@@ -2,19 +2,27 @@
 
 ## Current Status: ✅ FULL PLATFORM LIVE
 
-**Last Updated:** 2026-02-05 02:44 CST
+**Last Updated:** 02/05/2026, 09:03 AM CST
 
 ---
 
+## Alerts
+- ✅ **Brain Online:** OAuth token refresh succeeded. Returned to primary **Gemini 3 Flash** model.
+
 ## Currently In Progress
-- 🔄 **Outreach Drafting** — Initial drafts completed for all 5 shop leads (memory/outreach-drafts.md).
-- 🔄 **Live Dashboard Sync** — Pushing CPU/MEM, PM2 Status, and API Usage (Stable)
-- 🔄 **Discord Context Sync** — Monitoring #chase-log for instructions and updates
+- 🔄 **Discord Context Sync** — Monitoring #chase-log for instructions and updates.
+- 🔄 **Live Dashboard Sync** — Pushing CPU/MEM, PM2 Status, and API Usage (Stable).
 
 ## Just Completed
-- ✅ **Lead Gen Review** — Reviewed 5 shop leads and 5 job matches (memory/leads-research.md)
-- ✅ **Lead Gen & Outreach** — Sub-agent results ready; identified 5 shops and 5 job roles.
-- ✅ **Vercel Deployment Audit** — Build verified passing; identified missing production secrets.
+- ✅ **Task Management Upgrades** — Added priority adjustment, "Do Now", and "Postpone" controls to the Tasks page.
+- ✅ **Global Task Control** — Added "Stop All Tasks" button to immediately pause all active tasks.
+- ✅ **Notification Routing** — All automated system alerts and cron summaries redirected to #chase-logs and #voice-reports.
+- ✅ **Fuel Gauge UI** — Integrated real-time token usage (TPM, RPM, RPD) into the losey.co dashboard.
+- ✅ **System Self-Check** — Verified all PM2 processes (engine, voice, telemetry, etc.) are online and ports 18790/18789 are listening.
+- ✅ **Werk Shop Integration** — Deep integration complete; updated `/demo/werk-shop` to pull live restoration data from Supabase.
+- ✅ **Multi-Bot Health Indicator** — Added real-time PM2 process health dots to the Dashboard header.
+- ✅ **Lead Gen & Outreach** — Initial research and outreach drafts completed (memory/outreach-drafts.md).
+- ✅ **Build Verification** — Confirmed production build is passing on Next.js 16.1.6.
 - ✅ **Vercel Deployment Fix** — Resolved 'pg' and '@types/pg' dependency error (Build passing)
 - ✅ **Stripe/OpenClaw Wiring** — Preparing secrets for production deploy (Sub-agent audit complete)
 - ✅ **Telemetry Sync Fix** — Fixed schema mismatch in `status-sync.mjs` (Apps now tracking correctly)
@@ -81,3 +89,10 @@
 - **Supabase:** jxnqsbkvckvfwgmvuajb.supabase.co
 - **Email:** contact@losey.co → loseyp@gmail.com
 - **Bootstrap:** `irm losey.co/chase | iex`
+
+
+## ⛽ Fuel Gauge (Token Usage)
+- **TPM (Tokens/Min):** 0 / 1,000,000 (0.0%)
+- **RPM (Req/Min):** 0 / 15 (0.0%)
+- **RPD (Req/Day):** 84 / 1,500 (5.6%)
+- **Status:** ✅ TANK FULL

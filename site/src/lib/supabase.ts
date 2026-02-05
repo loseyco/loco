@@ -144,6 +144,16 @@ export interface SystemStats {
   memory_usage: number
   uptime_seconds: number
   last_seen: string
+  metadata?: {
+    pm2?: Array<{
+      name: string
+      status: string
+      cpu: number
+      memory: number
+      uptime: number
+      restarts: number
+    }>
+  }
 }
 
 export interface AgentStatus {
