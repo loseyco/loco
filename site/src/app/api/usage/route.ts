@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import pkg from 'pg';
 const { Client } = pkg;
 
-const connectionString = 'postgresql://postgres:KN4IBpHwtqF9dwwp@db.jxnqsbkvckvfwgmvuajb.supabase.co:5432/postgres';
+const connectionString = process.env.SUPABASE_DB_URL || 'postgresql://postgres:KN4IBpHwtqF9dwwp@db.jxnqsbkvckvfwgmvuajb.supabase.co:5432/postgres';
 
 export async function GET() {
   const client = new Client({ connectionString });

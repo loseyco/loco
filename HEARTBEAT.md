@@ -2,17 +2,18 @@
 
 ## Current Status: ✅ FULL PLATFORM LIVE
 
-**Last Updated:** 2026-02-04 23:20 CST
+**Last Updated:** 2026-02-04 23:42 CST
 
 ---
 
 ## Currently In Progress
-- 🔄 **Sales Bot Deployment** — Building automated outreach and follow-up system
+- 🔄 **Sales Bot Research** — Active hunt for leads and remote jobs (Sub-agent)
+- 🔄 **Vercel Deployment Audit** — Identifying build failure patterns (Sub-agent)
 - 🔄 **Live Dashboard Sync** — Pushing CPU/MEM, PM2 Status, and API Usage (Stable)
-- 🔄 **Lead Gen & Outreach** — High-priority hunt for remote jobs and shop clients
 - 🔄 **Discord Context Sync** — Monitoring #chase-log for instructions and updates
 
 ## Just Completed
+- ✅ **Vercel Deployment Fix** — Resolved 'pg' dependency error (Build passing)
 - ✅ **Telemetry Sync Fix** — Fixed schema mismatch in `status-sync.mjs` (Apps now tracking correctly)
 - ✅ **Usage Logger Fix** — Fixed schema mismatch in `usage-logger.mjs` (Tokens now logging to DB)
 - ✅ **Headless Boot Recovery** — System survives power loss and reboots without user login
@@ -37,7 +38,8 @@
 - ✅ **Stripe Integration** — Invoices page + checkout
 
 ## Active Sub-Agents
-- None (all completed)
+- `sales-bot-research-v2` (Lead Generation)
+- `vercel-audit-v2` (Infrastructure Audit)
 
 ## Previous Milestones
 - ✅ Tasks page seeded with 8 tasks (source of truth)

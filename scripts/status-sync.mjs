@@ -34,7 +34,7 @@ async function sync() {
             restarts: app.pm2_env.restart_time
         }));
     } catch (e) {
-        console.error('PM2 fetch error:', e.message);
+        // Silent error for PM2
     }
 
     const { error: sError } = await supabase.from('systems').upsert({
@@ -42,9 +42,11 @@ async function sync() {
       hostname: load.hostname,
       cpu_usage: Math.round(cpu.currentLoad),
       memory_usage: Math.round((mem.active / mem.total) * 100),
-      last_seen: new Date().toISOString()
+      uptime_seconds: Math.round(si.time().uptime),
+      last_seen: new Date().toISOString(),
+      metadata: { pm2: pm2Stats }
     });
-    // if (sError) console.error('Systems sync error:', sError);
+    if (sError) console.error('Systems sync error:', sError);
 
     let currentGoal = "Stabilizing Gateway & Workspace";
     try {
@@ -63,9 +65,11 @@ async function sync() {
       last_action: allOnline ? 'Telemetry sync active.' : 'Detected process failures in PM2.',
       updated_at: new Date().toISOString()
     });
-    // if (cError) console.error('Chase Status sync error:', cError);
+    if (cError) console.error('Chase Status sync error:', cError);
 
-    console.log(`[${new Date().toLocaleTimeString()}] Stats synced (Apps: ${pm2Stats.length}).`);
+    if (!sError && !cError) {
+        console.log(`[${new Date().toLocaleTimeString()}] Stats synced (Apps: ${pm2Stats.length}).`);
+    }
   } catch (err) {
     console.error('Sync error:', err);
   }
