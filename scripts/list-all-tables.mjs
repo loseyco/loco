@@ -2,16 +2,16 @@ import pkg from 'pg';
 const { Client } = pkg;
 const connectionString = 'postgresql://postgres:KN4IBpHwtqF9dwwp@db.jxnqsbkvckvfwgmvuajb.supabase.co:5432/postgres';
 
-async function check() {
+async function list() {
   const client = new Client({ connectionString });
   try {
     await client.connect();
-    const res = await client.query("SELECT column_name FROM information_schema.columns WHERE table_name = 'systems'");
-    console.log('Systems Columns:', res.rows.map(r => r.column_name).join(', '));
+    const res = await client.query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'");
+    console.log('Tables:', res.rows.map(r => r.table_name).join(', '));
   } catch (err) {
     console.error(err);
   } finally {
     await client.end();
   }
 }
-check();
+list();

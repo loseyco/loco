@@ -11,12 +11,14 @@ const supabase = createClient(
 
 async function sync() {
   try {
+    // 1. Get System Stats
     const [cpu, mem, load] = await Promise.all([
       si.currentLoad(),
       si.mem(),
       si.osInfo()
     ]);
 
+    // 2. Get PM2 status for all apps
     let pm2Stats = [];
     try {
         const pm2ListRaw = execSync('pm2.cmd jlist', { 
@@ -48,6 +50,7 @@ async function sync() {
     });
     if (sError) console.error('Systems sync error:', sError);
 
+    // 3. Get Agent Status (from HEARTBEAT.md)
     let currentGoal = "Stabilizing Gateway & Workspace";
     try {
         const heartbeat = fs.readFileSync('HEARTBEAT.md', 'utf8');
@@ -55,6 +58,8 @@ async function sync() {
         if (match) currentGoal = match[1].replace(/^[🔄✅] /, '');
     } catch (e) {}
 
+    const allOnline = pm2Stats.length > 0 && pm2Stats.every(app => app.status === 'online');
+    let status = allOnline ? 'idle' : 'working';
     let lastAction = allOnline ? 'Telemetry sync active.' : 'Detected process failures in PM2.';
 
     // 4. Check for Rate Limits/Failures in OpenClaw logs
@@ -85,5 +90,6 @@ async function sync() {
   }
 }
 
+// Run every 30 seconds
 setInterval(sync, 30000);
 sync();
