@@ -689,3 +689,12 @@ Error: listen EADDRINUSE: address already in use :::3300
 ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
  GET /dashboard/tasks 200 in 113ms (compile: 53ms, render: 59ms)
 ✓ Compiled in 54ms
+ GET /dashboard/work 200 in 602ms (compile: 573ms, render: 29ms)
+✓ Compiled in 85ms
+✓ Compiled in 50ms
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3300". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /dashboard/work 200 in 332ms (compile: 106ms, render: 225ms)
+ GET /dashboard/work 200 in 388ms (compile: 97ms, render: 291ms)
+ GET /dashboard/work 200 in 78ms (compile: 21ms, render: 57ms)
+ GET /dashboard/work 200 in 104ms (compile: 5ms, render: 99ms)
+ GET /dashboard/work 200 in 96ms (compile: 3ms, render: 92ms)

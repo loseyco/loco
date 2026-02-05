@@ -7,6 +7,7 @@ import { signOut } from '@/app/login/actions'
 import { supabase, SystemStats } from '@/lib/supabase'
 
 import { ViewContext } from '@/lib/ViewContext'
+import FloatingQuickTask from '@/components/FloatingQuickTask'
 
 interface ChaseStatus {
   status: 'working' | 'idle'
@@ -337,6 +338,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <div className="flex-1 p-4 md:p-8 overflow-x-hidden">
             {children}
           </div>
+          <FloatingQuickTask />
         </main>
       </div>
     </ViewContext.Provider >
