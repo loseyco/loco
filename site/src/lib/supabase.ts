@@ -60,6 +60,7 @@ export interface Task {
   description?: string
   status: 'pending' | 'in_progress' | 'completed'
   priority: number // 0=low, 1=medium, 2=high
+  is_special: boolean
   created_at: string
   updated_at: string
 }
@@ -167,4 +168,13 @@ export interface AgentStatus {
   delays?: any
   staff_online?: boolean
   updated_at: string
+}
+
+export interface ChangelogEntry {
+  id: string
+  title: string
+  description?: string
+  category: 'feature' | 'fix' | 'improvement'
+  version?: string
+  created_at: string
 }

@@ -15,11 +15,11 @@ async function checkFailures() {
     if (tail.includes('FailoverError') || tail.includes('rate limit')) {
         console.log('Detected rate limit hit in logs.');
         
-        // Log to API usage table
-        await supabase.from('api_usage').insert({
+        // Log to activity_logs table for dashboard visibility
+        await supabase.from('activity_logs').insert({
             agent: 'ops',
-            model: 'google-antigravity/gemini-3-flash',
-            recorded_at: new Date().toISOString()
+            action: 'BRAIN_COOLDOWN',
+            details: 'System hitting Google AI rate limits, cooling down.'
         });
     }
   } catch (err) {

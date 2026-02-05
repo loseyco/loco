@@ -19,6 +19,7 @@ export default function DashboardOverview() {
     agentSessions: 0,
   })
   const [recentProjects, setRecentProjects] = useState<Project[]>([])
+  const [specialTasks, setSpecialTasks] = useState<Task[]>([])
   const [agentStatus, setAgentStatus] = useState<AgentStatus | null>(null)
   const [systemStats, setSystemStats] = useState<SystemStats | null>(null)
   const [apiUsage, setApiUsage] = useState<any[]>([])
@@ -86,7 +87,7 @@ export default function DashboardOverview() {
       const oneMinuteAgo = new Date(now.getTime() - 60000).toISOString()
       const todayStart = new Date(now.setHours(0,0,0,0)).toISOString()
 
-      const [projectsRes, tasksRes, sessionsRes, statusRes, sysRes, usageRes, minUsageRes, dayUsageRes] = await Promise.all([
+      const [projectsRes, tasksRes, sessionsRes, statusRes, sysRes, usageRes, minUsageRes, dayUsageRes, specialTasksRes] = await Promise.all([
         supabase.from('projects').select('*').order('created_at', { ascending: false }).limit(5),
         supabase.from('tasks').select('*'),
         supabase.from('agent_sessions').select('*'),
@@ -94,7 +95,8 @@ export default function DashboardOverview() {
         supabase.from('system_stats').select('*').order('last_seen', { ascending: false }).limit(1).single(),
         supabase.from('api_usage').select('*').order('created_at', { ascending: false }).limit(5),
         supabase.from('api_usage').select('total_tokens').gte('created_at', oneMinuteAgo),
-        supabase.from('api_usage').select('id').gte('created_at', todayStart)
+        supabase.from('api_usage').select('id').gte('created_at', todayStart),
+        supabase.from('tasks').select('*').eq('is_special', true).neq('status', 'completed').order('priority', { ascending: false }).limit(5)
       ])
 
       const projects = projectsRes.data || []
@@ -122,6 +124,7 @@ export default function DashboardOverview() {
       })
 
       setRecentProjects(projects.slice(0, 5))
+      setSpecialTasks(specialTasksRes.data || [])
       setAgentStatus(statusRes.data)
       setSystemStats(sysRes.data)
       setApiUsage(usageRes.data || [])
@@ -230,24 +233,59 @@ export default function DashboardOverview() {
         </div>
 
         {/* Quick Task Peek */}
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
-           <div className="p-4 border-b border-zinc-800">
-             <h2 className="font-bold text-sm uppercase tracking-widest text-zinc-400">Queue Items</h2>
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden flex flex-col">
+           <div className="p-4 border-b border-zinc-800 flex justify-between items-center bg-orange-500/5">
+             <h2 className="font-bold text-sm uppercase tracking-widest text-orange-500 flex items-center gap-2">
+               <span>⚠️</span> Needs Your Attention
+             </h2>
+             <Link href="/dashboard/tasks?filter=special" className="text-[10px] text-zinc-500 hover:text-white underline">VIEW ALL</Link>
            </div>
-           <div className="p-4">
+           <div className="p-4 flex-1 overflow-y-auto max-h-[300px]">
               <div className="space-y-4">
-                <div className="flex gap-3">
-                   <span className="text-zinc-500 font-mono text-xs">01</span>
-                   <p className="text-xs text-zinc-400">Stable gateway monitoring (5m interval)</p>
-                </div>
-                <div className="flex gap-3">
-                   <span className="text-zinc-500 font-mono text-xs">02</span>
-                   <p className="text-xs text-zinc-400">Wiring Werk Shop demo to live DB</p>
-                </div>
-                <div className="flex gap-3">
-                   <span className="text-zinc-500 font-mono text-xs">03</span>
-                   <p className="text-xs text-zinc-400">Scaffolding Motorsports Playbook</p>
-                </div>
+                {specialTasks.length === 0 ? (
+                  <p className="text-xs text-zinc-500 italic">No urgent tasks requiring your action.</p>
+                ) : (
+                  specialTasks.map((task, idx) => (
+                    <Link key={task.id} href={`/dashboard/tasks/${task.id}`} className="block group">
+                      <div className="flex gap-3">
+                        <span className="text-orange-500/50 font-mono text-xs">{String(idx + 1).padStart(2, '0')}</span>
+                        <div>
+                          <p className="text-xs font-bold text-zinc-300 group-hover:text-orange-400 transition-colors">{task.title}</p>
+                          <p className="text-[10px] text-zinc-500 line-clamp-1">{task.description}</p>
+                        </div>
+                      </div>
+                    </Link>
+                  ))
+                )}
+              </div>
+           </div>
+           <div className="mt-auto p-4 border-t border-zinc-800 bg-zinc-950/50">
+              <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3">Quick Actions</p>
+              <div className="grid grid-cols-2 gap-2">
+                <button 
+                  onClick={() => window.open('https://github.com/loseyco/loco', '_blank')}
+                  className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold uppercase transition-all flex items-center justify-center gap-2"
+                >
+                  <span>🐙</span> GitHub
+                </button>
+                <button 
+                  onClick={() => window.location.href = '/dashboard/invoices/new'}
+                  className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold uppercase transition-all flex items-center justify-center gap-2"
+                >
+                  <span>💵</span> New Invoice
+                </button>
+                <button 
+                  onClick={() => window.location.href = '/dashboard/chat'}
+                  className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold uppercase transition-all flex items-center justify-center gap-2"
+                >
+                  <span>💬</span> AI Chat
+                </button>
+                <button 
+                  onClick={() => window.location.href = '/dashboard/staff'}
+                  className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold uppercase transition-all flex items-center justify-center gap-2"
+                >
+                  <span>🛠️</span> System
+                </button>
               </div>
            </div>
         </div>

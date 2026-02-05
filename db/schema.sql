@@ -90,3 +90,18 @@ CREATE INDEX IF NOT EXISTS idx_leads_status ON leads(status);
 CREATE INDEX IF NOT EXISTS idx_leads_created ON leads(created_at DESC);
 ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "service_role_all" ON leads FOR ALL USING (true);
+
+-- Changelog
+CREATE TABLE IF NOT EXISTS changelog (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title TEXT NOT NULL,
+  description TEXT,
+  category TEXT CHECK (category IN ('feature', 'fix', 'improvement')),
+  version TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_changelog_created ON changelog(created_at DESC);
+ALTER TABLE changelog ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "service_role_all" ON changelog FOR ALL USING (true);
+CREATE POLICY "authenticated_select" ON changelog FOR SELECT USING (true);

@@ -35,8 +35,9 @@
 - **2026-02-04:** Fixed Vercel deployment by adding missing 'pg' and '@types/pg' dependencies. Verified with local build.
 - **2026-02-04:** Stabilized telemetry and usage logging. Fixed schema mismatches and PM2 status tracking. Dashboard now has live multi-bot indicators.
 
-## Todos & Future Ideas
-- Set `OPENCLAW_WEBHOOK_URL` in Vercel.
-- Verify `contact@losey.co` email in Squarespace.
-- Build "High-Velocity Intake" template component.
-- Setup Sales Bot agent.
+## Operational Rules
+- **Delegation First:** I am the high-level Orchestrator. I do not perform manual tasks; I delegate them to the Pi Engine (sub-agents). Pi then executes or spawns additional specialized "staff."
+- **Task Integration:** Every direct request from PJ must be converted into a task in the `tasks` table on the dashboard.
+- **Reporting:** All automated health/status updates go to #chase-logs and #voice-reports.
+- **Human Intervention:** If a task requires PJ's direct action, add it to his "Special Tasks" view on the dashboard and send him a private message on Discord.
+- **Communication:** Use this PM thread for direct human-style chat only.

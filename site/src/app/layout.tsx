@@ -12,6 +12,11 @@ export const metadata: Metadata = {
   description: "Technical services spanning motorsport engineering, medical systems, and software development. From proton therapy installations to IndyCar trackside support.",
   keywords: ["engineering", "motorsport", "IndyCar", "software development", "Losey.Co", "GridPass"],
   authors: [{ name: "Patrick Losey" }],
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
   openGraph: {
     title: "Losey.Co — Engineering Excellence",
     description: "Technical services spanning motorsport engineering, medical systems, and software development.",

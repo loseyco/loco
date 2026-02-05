@@ -58,11 +58,28 @@ async function sync() {
         if (match) currentGoal = match[1].replace(/^[🔄✅] /, '');
     } catch (e) {}
 
+    // 4. Get active sessions (sub-agents)
+    let subagents = [];
+    try {
+        const statusRaw = execSync('openclaw status --json', { encoding: 'utf8' });
+        const status = JSON.parse(statusRaw);
+        const recentSessions = status.sessions?.recent || [];
+        // Map recent sessions to a readable format
+        subagents = recentSessions
+            .filter(s => s.age < 300000) // Active in the last 5 mins
+            .map(s => ({
+                label: s.label || s.agentId,
+                status: 'active',
+                model: s.model,
+                last_updated: new Date(s.updatedAt).toISOString()
+            }));
+    } catch (e) {}
+
     const allOnline = pm2Stats.length > 0 && pm2Stats.every(app => app.status === 'online');
     let status = allOnline ? 'idle' : 'working';
     let lastAction = allOnline ? 'Telemetry sync active.' : 'Detected process failures in PM2.';
 
-    // 4. Check for Rate Limits/Failures in OpenClaw logs
+    // 5. Check for Rate Limits/Failures in OpenClaw logs
     try {
         const logPath = `\\tmp\\openclaw\\openclaw-${new Date().toISOString().split('T')[0]}.log`;
         if (fs.existsSync(logPath)) {
@@ -79,6 +96,7 @@ async function sync() {
       status: status,
       last_action: lastAction,
       updated_at: new Date().toISOString()
+      // Note: subagents column not added yet due to SQL migration failure
     });
     if (cError) console.error('Chase Status sync error:', cError);
 

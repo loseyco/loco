@@ -8,7 +8,7 @@ export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
   const [newTaskTitle, setNewTaskTitle] = useState('')
-  const [filter, setFilter] = useState<'all' | 'pending' | 'in_progress' | 'completed'>('all')
+  const [filter, setFilter] = useState<'all' | 'pending' | 'in_progress' | 'completed' | 'special'>('all')
 
   useEffect(() => {
     fetchTasks()
@@ -38,6 +38,18 @@ export default function TasksPage() {
       subscription.unsubscribe()
     }
   }, [])
+
+  async function toggleSpecial(id: string, currentSpecial: boolean) {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ is_special: !currentSpecial })
+        .eq('id', id)
+      if (error) throw error
+    } catch (error) {
+      console.error('Error toggling special:', error)
+    }
+  }
 
   async function fetchTasks() {
     try {
@@ -137,7 +149,11 @@ export default function TasksPage() {
   }
 
   const filteredTasks = tasks
-    .filter((t) => filter === 'all' || t.status === filter)
+    .filter((t) => {
+      if (filter === 'all') return true
+      if (filter === 'special') return t.is_special
+      return t.status === filter
+    })
     .sort((a, b) => (b.priority as number) - (a.priority as number))
 
   const priorityLabels: Record<number, string> = {
@@ -201,7 +217,7 @@ export default function TasksPage() {
 
       {/* Filter tabs */}
       <div className="flex gap-2">
-        {(['all', 'pending', 'in_progress', 'completed'] as const).map((f) => (
+        {(['all', 'pending', 'in_progress', 'completed', 'special'] as const).map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
@@ -290,6 +306,17 @@ export default function TasksPage() {
                     className="px-2 hover:text-white"
                   >+</button>
                 </div>
+
+                {/* Special toggle */}
+                <button
+                  onClick={() => toggleSpecial(task.id, task.is_special)}
+                  className={`p-2 transition-colors rounded-lg ${
+                    task.is_special ? 'text-yellow-400' : 'text-zinc-600 hover:text-yellow-400'
+                  }`}
+                  title={task.is_special ? "Remove from Special" : "Mark as Special"}
+                >
+                  {task.is_special ? '★' : '☆'}
+                </button>
 
                 {/* Delete button */}
                 <button

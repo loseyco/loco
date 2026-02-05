@@ -21,6 +21,7 @@ const navItems = [
   { href: '/dashboard/invoices', label: 'Invoices', icon: '🧾' },
   { href: '/dashboard/finance', label: 'Finance', icon: '💰' },
   { href: '/dashboard/chat', label: 'Chat', icon: '💬' },
+  { href: '/dashboard/changelog', label: 'Changelog', icon: '📝' },
   { href: '/dashboard/logs', label: 'Logs', icon: '📋' },
 ]
 
