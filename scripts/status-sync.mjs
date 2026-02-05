@@ -40,8 +40,7 @@ async function sync() {
       cpu_usage: Math.round(cpu.currentLoad),
       memory_usage: Math.round((mem.active / mem.total) * 100),
       uptime_seconds: Math.round(si.time().uptime),
-      last_seen: new Date().toISOString(),
-      metadata: { pm2: pm2Stats } // Storing PM2 list in JSONB column
+      last_seen: new Date().toISOString()
     });
     if (sError) console.error('Systems sync error:', sError);
 
@@ -55,7 +54,7 @@ async function sync() {
 
     // Check if any PM2 app is NOT online
     const allOnline = pm2Stats.length > 0 && pm2Stats.every(app => app.status === 'online');
-    let status = allOnline ? 'idle' : 'error';
+    let status = 'idle'; // chase_status constraint: working | idle
     let lastAction = allOnline ? 'Telemetry sync active.' : 'Detected process failures in PM2.';
 
     // 4. Check for Rate Limits/Failures in OpenClaw logs
@@ -65,7 +64,6 @@ async function sync() {
             const logs = fs.readFileSync(logPath, 'utf8');
             if (logs.includes('FailoverError') || logs.includes('rate limit')) {
                 lastAction = '⚠️ BRAIN COOLDOWN: Hitting Google Rate Limits';
-                status = 'error'; // Dashboard should show warning color
             }
         }
     } catch (e) {}

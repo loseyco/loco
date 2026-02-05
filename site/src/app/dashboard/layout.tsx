@@ -28,6 +28,11 @@ const demoItems = [
   { href: '/demo/davidson-racing', label: 'Davidson Racing', icon: '🏎️' },
 ]
 
+const externalLinks = [
+  { href: 'https://github.com/loseyco/loco', label: 'GitHub Repo', icon: '🐙' },
+  { href: 'https://vercel.com/loseyco/loco', label: 'Vercel Deploy', icon: '▲' },
+]
+
 function ChaseStatusBar() {
   const [status, setStatus] = useState<ChaseStatus | null>(null)
   const [latestLog, setLatestLog] = useState<{ agent: string; action: string; created_at: string } | null>(null)
@@ -232,6 +237,22 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 </Link>
                 )
             })}
+          </div>
+
+          <div className="space-y-2">
+            <p className="px-4 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">External</p>
+            {externalLinks.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 px-4 py-3 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all duration-200"
+              >
+                <span className="text-xl">{item.icon}</span>
+                <span className="font-medium">{item.label}</span>
+              </a>
+            ))}
           </div>
         </nav>
 
