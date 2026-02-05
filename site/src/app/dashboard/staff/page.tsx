@@ -5,6 +5,7 @@ import { supabase, SystemStats } from '@/lib/supabase'
 
 export default function StaffDashboard() {
   const [systemStats, setSystemStats] = useState<SystemStats | null>(null)
+  const [usageStats, setUsageStats] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -17,21 +18,39 @@ export default function StaffDashboard() {
       })
       .subscribe()
 
+    const usageSub = supabase
+      .channel('api-usage-any')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'api_usage' }, () => {
+        fetchData()
+      })
+      .subscribe()
+
     return () => {
       sysSub.unsubscribe()
+      usageSub.unsubscribe()
     }
   }, [])
 
   async function fetchData() {
     try {
-      const { data, error } = await supabase
-        .from('systems')
-        .select('*')
-        .eq('id', 'main-pc')
-        .single()
+      const [sysRes, usageRes] = await Promise.all([
+        supabase.from('systems').select('*').eq('id', 'main-pc').single(),
+        supabase.from('api_usage').select('agent_id, model, total_tokens')
+      ])
 
-      if (error) throw error
-      setSystemStats(data)
+      if (sysRes.data) setSystemStats(sysRes.data)
+      
+      if (usageRes.data) {
+        const aggregated = usageRes.data.reduce((acc: any, curr) => {
+          const key = `${curr.agent_id}-${curr.model}`
+          if (!acc[key]) {
+            acc[key] = { agent: curr.agent_id, model: curr.model, total: 0 }
+          }
+          acc[key].total += curr.total_tokens
+          return acc
+        }, {})
+        setUsageStats(Object.values(aggregated))
+      }
     } catch (error) {
       console.error('Error fetching data:', error)
     } finally {
@@ -123,6 +142,37 @@ export default function StaffDashboard() {
                       <td className="px-6 py-4 text-right font-mono text-sm text-zinc-400">{formatBytes(app.memory)}</td>
                       <td className="px-6 py-4 text-right font-mono text-sm text-zinc-400">{app.restarts}</td>
                       <td className="px-6 py-4 text-right font-mono text-sm text-zinc-400">{formatUptime(Math.floor(app.uptime / 1000))}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* AI Usage & Costs */}
+          <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+            <div className="bg-zinc-800/50 p-4 border-b border-zinc-800 flex justify-between items-center">
+              <h2 className="font-bold text-sm uppercase tracking-widest text-zinc-400">Brain Resource Allocation</h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="text-xs uppercase tracking-wider text-zinc-500 border-b border-zinc-800">
+                    <th className="px-6 py-4 font-semibold">Agent</th>
+                    <th className="px-6 py-4 font-semibold">Model</th>
+                    <th className="px-6 py-4 font-semibold text-right">Total Tokens</th>
+                    <th className="px-6 py-4 font-semibold text-right">Est. Cost</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-800">
+                  {usageStats.map((u) => (
+                    <tr key={`${u.agent}-${u.model}`} className="hover:bg-zinc-800/30 transition-colors">
+                      <td className="px-6 py-4 font-medium text-zinc-200 uppercase">{u.agent}</td>
+                      <td className="px-6 py-4 text-zinc-400">{u.model}</td>
+                      <td className="px-6 py-4 text-right font-mono text-sm text-zinc-400">{u.total.toLocaleString()}</td>
+                      <td className="px-6 py-4 text-right font-mono text-sm text-green-500">
+                        ${((u.total / 1000000) * 0.10).toFixed(4)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
