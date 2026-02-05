@@ -20,7 +20,7 @@ const loggedSessionIds = new Set();
 async function getStats() {
   const now = new Date();
   const oneMinuteAgo = new Date(now.getTime() - 60000).toISOString();
-  const todayStart = new Date(now.setHours(0,0,0,0)).toISOString();
+  const todayStart = new Date(now.setHours(0, 0, 0, 0)).toISOString();
 
   // Get minute stats
   const { data: minData, error: minError } = await supabase
@@ -53,10 +53,10 @@ async function getStats() {
 async function updateHeartbeat(stats) {
   const path = 'HEARTBEAT.md';
   let content = fs.readFileSync(path, 'utf8');
-  
+
   const now = new Date();
   const timestamp = now.toLocaleString('en-US', { timeZone: 'America/Chicago', hour12: true, month: '2-digit', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-  
+
   // Update the "Last Updated" line
   content = content.replace(/\*\*Last Updated:\*\* .*/, `**Last Updated:** ${timestamp} CST`);
 
@@ -81,17 +81,12 @@ async function updateHeartbeat(stats) {
 async function logUsage() {
   try {
     let status;
-    try {
-        const raw = execSync('openclaw status --json', { encoding: 'utf8' });
-        status = JSON.parse(raw);
-    } catch (e) {
-        // Fallback for Windows if 'openclaw' command isn't resolved nicely
-        const raw = execSync('npx -y openclaw status --json', { encoding: 'utf8' });
-        status = JSON.parse(raw);
-    }
+    const openclawPath = 'C:\\Users\\pjlos\\AppData\\Roaming\\npm\\node_modules\\openclaw\\dist\\index.js';
+    const raw = execSync(`node "${openclawPath}" status --json`, { encoding: 'utf8', windowsHide: true });
+    status = JSON.parse(raw);
 
     const recentSessions = status.sessions?.recent || [];
-    
+
     for (const session of recentSessions) {
       if (session.totalTokens > 0 && !loggedSessionIds.has(session.sessionId)) {
         const { error } = await supabase.from('api_usage').insert({
@@ -103,9 +98,9 @@ async function logUsage() {
           total_tokens: session.totalTokens || 0,
           status: 'success'
         });
-        
+
         if (!error) {
-            loggedSessionIds.add(session.sessionId);
+          loggedSessionIds.add(session.sessionId);
         }
       }
     }

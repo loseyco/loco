@@ -14,7 +14,7 @@ function log(msg) {
     console.log(entry.trim());
     try {
         fs.appendFileSync(LOG_FILE, entry);
-    } catch (e) {}
+    } catch (e) { }
 }
 
 function checkPort(port) {
@@ -40,7 +40,7 @@ function checkPort(port) {
 
 async function monitor() {
     log('Monitoring ports...');
-    
+
     const primaryUp = await checkPort(PRIMARY_PORT);
     const engineUp = await checkPort(ENGINE_PORT);
 
@@ -48,7 +48,11 @@ async function monitor() {
         log(`CRITICAL: Port(s) down (Primary: ${primaryUp}, Engine: ${engineUp}). Running recovery...`);
         try {
             // Use 'start' to run it detached so watchdog doesn't get killed by its own recovery
-            execSync(`start "" "${RECOVERY_PATH}"`);
+            // Use silent node execution instead of 'start'
+            const { exec } = require('child_process');
+            exec(`"${RECOVERY_PATH}"`, { windowsHide: true }, (error, stdout, stderr) => {
+                if (error) log(`Recovery error: ${error.message}`);
+            });
             log('Recovery script triggered.');
             // Wait 60 seconds for recovery to finish before checking again
             await new Promise(r => setTimeout(r, 60000));

@@ -14,7 +14,7 @@ set PATH=%PATH%;C:\Program Files\nodejs\;C:\Users\pjlos\AppData\Roaming\npm
 
 :: 3. Launch the Immortal Watchdog (Survivor)
 echo [%date% %time%] [OpenClaw] Starting Immortal Watchdog...
-start /b "OC-WATCHDOG" powershell.exe -WindowStyle Hidden -File "C:\LoCoOS\scripts\watchdog.ps1"
+start /b "OC-WATCHDOG" powershell.exe -WindowStyle Hidden -File "C:\LoCoOS\scripts\infra\watchdog.ps1"
 
 :: 4. Start PM2 Ecosystem (Handles Voice, Engine, and Syncers)
 echo [%date% %time%] [OpenClaw] Launching PM2 Ecosystem...

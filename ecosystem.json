@@ -22,7 +22,7 @@
     },
     {
       "name": "telemetry-sync",
-      "script": "C:\\LoCoOS\\scripts\\status-sync.mjs",
+      "script": "C:\\LoCoOS\\scripts\\cron\\status-sync.mjs",
       "cwd": "C:\\LoCoOS",
       "restart_delay": 5000,
       "env": {
@@ -30,28 +30,36 @@
       }
     },
     {
-        "name": "task-sync-hourly",
-        "script": "C:\\LoCoOS\\scripts\\sync-tasks.mjs",
-        "cwd": "C:\\LoCoOS",
-        "env": {
-          "PM2_HOME": "C:\\Users\\pjlos\\.pm2"
-        }
+      "name": "task-sync-hourly",
+      "script": "C:\\LoCoOS\\scripts\\cron\\sync-tasks.mjs",
+      "cwd": "C:\\LoCoOS",
+      "env": {
+        "PM2_HOME": "C:\\Users\\pjlos\\.pm2"
+      }
     },
     {
-        "name": "usage-logger",
-        "script": "C:\\LoCoOS\\scripts\\usage-logger.mjs",
-        "cwd": "C:\\LoCoOS",
-        "env": {
-          "PM2_HOME": "C:\\Users\\pjlos\\.pm2"
-        }
+      "name": "usage-logger",
+      "script": "C:\\LoCoOS\\scripts\\cron\\usage-logger.mjs",
+      "cwd": "C:\\LoCoOS",
+      "env": {
+        "PM2_HOME": "C:\\Users\\pjlos\\.pm2"
+      }
     },
     {
-        "name": "failure-monitor",
-        "script": "C:\\LoCoOS\\scripts\\failure-monitor.mjs",
-        "cwd": "C:\\LoCoOS",
-        "env": {
-          "PM2_HOME": "C:\\Users\\pjlos\\.pm2"
-        }
+      "name": "failure-monitor",
+      "script": "C:\\LoCoOS\\scripts\\cron\\failure-monitor.mjs",
+      "cwd": "C:\\LoCoOS",
+      "env": {
+        "PM2_HOME": "C:\\Users\\pjlos\\.pm2"
+      }
+    },
+    {
+      "name": "task-watcher",
+      "script": "C:\\LoCoOS\\scripts\\cron\\task-watcher.mjs",
+      "cwd": "C:\\LoCoOS",
+      "env": {
+        "PM2_HOME": "C:\\Users\\pjlos\\.pm2"
+      }
     }
   ]
 }

@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { execSync } from 'child_process';
+import { createClient } from '@supabase/supabase-js';
 import fs from 'fs';
 import 'dotenv/config';
 
@@ -12,7 +12,7 @@ const supabase = createClient(
 let lastTasksHash = '';
 
 function getTasksHash(tasks) {
-    return JSON.stringify(tasks.map(t => ({ id: t.id, status: t.status, priority: t.priority, title: t.title })));
+  return JSON.stringify(tasks.map(t => ({ id: t.id, status: t.status, priority: t.priority, title: t.title })));
 }
 
 async function syncAndCheck() {
@@ -30,10 +30,10 @@ async function syncAndCheck() {
     // 2. If tasks changed, update HEARTBEAT.md
     if (currentHash !== lastTasksHash) {
       console.log(`[${new Date().toLocaleTimeString()}] Task changes detected. Updating HEARTBEAT.md...`);
-      
+
       const path = 'HEARTBEAT.md';
       let content = fs.readFileSync(path, 'utf8');
-      
+
       // Update the "Last Updated" line
       const now = new Date();
       const timestamp = now.toLocaleString('en-US', { timeZone: 'America/Chicago', hour12: true, month: '2-digit', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -42,7 +42,7 @@ async function syncAndCheck() {
       // Update Task Summary section
       const activeTasks = tasks.filter(t => t.status === 'in_progress').map(t => `\`${t.title}\``).join(', ') || 'None';
       const pendingTasks = tasks.filter(t => t.status === 'pending').length;
-      
+
       const taskSection = `
 ### 🛠️ Task Summary
 * **Active:** ${activeTasks}

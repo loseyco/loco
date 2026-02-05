@@ -3,7 +3,7 @@
 
 $PRIMARY_PORT = 18789
 $ENGINE_PORT = 18790
-$RECOVERY_BAT = "C:\LoCoOS\scripts\recovery.bat"
+$RECOVERY_BAT = "C:\LoCoOS\scripts\infra\recovery.bat"
 $LOG_FILE = "C:\LoCoOS\logs\watchdog.log"
 
 # Discord Webhook for critical alerts
@@ -19,20 +19,21 @@ function Write-Log($msg) {
 function Send-DiscordAlert($message) {
     if ($DISCORD_WEBHOOK_URL -like "*SECRET_KEY_HERE*") { return }
     $payload = @{ 
-        content = "🚨 **OC Watchdog Alert:** $message" 
-        username = "Chase Watchdog"
+        content    = "🚨 **OC Watchdog Alert:** $message" 
+        username   = "Chase Watchdog"
         avatar_url = "https://www.losey.co/avatar.png"
     } | ConvertTo-Json
     try {
         Invoke-RestMethod -Uri $DISCORD_WEBHOOK_URL -Method Post -Body $payload -ContentType "application/json"
-    } catch {
+    }
+    catch {
         Write-Log "Failed to send Discord alert: $_"
     }
 }
 
 Write-Log "Watchdog Initiated (Headless Mode)"
 
-while($true) {
+while ($true) {
     $primaryStatus = Test-NetConnection -ComputerName 127.0.0.1 -Port $PRIMARY_PORT -InformationLevel Quiet
     $engineStatus = Test-NetConnection -ComputerName 127.0.0.1 -Port $ENGINE_PORT -InformationLevel Quiet
 
@@ -41,13 +42,13 @@ while($true) {
         
         # Notify Discord via direct webhook
         $payload = @{ 
-            content = "🚨 **OC Watchdog Alert:** Systems went down (Primary: $primaryStatus, Engine: $engineStatus). I'm working on fixing it." 
+            content  = "🚨 **OC Watchdog Alert:** Systems went down (Primary: $primaryStatus, Engine: $engineStatus). I'm working on fixing it." 
             username = "Chase Watchdog"
         } | ConvertTo-Json
         Invoke-RestMethod -Uri "https://discord.com/api/webhooks/1336825700778872852/FvP09G_h9v-vU_3Y5-v_U_v_v_v_v_v" -Method Post -Body $payload -ContentType "application/json"
 
-        # Launch recovery in a new window
-        Start-Process -FilePath $RECOVERY_BAT
+        # Launch recovery in a new window (hidden)
+        Start-Process -FilePath $RECOVERY_BAT -WindowStyle Hidden
         
         Write-Log "Recovery triggered. Sleeping for 90s..."
         Start-Sleep -Seconds 90

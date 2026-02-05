@@ -36,7 +36,7 @@ export default function DashboardOverview() {
 
   useEffect(() => {
     fetchData()
-    
+
     // Real-time subscriptions
     const projectsSub = supabase
       .channel('projects-changes')
@@ -86,14 +86,14 @@ export default function DashboardOverview() {
     try {
       const now = new Date()
       const oneMinuteAgo = new Date(now.getTime() - 60000).toISOString()
-      const todayStart = new Date(now.setHours(0,0,0,0)).toISOString()
+      const todayStart = new Date(now.setHours(0, 0, 0, 0)).toISOString()
 
       const [projectsRes, tasksRes, sessionsRes, statusRes, sysRes, usageRes, minUsageRes, dayUsageRes, specialTasksRes] = await Promise.all([
         supabase.from('projects').select('*').order('created_at', { ascending: false }).limit(5),
         supabase.from('tasks').select('*'),
         supabase.from('agent_sessions').select('*'),
-        supabase.from('agent_status').select('*').eq('agent_id', 'ops').single(),
-        supabase.from('system_stats').select('*').order('last_seen', { ascending: false }).limit(1).single(),
+        supabase.from('chase_status').select('*').limit(1).single(),
+        supabase.from('systems').select('*').eq('id', 'main-pc').single(),
         supabase.from('api_usage').select('*').order('created_at', { ascending: false }).limit(5),
         supabase.from('api_usage').select('total_tokens').gte('created_at', oneMinuteAgo),
         supabase.from('api_usage').select('id').gte('created_at', todayStart),
@@ -103,7 +103,7 @@ export default function DashboardOverview() {
       const projects = projectsRes.data || []
       const tasks = tasksRes.data || []
       const sessions = sessionsRes.data || []
-      
+
       const usedTPM = (minUsageRes.data || []).reduce((sum, row) => sum + (row.total_tokens || 0), 0)
       const usedRPM = (minUsageRes.data || []).length
       const usedRPD = (dayUsageRes.data || []).length
@@ -114,7 +114,7 @@ export default function DashboardOverview() {
         completedTasks: tasks.filter((t: Task) => t.status === 'completed').length,
         agentSessions: sessions.length,
       })
-      
+
       setUsageStats({
         tpm: usedTPM,
         rpm: usedRPM,
@@ -159,7 +159,7 @@ export default function DashboardOverview() {
           <h1 className="text-3xl font-bold">Dashboard</h1>
           <p className="text-zinc-500 mt-1">Real-time overview of your workspace</p>
         </div>
-        
+
         {systemStats && (
           <div className="flex gap-4 text-xs font-mono bg-zinc-900 border border-zinc-800 p-3 rounded-lg">
             <div>
@@ -195,23 +195,23 @@ export default function DashboardOverview() {
           <div className="p-6 space-y-6">
             <div>
               <p className="text-xs font-mono text-zinc-500 uppercase tracking-widest mb-2">Current Goal</p>
-              <p className="text-xl font-medium text-white">{agentStatus?.current_goal || 'Waiting for tasks...'}</p>
+              <p className="text-xl font-medium text-white">{agentStatus?.current_task || 'Waiting for tasks...'}</p>
             </div>
             
             <div className="grid grid-cols-2 gap-8">
               <div>
                 <p className="text-xs font-mono text-zinc-500 uppercase tracking-widest mb-2">Internal Status</p>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  <p className="text-sm text-zinc-300">{agentStatus?.status_text || 'Active'}</p>
+                  <div className={`w-2 h-2 rounded-full animate-pulse ${agentStatus?.status === 'working' ? 'bg-green-500' : 'bg-zinc-500'}`} />
+                  <p className="text-sm text-zinc-300 capitalize">{agentStatus?.status || 'Active'}</p>
                 </div>
               </div>
               <div>
                 <p className="text-xs font-mono text-zinc-500 uppercase tracking-widest mb-2">Staff (Pi Engine)</p>
                 <div className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${agentStatus?.staff_online ? 'bg-blue-500 animate-pulse' : 'bg-zinc-600'}`} />
-                  <p className={`text-sm font-bold ${agentStatus?.staff_online ? 'text-blue-400' : 'text-zinc-500'}`}>
-                    {agentStatus?.staff_online ? 'ONLINE' : 'OFFLINE'}
+                  <div className={`w-2 h-2 rounded-full ${systemStats?.metadata?.pm2?.some(p => p.name === 'openclaw-engine' && p.status === 'online') ? 'bg-blue-500 animate-pulse' : 'bg-zinc-600'}`} />
+                  <p className={`text-sm font-bold ${systemStats?.metadata?.pm2?.some(p => p.name === 'openclaw-engine' && p.status === 'online') ? 'text-blue-400' : 'text-zinc-500'}`}>
+                    {systemStats?.metadata?.pm2?.some(p => p.name === 'openclaw-engine' && p.status === 'online') ? 'ONLINE' : 'OFFLINE'}
                   </p>
                 </div>
               </div>
@@ -221,12 +221,12 @@ export default function DashboardOverview() {
               </div>
             </div>
 
-            {agentStatus?.blocked_reason && (
+            {agentStatus?.last_action && (
               <div className="bg-orange-500/10 border border-orange-500/20 p-4 rounded-lg flex items-center gap-3">
                 <span className="text-xl">⚠️</span>
                 <div>
-                  <p className="text-xs font-mono text-orange-500 uppercase tracking-widest">Blocked On PJ</p>
-                  <p className="text-sm text-zinc-300">{agentStatus.blocked_reason}</p>
+                  <p className="text-xs font-mono text-orange-500 uppercase tracking-widest">Latest Action</p>
+                  <p className="text-sm text-zinc-300">{agentStatus.last_action}</p>
                 </div>
               </div>
             )}
@@ -235,60 +235,90 @@ export default function DashboardOverview() {
 
         {/* Quick Task Peek */}
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden flex flex-col">
-           <div className="p-4 border-b border-zinc-800 flex justify-between items-center bg-orange-500/5">
-             <h2 className="font-bold text-sm uppercase tracking-widest text-orange-500 flex items-center gap-2">
-               <span>⚠️</span> Needs Your Attention
-             </h2>
-             <Link href="/dashboard/tasks?filter=special" className="text-[10px] text-zinc-500 hover:text-white underline">VIEW ALL</Link>
-           </div>
-           <div className="p-4 flex-1 overflow-y-auto max-h-[300px]">
-              <div className="space-y-4">
-                {specialTasks.length === 0 ? (
-                  <p className="text-xs text-zinc-500 italic">No urgent tasks requiring your action.</p>
-                ) : (
-                  specialTasks.map((task, idx) => (
-                    <Link key={task.id} href={`/dashboard/tasks/${task.id}`} className="block group">
-                      <div className="flex gap-3">
-                        <span className="text-orange-500/50 font-mono text-xs">{String(idx + 1).padStart(2, '0')}</span>
-                        <div>
-                          <p className="text-xs font-bold text-zinc-300 group-hover:text-orange-400 transition-colors">{task.title}</p>
-                          <p className="text-[10px] text-zinc-500 line-clamp-1">{task.description}</p>
-                        </div>
+          <div className="p-4 border-b border-zinc-800 flex justify-between items-center bg-orange-500/5">
+            <h2 className="font-bold text-sm uppercase tracking-widest text-orange-500 flex items-center gap-2">
+              <span>⚠️</span> Needs Your Attention
+            </h2>
+            <Link href="/dashboard/tasks?filter=special" className="text-[10px] text-zinc-500 hover:text-white underline">VIEW ALL</Link>
+          </div>
+          <div className="p-4 flex-1 overflow-y-auto max-h-[300px]">
+            <div className="space-y-4">
+              {specialTasks.length === 0 ? (
+                <p className="text-xs text-zinc-500 italic">No urgent tasks requiring your action.</p>
+              ) : (
+                specialTasks.map((task, idx) => (
+                  <Link key={task.id} href={`/dashboard/tasks/${task.id}`} className="block group">
+                    <div className="flex gap-3">
+                      <span className="text-orange-500/50 font-mono text-xs">{String(idx + 1).padStart(2, '0')}</span>
+                      <div>
+                        <p className="text-xs font-bold text-zinc-300 group-hover:text-orange-400 transition-colors">{task.title}</p>
+                        <p className="text-left text-[10px] text-zinc-500 line-clamp-1">{task.description}</p>
                       </div>
-                    </Link>
-                  ))
-                )}
-              </div>
-           </div>
-           <div className="mt-auto p-4 border-t border-zinc-800 bg-zinc-950/50">
-              <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3">Quick Actions</p>
-              <div className="grid grid-cols-2 gap-2">
-                <button 
-                  onClick={() => window.open('https://github.com/loseyco/loco', '_blank')}
-                  className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold uppercase transition-all flex items-center justify-center gap-2"
-                >
-                  <span>🐙</span> GitHub
-                </button>
-                <button 
-                  onClick={() => window.location.href = '/dashboard/invoices/new'}
-                  className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold uppercase transition-all flex items-center justify-center gap-2"
-                >
-                  <span>💵</span> New Invoice
-                </button>
-                <button 
-                  onClick={() => window.location.href = '/dashboard/chat'}
-                  className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold uppercase transition-all flex items-center justify-center gap-2"
-                >
-                  <span>💬</span> AI Chat
-                </button>
-                <button 
-                  onClick={() => window.location.href = '/dashboard/staff'}
-                  className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold uppercase transition-all flex items-center justify-center gap-2"
-                >
-                  <span>🛠️</span> System
-                </button>
-              </div>
-           </div>
+                    </div>
+                  </Link>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* SYSTEM CONTROL PANEL (ELECTRON INTEGRATION) */}
+          <div className="p-4 border-t border-zinc-800 bg-zinc-950/80">
+            <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+              <span>☢️</span> Mission Control
+            </p>
+            <div className="grid grid-cols-3 gap-2 mb-2">
+              <button
+                onClick={() => (window as any).api?.controlSystem('start')}
+                className="px-2 py-3 bg-green-900/30 hover:bg-green-800/50 border border-green-800 text-green-400 rounded text-[10px] font-bold uppercase transition-all"
+              >
+                Start All
+              </button>
+              <button
+                onClick={() => (window as any).api?.controlSystem('stop')}
+                className="px-2 py-3 bg-orange-900/30 hover:bg-orange-800/50 border border-orange-800 text-orange-400 rounded text-[10px] font-bold uppercase transition-all"
+              >
+                Stop All
+              </button>
+              <button
+                onClick={() => {
+                  if (confirm('FORCE KILL ALL BOTS?')) (window as any).api?.controlSystem('kill')
+                }}
+                className="px-2 py-3 bg-red-900/30 hover:bg-red-800/50 border border-red-800 text-red-400 rounded text-[10px] font-bold uppercase transition-all"
+              >
+                💀 KILL
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-auto p-4 border-t border-zinc-800 bg-zinc-950/50">
+            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3">Quick Actions</p>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => window.open('https://github.com/loseyco/loco', '_blank')}
+                className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold uppercase transition-all flex items-center justify-center gap-2"
+              >
+                <span>🐙</span> GitHub
+              </button>
+              <button
+                onClick={() => window.location.href = '/dashboard/invoices/new'}
+                className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold uppercase transition-all flex items-center justify-center gap-2"
+              >
+                <span>💵</span> New Invoice
+              </button>
+              <button
+                onClick={() => window.location.href = '/dashboard/chat'}
+                className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold uppercase transition-all flex items-center justify-center gap-2"
+              >
+                <span>💬</span> AI Chat
+              </button>
+              <button
+                onClick={() => window.location.href = '/dashboard/staff'}
+                className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded text-[10px] font-bold uppercase transition-all flex items-center justify-center gap-2"
+              >
+                <span>🛠️</span> System
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -320,7 +350,7 @@ export default function DashboardOverview() {
             {usageStats.tpmPercent > 80 || usageStats.rpmPercent > 80 ? 'LOW FUEL' : 'TANK FULL'}
           </span>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
@@ -328,7 +358,7 @@ export default function DashboardOverview() {
               <span className="text-zinc-300 font-mono">{usageStats.tpm.toLocaleString()} / 1,000,000</span>
             </div>
             <div className="h-3 bg-zinc-800 rounded-full overflow-hidden">
-              <motion.div 
+              <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${Math.min(usageStats.tpmPercent, 100)}%` }}
                 className={`h-full ${usageStats.tpmPercent > 80 ? 'bg-red-500' : 'bg-blue-500'}`}
@@ -343,7 +373,7 @@ export default function DashboardOverview() {
               <span className="text-zinc-300 font-mono">{usageStats.rpm} / 15</span>
             </div>
             <div className="h-3 bg-zinc-800 rounded-full overflow-hidden">
-              <motion.div 
+              <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${Math.min(usageStats.rpmPercent, 100)}%` }}
                 className={`h-full ${usageStats.rpmPercent > 80 ? 'bg-red-500' : 'bg-green-500'}`}
@@ -358,7 +388,7 @@ export default function DashboardOverview() {
               <span className="text-zinc-300 font-mono">{usageStats.rpd.toLocaleString()} / 1,500</span>
             </div>
             <div className="h-3 bg-zinc-800 rounded-full overflow-hidden">
-              <motion.div 
+              <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${Math.min(usageStats.rpdPercent, 100)}%` }}
                 className={`h-full ${usageStats.rpdPercent > 80 ? 'bg-red-500' : 'bg-purple-500'}`}
@@ -372,68 +402,67 @@ export default function DashboardOverview() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Projects */}
         <div className="bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden">
-            <div className="p-6 border-b border-zinc-800 flex justify-between items-center">
+          <div className="p-6 border-b border-zinc-800 flex justify-between items-center">
             <h2 className="text-xl font-semibold">Active Projects</h2>
             <span className="text-xs font-mono text-zinc-500">SYNCED LIVE</span>
-            </div>
-            <div className="divide-y divide-zinc-800">
+          </div>
+          <div className="divide-y divide-zinc-800">
             {recentProjects.length === 0 ? (
-                <div className="p-6 text-center text-zinc-500">No projects yet</div>
+              <div className="p-6 text-center text-zinc-500">No projects yet</div>
             ) : (
-                recentProjects.map((project) => (
+              recentProjects.map((project) => (
                 <div
-                    key={project.id}
-                    className="p-4 hover:bg-zinc-800/50 transition-colors flex items-center justify-between"
+                  key={project.id}
+                  className="p-4 hover:bg-zinc-800/50 transition-colors flex items-center justify-between"
                 >
-                    <div>
+                  <div>
                     <h3 className="font-medium">{project.name}</h3>
                     <p className="text-sm text-zinc-500">{project.description || 'No description'}</p>
-                    </div>
-                    <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        project.status === 'active'
+                  </div>
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${project.status === 'active'
                         ? 'bg-green-600/20 text-green-400'
                         : project.status === 'completed'
-                        ? 'bg-blue-600/20 text-blue-400'
-                        : 'bg-zinc-600/20 text-zinc-400'
-                    }`}
-                    >
+                          ? 'bg-blue-600/20 text-blue-400'
+                          : 'bg-zinc-600/20 text-zinc-400'
+                      }`}
+                  >
                     {project.status}
-                    </span>
+                  </span>
                 </div>
-                ))
+              ))
             )}
-            </div>
+          </div>
         </div>
 
         {/* API Usage (NEW) */}
         <div className="bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden">
-            <div className="p-6 border-b border-zinc-800 flex justify-between items-center">
+          <div className="p-6 border-b border-zinc-800 flex justify-between items-center">
             <h2 className="text-xl font-semibold">API Usage & Limits</h2>
             <span className="text-xs font-mono text-zinc-500">LATEST LOCO BRAIN</span>
-            </div>
-            <div className="divide-y divide-zinc-800">
+          </div>
+          <div className="divide-y divide-zinc-800">
             {apiUsage.length === 0 ? (
-                <div className="p-12 text-center text-zinc-500">
-                    <p>No usage data logged yet.</p>
-                </div>
+              <div className="p-12 text-center text-zinc-500">
+                <p>No usage data logged yet.</p>
+              </div>
             ) : (
-                apiUsage.map((u) => (
+              apiUsage.map((u) => (
                 <div key={u.id} className="p-4 hover:bg-zinc-800/50 transition-colors">
-                    <div className="flex justify-between items-start mb-1">
-                        <span className="text-sm font-bold text-zinc-300 uppercase tracking-tighter">{u.model}</span>
-                        <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${u.status === 'rate_limit' ? 'bg-red-500/20 text-red-500' : 'bg-green-500/20 text-green-500'}`}>
-                            {u.status.toUpperCase()}
-                        </span>
-                    </div>
-                    <div className="flex justify-between text-xs text-zinc-500">
-                        <span>{u.total_tokens.toLocaleString()} tokens</span>
-                        <span>{new Date(u.created_at).toLocaleTimeString()}</span>
-                    </div>
+                  <div className="flex justify-between items-start mb-1">
+                    <span className="text-sm font-bold text-zinc-300 uppercase tracking-tighter">{u.model}</span>
+                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${u.status === 'rate_limit' ? 'bg-red-500/20 text-red-500' : 'bg-green-500/20 text-green-500'}`}>
+                      {u.status.toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-xs text-zinc-500">
+                    <span>{u.total_tokens.toLocaleString()} tokens</span>
+                    <span>{new Date(u.created_at).toLocaleTimeString()}</span>
+                  </div>
                 </div>
-                ))
+              ))
             )}
-            </div>
+          </div>
         </div>
       </div>
 

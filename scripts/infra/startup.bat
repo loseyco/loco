@@ -11,6 +11,6 @@ pm2 start ecosystem.json
 pm2 save
 
 :: Refresh task list
-node scripts\sync-tasks.mjs
+node scripts\cron\sync-tasks.mjs
 
 exit

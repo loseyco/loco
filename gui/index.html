@@ -1,0 +1,131 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>LoCo Control // Mission Control</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #1a1a1a;
+            color: #ecf0f1;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #333;
+        }
+
+        h1 { margin: 0; font-weight: 300; letter-spacing: 2px; }
+        .subtitle { color: #7f8c8d; font-size: 0.9em; }
+
+        .main-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        button {
+            padding: 20px;
+            font-size: 1.2em;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
+        .btn-start { background-color: #27ae60; color: white; }
+        .btn-start:hover { background-color: #2ecc71; }
+
+        .btn-stop { background-color: #f39c12; color: white; }
+        .btn-stop:hover { background-color: #f1c40f; }
+
+        .btn-kill { 
+            background-color: #c0392b; 
+            color: white; 
+            border: 2px solid #e74c3c;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-kill:hover { 
+            background-color: #e74c3c; 
+            box-shadow: 0 0 15px rgba(231, 76, 60, 0.5);
+        }
+
+        .status-panel {
+            flex-grow: 1;
+            background: #2c3e50;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .process-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #34495e;
+        }
+
+        .process-name { font-weight: bold; font-size: 1.1em; }
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            text-transform: uppercase;
+        }
+        .status-online { background-color: #27ae60; }
+        .status-stopped { background-color: #7f8c8d; }
+        .status-errored { background-color: #c0392b; }
+
+        .ports-info { margin-top: 10px; color: #3498db; font-size: 0.9em; }
+
+        .switch-container { display: flex; align-items: center; }
+        .toggle-btn {
+            background: none;
+            border: 1px solid #7f8c8d;
+            color: #bdc3c7;
+            padding: 5px 10px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+        .toggle-btn:hover { background: #34495e; }
+
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <h1>LoCo CONTROL</h1>
+            <span class="subtitle">OpenClaw System Manager</span>
+        </div>
+        <div id="connection-status" style="color: #e74c3c;">DISCONNECTED</div>
+    </header>
+
+    <div class="main-controls">
+        <button class="btn-start" onclick="control('start')">START SYSTEM</button>
+        <button class="btn-stop" onclick="control('stop')">STOP ALL</button>
+        <button class="btn-kill" onclick="control('kill')">💀 FORCE KILL</button>
+    </div>
+
+    <div class="status-panel" id="process-list">
+        <div style="text-align: center; color: #7f8c8d; margin-top: 20px;">Loading status...</div>
+    </div>
+    <div class="ports-info" id="ports-list"></div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>
