@@ -55,14 +55,24 @@ async function sync() {
         if (match) currentGoal = match[1].replace(/^[🔄✅] /, '');
     } catch (e) {}
 
-    const allOnline = pm2Stats.length > 0 && pm2Stats.every(app => app.status === 'online');
-    let status = allOnline ? 'idle' : 'working';
+    let lastAction = allOnline ? 'Telemetry sync active.' : 'Detected process failures in PM2.';
+
+    // 4. Check for Rate Limits/Failures in OpenClaw logs
+    try {
+        const logPath = `\\tmp\\openclaw\\openclaw-${new Date().toISOString().split('T')[0]}.log`;
+        if (fs.existsSync(logPath)) {
+            const logs = fs.readFileSync(logPath, 'utf8');
+            if (logs.includes('FailoverError') || logs.includes('rate limit')) {
+                lastAction = '⚠️ BRAIN COOLDOWN: Hitting Google Rate Limits';
+            }
+        }
+    } catch (e) {}
 
     const { error: cError } = await supabase.from('chase_status').upsert({
       id: 'cc7493e5-2b6a-4ece-a148-e0d1a8f12c5b',
       current_task: currentGoal,
       status: status,
-      last_action: allOnline ? 'Telemetry sync active.' : 'Detected process failures in PM2.',
+      last_action: lastAction,
       updated_at: new Date().toISOString()
     });
     if (cError) console.error('Chase Status sync error:', cError);

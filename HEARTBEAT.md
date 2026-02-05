@@ -2,17 +2,19 @@
 
 ## Current Status: ✅ FULL PLATFORM LIVE
 
-**Last Updated:** 2026-02-04 23:42 CST
+**Last Updated:** 2026-02-04 23:50 CST
 
 ---
 
 ## Currently In Progress
-- 🔄 **Sales Bot Research** — Active hunt for leads and remote jobs (Sub-agent)
-- 🔄 **Vercel Deployment Audit** — Identifying build failure patterns (Sub-agent)
+- 🔄 **Stripe/OpenClaw Wiring** — Preparing secrets for production deploy (Sub-agent audit complete)
 - 🔄 **Live Dashboard Sync** — Pushing CPU/MEM, PM2 Status, and API Usage (Stable)
 - 🔄 **Discord Context Sync** — Monitoring #chase-log for instructions and updates
 
 ## Just Completed
+- ✅ **Lead Gen Review** — Reviewed 5 shop leads and 5 job matches (memory/leads-research.md)
+- ✅ **Lead Gen & Outreach** — Sub-agent results ready; identified 5 shops and 5 job roles.
+- ✅ **Vercel Deployment Audit** — Build verified passing; identified missing production secrets.
 - ✅ **Vercel Deployment Fix** — Resolved 'pg' dependency error (Build passing)
 - ✅ **Telemetry Sync Fix** — Fixed schema mismatch in `status-sync.mjs` (Apps now tracking correctly)
 - ✅ **Usage Logger Fix** — Fixed schema mismatch in `usage-logger.mjs` (Tokens now logging to DB)
@@ -38,8 +40,7 @@
 - ✅ **Stripe Integration** — Invoices page + checkout
 
 ## Active Sub-Agents
-- `sales-bot-research-v2` (Lead Generation)
-- `vercel-audit-v2` (Infrastructure Audit)
+- None (all completed)
 
 ## Previous Milestones
 - ✅ Tasks page seeded with 8 tasks (source of truth)
